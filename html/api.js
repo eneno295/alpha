@@ -3,6 +3,9 @@
 const binIdMap = new Map([
   ['lanbb', '68919b1aae596e708fc1da23'],
   ['knine', '68919d64f7e7a370d1f412ca'],
+  ['kayla', '68919d3bae596e708fc1dc8e'],
+  ['echo', '68919d4fae596e708fc1dcb1'],
+  ['adam', '6891c7bb7b4b8670d8ad9851'],
   ['ces', '6891a9a77b4b8670d8ad84da']
 ]);
 const currentBinId = binIdMap.get(location.href.split('?')[1]) || null;
