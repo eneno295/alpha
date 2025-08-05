@@ -44,8 +44,6 @@ async function initializeApp() {
     console.log('数据加载成功:', mockData);
   } catch (error) {
     console.error('数据加载失败:', error);
-    // 使用本地数据作为备用
-    mockData = API.LOCAL_MOCK_DATA;
   }
 
   // 检查当前用户是否在API数据中存在，如果不存在则使用第一个可用用户
@@ -288,7 +286,7 @@ function updateConfigVisibility() {
   // 日历显示切换按钮
   const calendarDisplayBtn = document.querySelector('.icon-btn[onclick="API.toggleCalendarDisplay()"]');
   if (calendarDisplayBtn) {
-    calendarDisplayBtn.style.display = config.showCalendarDisplayIcon === true ? 'block' : 'none';
+    calendarDisplayBtn.style.display = config.showCalendarDisplayModeIcon === true ? 'block' : 'none';
   }
 
   // 导入导出按钮

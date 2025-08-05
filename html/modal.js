@@ -507,7 +507,7 @@ function loadTemplateData() {
         "todayFastScore": 0,
         "showMockScoreIcon": true,
         "showThemeIcon": true,
-        "showCalendarDisplayIcon": true,
+        "showCalendarDisplayModeIcon": true,
         "showImportExportIcon": true
       },
       "date": [
