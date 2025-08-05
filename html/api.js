@@ -60,15 +60,6 @@ async function updateDataInAPI(newData) {
       'X-Master-Key': JSONBIN_CONFIG.MASTER_KEY
     };
 
-    // 调试信息：打印请求详情
-    console.log('🌐 发送API请求:', {
-      url,
-      method: 'PUT',
-      headers: { ...headers, 'X-Master-Key': '***' }, // 隐藏密钥
-      dataSize: JSON.stringify(newData).length,
-      dataPreview: JSON.stringify(newData).substring(0, 200) + '...'
-    });
-
     const response = await fetch(url, {
       method: 'PUT',
       headers,

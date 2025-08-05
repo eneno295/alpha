@@ -105,7 +105,7 @@
 
       <!-- 导入内容 -->
       <div id="importContent" class="tab-content active">
-        <div class="form-group">
+        <div class="form-group lineBreak-group">
           <label>📁 选择 JSON 文件</label>
           <div class="file-upload-area" onclick="document.getElementById('importFile').click()">
             <span class="file-upload-icon">📄</span>
@@ -115,7 +115,7 @@
               style="display: none;">
           </div>
         </div>
-        <div class="form-group">
+        <div class="form-group lineBreak-group">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <label>📋 或粘贴 JSON 数据</label>
             <button type="button" class="btn-template" onclick="Modal.loadTemplateData()">
@@ -124,7 +124,7 @@
           </div>
           <textarea id="importTextarea" placeholder='请输入JSON数据' rows="12"></textarea>
         </div>
-        <div class="form-group" style="text-align: center; margin-top: 32px;">
+        <div class="form-group" style="text-align: center;">
           <button class="btn btn-primary" onclick="Modal.importData()">
             <span style="margin-right: 8px;">🚀</span>导入数据
           </button>
@@ -133,11 +133,11 @@
 
       <!-- 导出内容 -->
       <div id="exportContent" class="tab-content">
-        <div class="form-group">
+        <div class="form-group lineBreak-group">
           <label>📊 当前数据预览</label>
           <textarea id="exportTextarea" readonly rows="12" placeholder="数据加载中..."></textarea>
         </div>
-        <div class="form-group" style="text-align: center; margin-top: 32px;">
+        <div class="form-group" style="text-align: center; margin-top: 15px;">
           <button class="btn btn-primary" onclick="Modal.exportData()">
             <span style="margin-right: 8px;">💾</span>导出成JSON
           </button>

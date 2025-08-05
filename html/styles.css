@@ -984,7 +984,7 @@ body {
 
   /* 移动端表单字段优化 */
   .modal-header {
-    padding: 0.8rem 1.5rem;
+    padding: 0.8rem 1.5rem !important;
   }
 
   .form-group {
