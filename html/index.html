@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Binance Alpha 收益日历</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="header">
+    <div class="header-left">
+      <div class="user-profile">
+        <button class="profile-btn">
+          <span class="profile-icon">👤</span>
+          <span>lan</span>
+        </button>
+        <div class="user-menu" id="userMenu">
+        </div>
+      </div>
+    </div>
+
+    <div class="header-center">
+      <h1 class="main-title">Binance Alpha 收益日历</h1>
+    </div>
+
+    <div class="header-right">
+      <button class="icon-btn" onclick="Modal.openImportExportModal()" title="导入导出">
+        <span class="import-export-icon">📁</span>
+      </button>
+      <button class="icon-btn" onclick="API.toggleCalendarDisplay()" title="切换日历显示">
+        <span class="calendar-display-icon">📊</span>
+      </button>
+      <button class="icon-btn" onclick="API.toggleTheme()" title="切换主题">
+        <span class="theme-icon">☀️</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 统计数据 -->
+  <section class="stats-section">
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-value projects" id="totalProjects">0</div>
+        <div class="stat-label">项目总数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value income" id="totalIncome">$0</div>
+        <div class="stat-label">累计收入</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value fees" id="totalFees">$0</div>
+        <div class="stat-label">手续费</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value profit" id="totalProfit">$0</div>
+        <div class="stat-label">利润</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 日历导航 -->
+  <section class="calendar-nav">
+    <div class="calendar-header">
+      <button class="nav-arrow" onclick="previousMonth()">‹</button>
+      <div class="center-content">
+        <div class="month-year" id="monthYear">2025年8月</div>
+        <div class="monthly-summary" id="dailySummary">
+          项目 0 收入 0.0 手续费 0.0 利润 0.0
+        </div>
+      </div>
+      <button class="nav-arrow" onclick="nextMonth()">›</button>
+    </div>
+  </section>
+
+  <!-- 日历网格 -->
+  <section class="calendar-section">
+    <div class="calendar-weekdays">
+      <div class="weekday">日</div>
+      <div class="weekday">一</div>
+      <div class="weekday">二</div>
+      <div class="weekday">三</div>
+      <div class="weekday">四</div>
+      <div class="weekday">五</div>
+      <div class="weekday">六</div>
+    </div>
+    <div class="calendar-grid" id="calendarGrid"></div>
+  </section>
+
+  <!-- 导入导出弹窗 -->
+  <div id="importExportModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="importExportTitle">导入导出</h3>
+        <button class="modal-close" onclick="Modal.closeImportExportModal()">×</button>
+      </div>
+
+      <!-- 切换按钮 -->
+      <div class="tab-buttons">
+        <button class="tab-btn active" onclick="Modal.switchTab('import')">导入</button>
+        <button class="tab-btn" onclick="Modal.switchTab('export')">导出</button>
+      </div>
+
+      <!-- 导入内容 -->
+      <div id="importContent" class="tab-content active">
+        <div class="form-group">
+          <label>📁 选择 JSON 文件</label>
+          <div class="file-upload-area" onclick="document.getElementById('importFile').click()">
+            <span class="file-upload-icon">📄</span>
+            <div class="file-upload-text">点击选择文件或拖拽到此处</div>
+            <div class="file-upload-hint">支持 .json 格式文件</div>
+            <input type="file" id="importFile" accept=".json" onchange="Modal.handleFileSelect(event)"
+              style="display: none;">
+          </div>
+        </div>
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <label>📋 或粘贴 JSON 数据</label>
+            <button type="button" class="btn-template" onclick="Modal.loadTemplateData()">
+              <span style="margin-right: 6px;">📝</span>使用模板数据
+            </button>
+          </div>
+          <textarea id="importTextarea" placeholder='请输入JSON数据' rows="12"></textarea>
+        </div>
+        <div class="form-group" style="text-align: center; margin-top: 32px;">
+          <button class="btn btn-primary" onclick="Modal.importData()">
+            <span style="margin-right: 8px;">🚀</span>导入数据
+          </button>
+        </div>
+      </div>
+
+      <!-- 导出内容 -->
+      <div id="exportContent" class="tab-content">
+        <div class="form-group">
+          <label>📊 当前数据预览</label>
+          <textarea id="exportTextarea" readonly rows="12" placeholder="数据加载中..."></textarea>
+        </div>
+        <div class="form-group" style="text-align: center; margin-top: 32px;">
+          <button class="btn btn-primary" onclick="Modal.exportData()">
+            <span style="margin-right: 8px;">💾</span>导出成JSON
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加记录弹出框 -->
+  <div id="addRecordModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">新建记录</h3>
+        <button class="modal-close" onclick="closeAddRecordModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <form id="addRecordForm">
+          <div class="score-row">
+            <div class="form-group">
+              <label>当前积分</label>
+              <input type="number" id="curScore" step="1" placeholder="0">
+            </div>
+
+            <div class="form-group">
+              <label>今日刷的积分</label>
+              <input type="number" id="todayScore" step="1" placeholder="0">
+            </div>
+
+            <div class="form-group">
+              <label>消耗积分</label>
+              <input type="number" id="ConsumptionScore" step="1" placeholder="0" value="0" readonly disabled>
+            </div>
+
+            <div class="form-group">
+              <label>手续费</label>
+              <input type="number" id="fee" step="0.01" placeholder="0.00">
+            </div>
+          </div>
+
+          <div class="form-group lineBreak-group">
+            <label>空投信息</label>
+            <div class="airdrop-container">
+              <div class="airdrop-list" id="airdropList">
+                <div class="airdrop-item">
+                  <input type="text" class="airdrop-name" placeholder="输入空投名称" required>
+                  <input type="number" class="airdrop-income" step="0.01" placeholder="收入" required>
+                  <button type="button" class="remove-airdrop" onclick="Modal.removeAirdrop(this)">×</button>
+                </div>
+              </div>
+              <button type="button" class="add-airdrop-btn" onclick="Modal.addAirdropField()">
+                <span>+</span> 添加空投
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group lineBreak-group">
+            <label>备注</label>
+            <textarea id="remarks" placeholder="添加备注信息"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <div class="footer-left">
+          <button type="button" class="btn-clear"
+            onclick="Modal.clearCurrentDayData(currentUser, mockData, { onSuccess: updateUI })">清空</button>
+        </div>
+        <div class="footer-right">
+          <button type="button" class="btn-cancel" onclick="Modal.closeAddRecordModal()">取消</button>
+          <button type="button" class="btn-save"
+            onclick="Modal.saveRecord(currentUser, mockData, { onSuccess: updateUI })">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="api.js"></script>
+  <script src="modal.js"></script>
+  <script src="script.js"></script>
+</body>
+
+</html>
