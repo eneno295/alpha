@@ -491,7 +491,7 @@ function createDayElement(day, className = '', dateStr = null) {
     dayElement.classList.add('has-fee');
   }
 
-  // 检查是否是已领取时间+14天后的日期
+  // 检查是否是已领取时间+15天后的日期
   const isClaimableDate = checkIfClaimableDate(dateStr, dateData);
 
   // 创建数据容器
@@ -525,16 +525,16 @@ function createDayElement(day, className = '', dateStr = null) {
   // 根据显示模式添加右上角标识
   const currentDisplayMode = window.calendarDisplayMode || calendarDisplayMode;
   if (currentDisplayMode === 'claimable' && isClaimableDate) {
-    // 显示14天前有空投的数据
+    // 显示15天前有空投的数据
     const claimableIndicator = document.createElement('div');
     claimableIndicator.className = 'claimable-indicator';
 
-    // 获取14天前的数据
+    // 获取15天前的数据
     const originalDate = new Date(dateStr);
-    originalDate.setDate(originalDate.getDate() - 14);
+    originalDate.setDate(originalDate.getDate() - 15);
     const originalDateStr = `${originalDate.getFullYear()}-${String(originalDate.getMonth() + 1).padStart(2, '0')}-${String(originalDate.getDate()).padStart(2, '0')}`;
 
-    // 显示14天前的月/日
+    // 显示15天前的月/日
     const originalMonth = originalDate.getMonth() + 1;
     const originalDay = originalDate.getDate();
     claimableIndicator.textContent = `${originalMonth}/${originalDay}`;
@@ -592,18 +592,18 @@ function createDayElement(day, className = '', dateStr = null) {
   return dayElement;
 }
 
-// 检查是否是已领取时间+14天后的日期
+// 检查是否是已领取时间+15天后的日期
 function checkIfClaimableDate(dateStr, dateData) {
   const currentDate = new Date(dateStr);
 
-  // 遍历所有数据，检查是否有14天前的收益
+  // 遍历所有数据，检查是否有15天前的收益
   for (const item of dateData) {
     if (item.coin && item.amount > 0) {
       const earningDate = new Date(item.date);
       const daysDiff = Math.floor((currentDate - earningDate) / (1000 * 60 * 60 * 24));
 
-      // 如果当前日期是收益日期+14天，则显示标识
-      if (daysDiff === 14) {
+      // 如果当前日期是收益日期+15天，则显示标识
+      if (daysDiff === 15) {
         return true;
       }
     }
