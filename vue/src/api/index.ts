@@ -1,0 +1,110 @@
+import type { ProfitData, ApiResponse, UserConfig } from '@/types'
+
+// API 管理文件 - 处理所有数据请求功能
+
+// 用户BIN_ID映射
+const binIdMap = new Map([
+  ['lanbb', '68919b1aae596e708fc1da23'],
+  ['knine', '68919d64f7e7a370d1f412ca'],
+  ['kayla', '68919d3bae596e708fc1dc8e'],
+  ['echo', '68919d4fae596e708fc1dcb1'],
+  ['ces', '6891a9a77b4b8670d8ad84da']
+])
+
+// 从URL参数获取当前BIN_ID
+const currentBinId = binIdMap.get(location.href.split('?')[1]) || null
+
+// JSONBin 配置
+const JSONBIN_CONFIG = {
+  BIN_ID: localStorage.getItem('jsonbinId') || currentBinId || '6891ba4d7b4b8670d8ad8f65',
+  MASTER_KEY: '$2a$10$3cSkdp7.76Y.JUeZ/ymCe.A6ZPUmIPfeF1hTH7ii9h13BeRMU/a0.',
+  DATA_SOURCE: 'https://api.jsonbin.io/v3/b/'
+}
+
+// 从 JSONBin 获取数据
+export async function fetchDataFromAPI(): Promise<ProfitData> {
+  try {
+    const url = `${JSONBIN_CONFIG.DATA_SOURCE}${JSONBIN_CONFIG.BIN_ID}`
+    const headers = {
+      'X-Master-Key': JSONBIN_CONFIG.MASTER_KEY
+    }
+
+    const response = await fetch(url, { headers })
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    const result: ApiResponse = await response.json()
+    console.log('✅ 从API获取数据成功')
+    return result.record
+  } catch (error) {
+    console.error('❌ 从API获取数据失败:', error)
+    throw error
+  }
+}
+
+// 更新 JSONBin 中的数据
+export async function updateDataInAPI(newData: ProfitData): Promise<boolean> {
+  try {
+    if (!JSONBIN_CONFIG.BIN_ID) {
+      console.warn('⚠️ 没有配置 BIN_ID，无法发送到服务器')
+      return false
+    }
+
+    const url = `${JSONBIN_CONFIG.DATA_SOURCE}${JSONBIN_CONFIG.BIN_ID}`
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-Master-Key': JSONBIN_CONFIG.MASTER_KEY
+    }
+
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(newData)
+    })
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`)
+    }
+
+    const result = await res.json()
+    // console.log('✅ 数据更新成功:', result)
+
+    return result
+  } catch (error) {
+    console.error('❌ 更新数据失败:', error)
+    return false
+  }
+}
+
+/**
+ * 更新用户配置
+ * @param userName 用户名
+ * @param configKey 配置项
+ * @param configValue 配置值
+ * @param currentData 当前数据
+ * @returns true/false 是否更新成功
+ */
+export async function updateUserConfig(
+  userName: string,
+  configKey: keyof UserConfig,
+  configValue: UserConfig[keyof UserConfig],
+  currentData: ProfitData,
+): Promise<boolean> {
+  try {
+    ; (currentData.data[userName].config as any)[configKey] = configValue
+    const res = await updateDataInAPI(currentData)
+
+    if (res) {
+      console.log(`✅ ${userName} 的 ${configKey} 配置更新成功:`, configValue)
+      return res
+    }
+    return false
+  } catch (error) {
+    console.error(`❌ 更新用户配置失败:`, error)
+    return false
+  }
+}
+
+// 导出配置
+export { JSONBIN_CONFIG, binIdMap } 
