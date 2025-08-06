@@ -130,7 +130,13 @@ function addAirdropChangeListeners() {
 // 计算并更新消耗积分
 function updateConsumptionScore() {
   const airdropItems = document.querySelectorAll('.airdrop-item');
-  const airdropCount = airdropItems.length;
+  const airdropData = [];
+  // 收集每个空投的数据（包括没有收益的）
+  airdropItems.forEach(item => {
+    const name = item.querySelector('.airdrop-name').value.trim();
+    name && airdropData.push(name);
+  });
+  const airdropCount = airdropData.length;
   const consumptionScore = airdropCount * 15;
 
   const consumptionInput = document.getElementById('ConsumptionScore');
