@@ -477,8 +477,8 @@ function createDayElement(day, className = '', dateStr = null) {
   // 获取当天的所有数据
   const dayDataList = dateData.filter(item => item.date === dateStr);
 
-  // 检查是否有数据，如果有则添加has-data样式
-  const hasData = dayDataList.some(item => (item.coin && item.coin.trim() !== '' && item.amount > 0) || item.fee > 0);
+  // 检查是否有抢到币的数据，如果有则添加has-data样式
+  const hasData = dayDataList.some(item => (item.coin && item.coin.trim() !== '' && item.amount > 0));
   if (hasData) {
     dayElement.classList.add('has-data');
   }
