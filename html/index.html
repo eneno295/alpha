@@ -27,6 +27,9 @@
     </div>
 
     <div class="header-right">
+      <button class="icon-btn" onclick="Config.openConfigModal()" title="快捷配置">
+        <span class="config-icon">⚙️</span>
+      </button>
       <button class="icon-btn" onclick="Modal.openImportExportModal()" title="导入导出">
         <span class="import-export-icon">📁</span>
       </button>
@@ -146,6 +149,80 @@
     </div>
   </div>
 
+  <!-- 配置弹窗 -->
+  <div id="configModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>快捷配置</h3>
+        <button class="modal-close" onclick="Config.closeConfigModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <form id="configForm">
+          <div class="score-row">
+            <div class="form-group">
+              <label>手续费</label>
+              <input type="number" id="configFee" step="0.01" placeholder="0.00">
+            </div>
+
+            <div class="form-group">
+              <label>刷的积分</label>
+              <input type="number" id="configScore" step="1" placeholder="0">
+            </div>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="configAutoCalculate">
+              <span class="checkmark"></span>
+              自动计算当前积分
+            </label>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="configFastAddRecord">
+              <span class="checkmark"></span>
+              快捷新建记录
+            </label>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="configShowThemeIcon">
+              <span class="checkmark"></span>
+              主题切换
+            </label>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="configShowCalendarDisplayModeIcon">
+              <span class="checkmark"></span>
+              积分日历切换
+            </label>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="configShowImportExportIcon">
+              <span class="checkmark"></span>
+              导入导出功能
+            </label>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <div class="footer-left">
+          <button type="button" class="btn-clear" onclick="Config.clearConfig()">清空</button>
+        </div>
+        <div class="footer-right">
+          <button type="button" class="btn-cancel" onclick="Config.closeConfigModal()">取消</button>
+          <button type="button" class="btn-save" onclick="Config.saveConfig()">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 添加记录弹出框 -->
   <div id="addRecordModal" class="modal-overlay">
     <div class="modal-content">
@@ -213,8 +290,10 @@
     </div>
   </div>
 
+  <script src="toast.js"></script>
   <script src="api.js"></script>
   <script src="modal.js"></script>
+  <script src="config.js"></script>
   <script src="script.js"></script>
 </body>
 

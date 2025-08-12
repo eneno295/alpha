@@ -21,14 +21,6 @@ window.currentTheme = currentTheme;
 window.calendarDisplayMode = calendarDisplayMode;
 window.mockData = mockData;
 
-// 调试：打印数据结构
-console.log('🔧 初始化数据结构:', {
-  users: mockData.users,
-  dataKeys: Object.keys(mockData.data),
-  currentUser,
-  defaultUser
-});
-
 // 初始化应用
 document.addEventListener('DOMContentLoaded', function () {
   initializeApp();
@@ -41,7 +33,6 @@ async function initializeApp() {
   try {
     // 从API获取数据
     mockData = await API.fetchDataFromAPI();
-    console.log('数据加载成功:', mockData);
   } catch (error) {
     console.error('数据加载失败:', error);
   }
@@ -152,16 +143,18 @@ function bindEventListeners() {
 // 更新日历显示图标
 function updateCalendarDisplayIcon() {
   const icon = document.querySelector('.calendar-display-icon');
+  console.log('🔄 更新日历显示图标:', window.calendarDisplayMode, icon);
   if (icon) {
-    icon.textContent = calendarDisplayMode === 'claimable' ? '📊' : '🎯';
+    icon.textContent = window.calendarDisplayMode === 'claimable' ? '📊' : '🎯';
   }
 }
 
 // 更新主题图标
 function updateThemeIcon() {
   const themeIcon = document.querySelector('.theme-icon');
+  console.log('🔄 更新主题图标:', window.currentTheme, themeIcon);
   if (themeIcon) {
-    themeIcon.textContent = currentTheme === 'light' ? '☀️' : '🌙';
+    themeIcon.textContent = window.currentTheme === 'light' ? '☀️' : '🌙';
   }
 }
 
@@ -254,13 +247,10 @@ function applyUserConfig() {
   const userData = mockData.data?.[currentUser];
 
   if (!userData || !userData.config) {
-    console.log('⚠️ 用户配置不存在:', currentUser, '使用默认配置');
-    console.log('✅ 默认配置:', defaultConfig);
     return;
   }
 
   const config = userData.config;
-  console.log('🔧 应用用户配置:', currentUser, config);
 
   // 合并用户配置和默认配置
   const mergedConfig = { ...defaultConfig, ...config };
@@ -268,6 +258,10 @@ function applyUserConfig() {
   // 应用合并后的配置
   currentTheme = mergedConfig.theme;
   calendarDisplayMode = mergedConfig.calendarDisplayMode;
+
+  // 更新图标显示
+  updateThemeIcon();
+  updateCalendarDisplayIcon();
 }
 
 // 更新配置开关的显示状态
@@ -293,6 +287,12 @@ function updateConfigVisibility() {
   const importExportBtn = document.querySelector('.icon-btn[onclick="Modal.openImportExportModal()"]');
   if (importExportBtn) {
     importExportBtn.style.display = config.showImportExportIcon === true ? 'block' : 'none';
+  }
+
+  // 快捷配置按钮
+  const fastConfigBtn = document.querySelector('.icon-btn[onclick="Config.openConfigModal()"]');
+  if (fastConfigBtn) {
+    fastConfigBtn.style.display = config.showFastConfig === true ? 'block' : 'none';
   }
 }
 
@@ -443,6 +443,122 @@ function renderCalendar() {
   }
 }
 
+// 检查是否应该显示新建按钮
+function shouldShowNewButton(dateStr) {
+  try {
+    // 检查快捷新建记录是否开启
+    if (window.mockData && window.mockData.data && window.currentUser) {
+      const userData = window.mockData.data[window.currentUser];
+      if (userData && userData.config && userData.config.fastConfig) {
+        const fastConfig = userData.config.fastConfig;
+        if (fastConfig.fastAddRecord !== true) {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+
+    // 检查该日期是否有记录
+    const userData = window.mockData.data?.[currentUser] || window.mockData.data?.[defaultUser];
+    const dateData = userData.date || [];
+    const hasRecord = dateData.some(item => item.date === dateStr);
+
+    // 只在没有记录的日期上显示新建按钮
+    return !hasRecord;
+  } catch (error) {
+    console.error('检查是否显示新建按钮时出错:', error);
+    return false;
+  }
+}
+
+
+
+// 根据快捷配置创建记录
+async function createRecordFromFastConfig(dateStr) {
+  try {
+    // 获取快捷配置
+    const userData = window.mockData.data?.[currentUser] || window.mockData.data?.[defaultUser];
+    if (!userData || !userData.config || !userData.config.fastConfig) {
+      console.error('❌ 未找到快捷配置');
+      return;
+    }
+
+    const fastConfig = userData.config.fastConfig;
+
+    // 检查是否有有效的配置数据
+    const hasValidData = (fastConfig.fee && parseFloat(fastConfig.fee) > 0) ||
+      (fastConfig.todayScore && parseInt(fastConfig.todayScore) > 0);
+
+    if (!hasValidData) {
+      window.Toast?.warning('快捷配置中没有有效数据，跳过创建');
+      return;
+    }
+
+    // 创建记录数据
+    const newRecord = {
+      date: dateStr,
+      coin: '', // 默认空投名称
+      amount: 0, // 默认收入为0
+      fee: parseFloat(fastConfig.fee) || 0,
+      curScore: 0, // 当前积分默认为0
+      todayScore: parseInt(fastConfig.todayScore) || 0,
+      ConsumptionScore: 0, // 消耗积分默认为0
+      remark: '通过快捷配置自动创建'
+    };
+
+    // 添加到用户数据
+    if (!userData.date) {
+      userData.date = [];
+    }
+    userData.date.push(newRecord);
+
+    // 更新全局数据
+    window.mockData.data[currentUser] = userData;
+
+    // 保存到API
+    if (window.API && window.API.updateDataInAPI) {
+      const success = await window.API.updateDataInAPI(window.mockData);
+      if (success) {
+        // 刷新UI
+        if (window.updateUI) {
+          window.updateUI();
+        }
+
+        // 重新渲染日历
+        if (window.renderCalendar) {
+          window.renderCalendar();
+        }
+
+        // 显示成功提示
+        window.Toast?.success('快捷记录创建成功！');
+      } else {
+        window.Toast?.error('创建失败，请重试');
+      }
+    }
+  } catch (error) {
+    window.Toast?.error('创建失败，请重试');
+  }
+}
+
+// 创建新建按钮
+function createNewButton(dateStr) {
+  const newButton = document.createElement('button');
+  newButton.className = 'new-record-btn';
+  newButton.innerHTML = '<span>+</span>';
+  newButton.title = '快捷新建记录';
+
+  // 添加点击事件
+  newButton.addEventListener('click', function (e) {
+    e.stopPropagation(); // 阻止事件冒泡，避免触发日期点击事件
+    createRecordFromFastConfig(dateStr);
+  });
+
+  return newButton;
+}
+
 // 创建日期元素
 function createDayElement(day, className = '', dateStr = null) {
   const dayElement = document.createElement('div');
@@ -451,7 +567,10 @@ function createDayElement(day, className = '', dateStr = null) {
   // 添加点击事件
   dayElement.addEventListener('click', function () {
     if (!className.includes('other-month')) {
-      Modal.openAddRecordModal(dateStr, day, currentUser, mockData, { onSuccess: updateUI });
+      // 如果该日期显示新建按钮，则不弹出新建框
+      if (!shouldShowNewButton(dateStr)) {
+        Modal.openAddRecordModal(dateStr, day, currentUser, mockData, { onSuccess: updateUI });
+      }
     }
   });
 
@@ -518,6 +637,12 @@ function createDayElement(day, className = '', dateStr = null) {
   // 如果有数据，添加到日历单元格
   if (dataContainer.children.length > 0) {
     dayElement.appendChild(dataContainer);
+  }
+
+  // 检查是否应该显示新建按钮（从今天开始的日期，且快捷新建记录开启）
+  if (shouldShowNewButton(dateStr)) {
+    const newButton = createNewButton(dateStr);
+    dayElement.appendChild(newButton);
   }
 
   // 根据显示模式添加右上角标识

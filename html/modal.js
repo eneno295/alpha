@@ -12,14 +12,6 @@ function openAddRecordModal(dateStr, day, currentUser, mockData, callbacks) {
 
   isEditing = existingData.length > 0;
 
-  console.log('🔍 编辑模式检测:', {
-    dateStr,
-    currentUser,
-    existingDataCount: existingData.length,
-    isEditing,
-    existingData
-  });
-
   // 更新标题
   const modalTitle = document.getElementById('modalTitle');
   const date = new Date(dateStr);
@@ -32,6 +24,9 @@ function openAddRecordModal(dateStr, day, currentUser, mockData, callbacks) {
   // 如果是编辑模式，填充现有数据
   if (isEditing) {
     fillFormWithExistingData(existingData);
+  } else {
+    // 如果是新建模式，填充fastConfig中的配置值
+    fillFormWithFastConfig();
   }
 
   // 显示弹出框
@@ -149,8 +144,6 @@ function updateConsumptionScore() {
 
 // 填充现有数据到表单
 function fillFormWithExistingData(existingData) {
-  console.log('📝 填充现有数据:', existingData);
-
   const airdropList = document.getElementById('airdropList');
 
   // 清空现有列表
@@ -158,8 +151,6 @@ function fillFormWithExistingData(existingData) {
 
   // 添加所有有空投名称的数据（包括没有收益的）
   const airdropData = existingData.filter(item => item.coin && item.coin.trim() !== '');
-
-  console.log('💰 空投数据:', airdropData);
 
   airdropData.forEach((item, index) => {
     const newItem = document.createElement('div');
@@ -206,9 +197,34 @@ function fillFormWithExistingData(existingData) {
   updateConsumptionScore();
 }
 
+// 填充fastConfig中的配置值到表单
+function fillFormWithFastConfig() {
+  try {
+    // 从全局的mockData中获取当前用户的fastConfig配置
+    if (window.mockData && window.mockData.data && window.currentUser) {
+      const userData = window.mockData.data[window.currentUser];
+      if (userData && userData.config && userData.config.fastConfig) {
+        const fastConfig = userData.config.fastConfig;
+
+        // 填充手续费
+        if (fastConfig.fee) {
+          document.getElementById('fee').value = fastConfig.fee;
+        }
+
+        // 填充今日刷的积分
+        if (fastConfig.todayScore) {
+          document.getElementById('todayScore').value = fastConfig.todayScore;
+        }
+      }
+    }
+  } catch (error) {
+    console.error('❌ 填充fastConfig配置失败:', error);
+  }
+}
+
 async function saveRecord(currentUser, mockData, callbacks) {
   if (!selectedDate) {
-    alert('请选择日期');
+    window.Toast?.error('请选择日期');
     return;
   }
 
@@ -268,21 +284,6 @@ async function saveRecord(currentUser, mockData, callbacks) {
     // 更新数据
     mockData.data[currentUser] = userData;
 
-    // 调试信息：打印组装的数据
-    console.log('📊 准备保存的数据:', {
-      selectedDate,
-      currentUser,
-      isEditing,
-      airdropData,
-      fee,
-      remarks,
-      curScore,
-      todayScore,
-      consumptionScore,
-      userData: userData,
-      fullMockData: mockData
-    });
-
     // 保存到API
     const success = await API.updateDataInAPI(mockData);
 
@@ -297,19 +298,19 @@ async function saveRecord(currentUser, mockData, callbacks) {
 
       // 显示成功提示
       const message = isEditing ? '记录修改成功！' : '记录保存成功！';
-      showSuccessMessage(message);
+      window.Toast?.success(message);
     } else {
-      alert('保存失败，请重试');
+      window.Toast?.error('保存失败，请重试');
     }
   } catch (error) {
     console.error('保存记录失败:', error);
-    alert('保存失败，请重试');
+    window.Toast?.error('保存失败，请重试');
   }
 }
 
 async function clearCurrentDayData(currentUser, mockData, callbacks) {
   if (!selectedDate) {
-    alert('请选择日期');
+    window.Toast?.error('请选择日期');
     return;
   }
 
@@ -328,12 +329,6 @@ async function clearCurrentDayData(currentUser, mockData, callbacks) {
     // 更新数据
     mockData.data[currentUser] = userData;
 
-    console.log('🗑️ 清空数据:', {
-      selectedDate,
-      currentUser,
-      remainingData: userData.date
-    });
-
     // 保存到API
     const success = await API.updateDataInAPI(mockData);
 
@@ -347,68 +342,15 @@ async function clearCurrentDayData(currentUser, mockData, callbacks) {
       closeAddRecordModal();
 
       // 显示成功提示
-      showSuccessMessage('数据清空成功！');
+      window.Toast?.success('数据清空成功！');
     } else {
-      alert('清空失败，请重试');
+      window.Toast?.error('清空失败，请重试');
     }
   } catch (error) {
     console.error('清空数据失败:', error);
-    alert('清空失败，请重试');
+    window.Toast?.error('清空失败，请重试');
   }
 }
-
-function showSuccessMessage(message) {
-  // 创建成功提示
-  const toast = document.createElement('div');
-  toast.className = 'success-toast';
-
-  // 检查是否包含换行符，如果是则使用 innerHTML
-  if (message.includes('\n')) {
-    toast.innerHTML = message.replace(/\n/g, '<br>');
-  } else {
-    toast.textContent = message;
-  }
-
-  toast.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: var(--success);
-    color: white;
-    padding: 1rem 1.5rem;
-    border-radius: 8px;
-    box-shadow: var(--shadow-lg);
-    z-index: 10001;
-    animation: slideInRight 0.3s ease;
-    max-width: 400px;
-    line-height: 1.4;
-    font-size: 14px;
-  `;
-
-  document.body.appendChild(toast);
-
-  // 根据消息长度调整显示时间
-  const displayTime = message.includes('\n') ? 5000 : 3000;
-  setTimeout(() => {
-    toast.remove();
-  }, displayTime);
-}
-
-// 添加动画样式
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes slideInRight {
-    from {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
-`;
-document.head.appendChild(style);
 
 // 导入导出功能
 function openImportExportModal() {
@@ -469,9 +411,9 @@ function handleFileSelect(event) {
     try {
       const data = JSON.parse(e.target.result);
       document.getElementById('importTextarea').value = JSON.stringify(data, null, 2);
-      showSuccessMessage('✅ 文件读取成功！');
+      window.Toast?.success('文件读取成功！');
     } catch (error) {
-      alert('❌ 文件格式错误，请选择有效的 JSON 文件');
+      window.Toast?.error('文件格式错误，请选择有效的 JSON 文件');
       resetFileUploadDisplay();
     }
   };
@@ -535,7 +477,7 @@ function loadTemplateData() {
   textarea.value = JSON.stringify(templateData, null, 2);
 
   // 显示成功提示
-  showSuccessMessage('📝 模板数据已加载！');
+  window.Toast?.success('模板数据已加载！');
 }
 
 async function importData() {
@@ -543,7 +485,7 @@ async function importData() {
   const data = textarea.value.trim();
 
   if (!data) {
-    alert('请输入要导入的数据');
+    window.Toast?.error('请输入要导入的数据');
     return;
   }
 
@@ -552,14 +494,14 @@ async function importData() {
 
     // 验证数据结构 - 新的格式：直接以用户名为键
     if (typeof importedData !== 'object' || importedData === null) {
-      alert('数据格式错误，请确保是有效的 JSON 对象');
+      window.Toast?.error('数据格式错误，请确保是有效的 JSON 对象');
       return;
     }
 
     // 检查是否包含用户数据
     const userKeys = Object.keys(importedData);
     if (userKeys.length === 0) {
-      alert('数据格式错误，请确保包含用户数据');
+      window.Toast?.error('数据格式错误，请确保包含用户数据');
       return;
     }
 
@@ -567,13 +509,13 @@ async function importData() {
     for (const userId of userKeys) {
       const userData = importedData[userId];
       if (!userData || typeof userData !== 'object') {
-        alert(`用户 ${userId} 的数据格式错误`);
+        window.Toast?.error(`用户 ${userId} 的数据格式错误`);
         return;
       }
 
       // 检查是否包含 date 数组
       if (!userData.date || !Array.isArray(userData.date)) {
-        alert(`用户 ${userId} 缺少 date 数组`);
+        window.Toast?.error(`用户 ${userId} 缺少 date 数组`);
         return;
       }
     }
@@ -600,7 +542,7 @@ async function importData() {
       const confirmMessage = `用户 ${userList} 已存在，是否更新该用户的数据？\n\n注意：这将合并新数据到现有数据中。`;
 
       if (!confirm(confirmMessage)) {
-        showSuccessMessage('❌ 导入已取消');
+        window.Toast?.success('导入已取消');
         return;
       }
     }
@@ -645,8 +587,6 @@ async function importData() {
           newRecords: importedData[userId].date.length,
           totalRecords: importedData[userId].date.length
         });
-
-        console.log(`✅ 新用户 ${userId} 已添加`);
       }
     }
 
@@ -670,31 +610,25 @@ async function importData() {
       const totalNewRecords = updateResults.reduce((total, result) => total + result.newRecords, 0);
 
       // 构建详细的成功消息
-      let successMessage = '🚀 数据导入成功！\n\n';
+      let successMessage = '数据导入成功！\n\n';
 
       for (const result of updateResults) {
         if (result.type === 'add') {
-          successMessage += `✅ ${result.userId}：新增用户，${result.newRecords} 条记录\n`;
+          successMessage += `${result.userId}：新增用户，${result.newRecords} 条记录\n`;
         } else {
-          successMessage += `🔄 ${result.userId}：数据更新，新增 ${result.newRecords} 条记录（总计 ${result.totalRecords} 条）\n`;
+          successMessage += `${result.userId}：数据更新，新增 ${result.newRecords} 条记录（总计 ${result.totalRecords} 条）\n`;
         }
       }
 
-      successMessage += `\n📊 总计：${totalNewRecords} 条新记录`;
+      successMessage += `\n总计：${totalNewRecords} 条新记录`;
 
-      showSuccessMessage(successMessage);
-
-      console.log('✅ 数据导入成功:', {
-        updateResults,
-        totalNewRecords,
-        finalData: window.mockData
-      });
+      window.Toast?.success(successMessage);
     } else {
-      alert('导入失败，请重试');
+      window.Toast?.error('导入失败，请重试');
     }
   } catch (error) {
     console.error('导入数据失败:', error);
-    alert('数据格式错误，请检查 JSON 格式');
+    window.Toast?.error('数据格式错误，请检查 JSON 格式');
   }
 }
 
@@ -713,7 +647,7 @@ function exportData() {
   document.body.removeChild(a);
 
   URL.revokeObjectURL(url);
-  showSuccessMessage('💾 数据导出成功！');
+  window.Toast?.success('数据导出成功！');
 }
 
 // 导出所有Modal函数

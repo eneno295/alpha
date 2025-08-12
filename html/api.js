@@ -38,7 +38,6 @@ async function fetchDataFromAPI() {
     }
 
     const result = await response.json();
-    console.log('✅ 从API获取数据成功');
     return result.record;
   } catch (error) {
     console.error('❌ 从API获取数据失败:', error);
@@ -51,7 +50,6 @@ async function updateDataInAPI(newData) {
     // 检查是否有有效的 BIN_ID
     if (!JSONBIN_CONFIG.BIN_ID) {
       console.warn('⚠️ 没有配置 BIN_ID，无法发送到服务器');
-      console.log('💡 请先运行 create-data.js 创建数据，或手动设置 BIN_ID');
       return false;
     }
 
@@ -73,38 +71,10 @@ async function updateDataInAPI(newData) {
     }
 
     const result = await response.json();
-    console.log('✅ 数据更新成功:', result);
     return true;
   } catch (error) {
     console.error('❌ 更新数据失败:', error);
     return false;
-  }
-}
-
-// 创建新的JSONBin
-async function createNewJSONBin(data) {
-  try {
-    const response = await fetch('https://api.jsonbin.io/v3/b', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_CONFIG.MASTER_KEY
-      },
-      body: JSON.stringify(data)
-    });
-
-    const result = await response.json();
-    console.log('✅ JSONBin创建成功！');
-    console.log('📋 Bin ID:', result.metadata.id);
-    console.log('🔗 访问URL:', `https://api.jsonbin.io/v3/b/${result.metadata.id}`);
-
-    // 保存Bin ID到本地存储
-    localStorage.setItem('jsonbinId', result.metadata.id);
-
-    return result.metadata.id;
-  } catch (error) {
-    console.error('❌ 创建JSONBin失败:', error);
-    return null;
   }
 }
 
@@ -177,6 +147,11 @@ async function updateUserConfig(userId, configKey, configValue) {
     // 更新配置
     mockData.data[userId].config[configKey] = configValue;
 
+    // 同步更新全局变量
+    if (window.mockData && window.mockData.data && window.mockData.data[userId]) {
+      window.mockData.data[userId].config[configKey] = configValue;
+    }
+
     // 保存到API（API会返回更新后的数据）
     const success = await updateDataInAPI(mockData);
 
@@ -191,7 +166,47 @@ async function updateUserConfig(userId, configKey, configValue) {
   }
 }
 
-// 日历显示模式切换
+// 批量更新用户配置
+async function updateUserConfigBatch(userId, configUpdates) {
+  try {
+    // 直接更新本地数据
+    if (!mockData.data) {
+      mockData.data = {};
+    }
+    if (!mockData.data[userId]) {
+      mockData.data[userId] = { config: {}, date: [] };
+    }
+
+    if (!mockData.data[userId].config) {
+      mockData.data[userId].config = {};
+    }
+
+    // 保留现有配置，只更新传入的配置项
+    const currentConfig = mockData.data[userId].config;
+    const updatedConfig = { ...currentConfig, ...configUpdates };
+
+    // 批量更新配置
+    mockData.data[userId].config = updatedConfig;
+
+    // 同步更新全局变量
+    if (window.mockData && window.mockData.data && window.mockData.data[userId]) {
+      window.mockData.data[userId].config = updatedConfig;
+    }
+
+    // 保存到API（API会返回更新后的数据）
+    const success = await updateDataInAPI(mockData);
+
+    if (success) {
+      console.log(`✅ 用户 ${userId} 的批量配置更新成功:`, configUpdates);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error(`❌ 批量更新用户配置失败:`, error);
+    return false;
+  }
+}
+
 async function toggleCalendarDisplay() {
   const newMode = window.calendarDisplayMode === 'claimable' ? 'score' : 'claimable';
 
@@ -202,8 +217,7 @@ async function toggleCalendarDisplay() {
     return;
   }
 
-  const originalContent = btn.innerHTML;
-  btn.innerHTML = '<span>⏳</span>';
+  btn.innerHTML = '<span class="calendar-display-icon">⏳</span>';
   btn.disabled = true;
 
   try {
@@ -238,7 +252,6 @@ async function toggleCalendarDisplay() {
     }
   } finally {
     // 恢复按钮状态
-    btn.innerHTML = originalContent;
     btn.disabled = false;
   }
 }
@@ -254,8 +267,7 @@ async function toggleTheme() {
     return;
   }
 
-  const originalContent = btn.innerHTML;
-  btn.innerHTML = '<span>⏳</span>';
+  btn.innerHTML = '<span class="theme-icon">⏳</span>';
   btn.disabled = true;
 
   try {
@@ -282,7 +294,6 @@ async function toggleTheme() {
     }
   } finally {
     // 恢复按钮状态
-    btn.innerHTML = originalContent;
     btn.disabled = false;
   }
 }
@@ -291,11 +302,11 @@ async function toggleTheme() {
 window.API = {
   fetchDataFromAPI,
   updateDataInAPI,
-  createNewJSONBin,
   addUserData,
   updateUserData,
   deleteUserData,
   updateUserConfig,
+  updateUserConfigBatch,
   toggleCalendarDisplay,
   toggleTheme,
   JSONBIN_CONFIG
