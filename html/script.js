@@ -484,7 +484,7 @@ function createDayElement(day, className = '', dateStr = null) {
   }
 
   // 检查是否有手续费，如果有则添加has-fee样式
-  const hasFee = dayDataList.some(item => item.fee > 0);
+  const hasFee = dayDataList.some(item => item.fee);
   if (hasFee) {
     dayElement.classList.add('has-fee');
   }
@@ -507,8 +507,8 @@ function createDayElement(day, className = '', dateStr = null) {
   });
 
   // 显示手续费数据（只显示一次，取第一个有手续费的记录）
-  const feeData = dayDataList.find(item => item.fee > 0);
-  if (feeData && feeData.fee > 0) {
+  const feeData = dayDataList.find(item => item.fee);
+  if (feeData) {
     const feesDataEl = document.createElement('div');
     feesDataEl.className = 'day-data fee-data';
     feesDataEl.textContent = `fee: ${feeData.fee}`;
@@ -550,8 +550,8 @@ function createDayElement(day, className = '', dateStr = null) {
     });
 
     // 显示手续费数据（只显示一次）
-    const feeData = originalDataList.find(item => item.fee > 0);
-    if (feeData && feeData.fee > 0) {
+    const feeData = originalDataList.find(item => item.fee);
+    if (feeData) {
       tooltipContent += `fee: ${feeData.fee}<br>`;
     }
 
@@ -624,9 +624,7 @@ function updateStats() {
       totalIncome += item.amount || 0;
       totalProjects += 1;
     }
-    if (item.fee > 0) {
-      totalFees += item.fee || 0;
-    }
+    totalFees += item.fee || 0;
   });
 
   // 利润 = 收入 - 手续费
@@ -667,9 +665,7 @@ function updateDailySummary() {
         monthlyIncome += item.amount || 0;
         monthlyProjects += 1;
       }
-      if (item.fee > 0) {
-        monthlyFees += item.fee || 0;
-      }
+      monthlyFees += item.fee || 0;
     }
   });
 

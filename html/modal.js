@@ -185,7 +185,7 @@ function fillFormWithExistingData(existingData) {
   }
 
   // 填充手续费（取第一个有手续费的记录）
-  const feeData = existingData.find(item => item.fee > 0);
+  const feeData = existingData.find(item => item.fee);
   if (feeData) {
     document.getElementById('fee').value = feeData.fee || '';
   }
