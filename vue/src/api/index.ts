@@ -107,4 +107,4 @@ export async function updateUserConfig(
 }
 
 // 导出配置
-export { JSONBIN_CONFIG, binIdMap } 
+export { JSONBIN_CONFIG, binIdMap }

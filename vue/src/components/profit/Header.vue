@@ -10,7 +10,7 @@
     </div>
 
     <div class="header-right">
-      <button class="icon-btn" title="导入导出">
+      <button class="icon-btn" title="导入导出" @click="openImportExportModal">
         <span class="import-export-icon">📁</span>
       </button>
       <button class="icon-btn" title="切换日历显示模式" @click="toggleCalendarDisplayMode">
@@ -29,21 +29,44 @@
 import { ref, computed, watch } from 'vue'
 import { useAppStore } from '@/stores/app'
 import UserSelector from './UserSelector.vue'
+import { useToast } from '@/composables/useToast'
 
 // 获取 store
 const store = useAppStore()
+
+// 获取 Toast 服务
+const { showSuccessMessage } = useToast()
 
 // 内部状态管理
 const currentTheme = computed(() => store.currentConfig?.theme || 'light')
 const calendarDisplayMode = computed(() => store.currentConfig?.calendarDisplayMode || 'claimable')
 
+// 获取当前用户ID
+const getCurrentUserId = () => {
+  if (!store.profitData?.data) return null
+
+  const userId = Object.keys(store.profitData.data).find(
+    (key) => store.profitData?.data[key] === store.currentUser,
+  )
+  return userId
+}
+
 // 切换主题
 const toggleTheme = async () => {
   if (!store.currentUser) return
 
+  const userId = getCurrentUserId()
+  if (!userId) {
+    console.error('❌ 無法獲取當前用戶ID')
+    return
+  }
+
   try {
     const newTheme = currentTheme.value === 'light' ? 'dark' : 'light'
-    const res = await store.updateUserConfigAction(store.currentConfig.userName, 'theme', newTheme)
+    const res = await store.updateUserConfigAction(userId, 'theme', newTheme)
+    if (res) {
+      showSuccessMessage('✅ 主題切換成功！')
+    }
   } catch (error) {
     console.error('❌ 主题更新出错:', error)
   }
@@ -53,17 +76,41 @@ const toggleTheme = async () => {
 const toggleCalendarDisplayMode = async () => {
   if (!store.currentUser) return
 
+  const userId = getCurrentUserId()
+  if (!userId) {
+    console.error('❌ 無法獲取當前用戶ID')
+    return
+  }
+
   try {
     const newMode = calendarDisplayMode.value === 'claimable' ? 'score' : 'claimable'
-    const res = await store.updateUserConfigAction(
-      store.currentConfig.userName,
-      'calendarDisplayMode',
-      newMode,
-    )
+    const res = await store.updateUserConfigAction(userId, 'calendarDisplayMode', newMode)
+    if (res) {
+      showSuccessMessage('✅ 日曆顯示模式切換成功！')
+    }
   } catch (error) {
     console.error('❌ 日历显示模式更新出错:', error)
   }
 }
+
+// 打開導入導出模態框
+const openImportExportModal = () => {
+  // 通過事件通知父組件
+  window.dispatchEvent(new CustomEvent('openImportExportModal'))
+}
+
+// 更新主題圖標
+const updateThemeIcon = () => {
+  const themeIcon = document.querySelector('.theme-icon')
+  if (themeIcon) {
+    themeIcon.textContent = currentTheme.value === 'light' ? '☀️' : '🌙'
+  }
+}
+
+// 監聽主題變化
+watch(currentTheme, () => {
+  updateThemeIcon()
+})
 </script>
 
 <style lang="scss" scoped>

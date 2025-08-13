@@ -29,14 +29,21 @@ const store = useAppStore()
 // 用户菜单状态
 const isMenuOpen = ref(false)
 
-// 当前用户名
-const currentUserName = computed(() => {
-  return store.currentConfig?.userName
-})
-
 // 计算可用用户列表
 const availableUsers = computed(() => {
-  return store.profitData?.users || []
+  return store.profitData ? Object.keys(store.profitData.data) : []
+})
+
+// 当前用户名
+const currentUserName = computed(() => {
+  if (!store.profitData) return 'lan'
+
+  const availableUsers = Object.keys(store.profitData.data)
+  const currentUserId = Object.keys(store.profitData.data).find(
+    (key) => store.profitData?.data[key] === store.currentUser,
+  )
+
+  return availableUsers.includes(currentUserId || '') ? currentUserId || 'lan' : 'lan'
 })
 
 // 下拉框是否可用
@@ -52,10 +59,19 @@ const toggleUserMenu = () => {
 
 // 选择用户
 const selectUser = (userName: string) => {
-  // 直接更新 store 中的当前用户
-  store.currentUser = store.profitData?.data[userName] || null
-  isMenuOpen.value = false
-  console.log('👤 当前用户:', userName)
+  if (store.profitData?.data[userName]) {
+    // 保存用户选择到本地存储
+    localStorage.setItem('selectedUser', userName)
+
+    // 更新 store 中的当前用户
+    store.setCurrentUser(store.profitData.data[userName])
+    isMenuOpen.value = false
+
+    console.log('👤 当前用户:', userName)
+
+    // 触发数据重新加载事件，让其他组件更新
+    window.dispatchEvent(new CustomEvent('userChanged', { detail: userName }))
+  }
 }
 
 // 点击外部关闭菜单

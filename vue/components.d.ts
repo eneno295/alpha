@@ -8,10 +8,13 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AddRecordModal: typeof import('./src/components/profit/AddRecordModal.vue')['default']
     Header: typeof import('./src/components/profit/Header.vue')['default']
+    ImportExportModal: typeof import('./src/components/profit/ImportExportModal.vue')['default']
     LoadingSpinner: typeof import('./src/components/LoadingSpinner.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Toast: typeof import('./src/components/Toast.vue')['default']
     UserSelector: typeof import('./src/components/profit/UserSelector.vue')['default']
   }
 }
