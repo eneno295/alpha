@@ -327,7 +327,7 @@ function hasNextMonthData() {
 
   const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
 
-  return dateData.some(item => item.date.startsWith(monthStr));
+  return dateData.some(item => item.date?.startsWith(monthStr));
 }
 
 // 日历导航
@@ -805,7 +805,7 @@ function updateDailySummary() {
   let monthlyFees = 0;
 
   dateData.forEach(item => {
-    if (item.date.startsWith(monthStr)) {
+    if (item.date?.startsWith(monthStr)) {
       if (item.coin && item.amount > 0) {
         monthlyIncome += item.amount || 0;
         monthlyProjects += 1;

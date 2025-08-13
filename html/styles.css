@@ -192,9 +192,9 @@ body {
   transform: none;
 }
 
-.icon-btn[style*="display: none"] {
+/* .icon-btn[style*="display: none"] {
   display: none !important;
-}
+} */
 
 .import-export-icon {
   font-size: 1.2rem;
