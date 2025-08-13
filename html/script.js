@@ -42,7 +42,6 @@ async function initializeApp() {
   if (availableUsers.length > 0 && !availableUsers.includes(currentUser)) {
     currentUser = availableUsers[0];
     localStorage.setItem('selectedUser', currentUser);
-    console.log('🔧 当前用户不在API数据中，切换到第一个可用用户:', currentUser);
   }
 
   // 应用用户配置
@@ -62,6 +61,9 @@ async function initializeApp() {
   // 更新用户显示和配置可见性
   updateUserDisplay();
   updateConfigVisibility();
+
+  // 更新悬浮模拟图标显示状态
+  updateSimulationIconVisibility();
 
   // 渲染日历
   renderCalendar();
@@ -143,7 +145,6 @@ function bindEventListeners() {
 // 更新日历显示图标
 function updateCalendarDisplayIcon() {
   const icon = document.querySelector('.calendar-display-icon');
-  console.log('🔄 更新日历显示图标:', window.calendarDisplayMode, icon);
   if (icon) {
     icon.textContent = window.calendarDisplayMode === 'claimable' ? '📊' : '🎯';
   }
@@ -152,7 +153,6 @@ function updateCalendarDisplayIcon() {
 // 更新主题图标
 function updateThemeIcon() {
   const themeIcon = document.querySelector('.theme-icon');
-  console.log('🔄 更新主题图标:', window.currentTheme, themeIcon);
   if (themeIcon) {
     themeIcon.textContent = window.currentTheme === 'light' ? '☀️' : '🌙';
   }
@@ -240,6 +240,26 @@ function updateUserDisplay() {
 
   // 更新配置开关显示状态
   updateConfigVisibility();
+
+  // 更新悬浮模拟图标显示状态
+  updateSimulationIconVisibility();
+}
+
+// 更新悬浮模拟图标显示状态
+function updateSimulationIconVisibility() {
+  const simulationIcon = document.getElementById('simulationIcon');
+  if (simulationIcon) {
+    const userData = mockData.data?.[currentUser];
+    // 必须同时满足两个条件：模拟功能开启 且 日历显示模式为score
+    if (userData &&
+      userData.config &&
+      userData.config.showSimulationScore === true &&
+      window.calendarDisplayMode === 'score') {
+      simulationIcon.style.display = 'flex';
+    } else {
+      simulationIcon.style.display = 'none';
+    }
+  }
 }
 
 // 应用用户配置
@@ -813,4 +833,5 @@ window.previousMonth = previousMonth;
 window.nextMonth = nextMonth;
 window.updateThemeIcon = updateThemeIcon;
 window.updateCalendarDisplayIcon = updateCalendarDisplayIcon;
-window.renderCalendar = renderCalendar; 
+window.renderCalendar = renderCalendar;
+window.updateSimulationIconVisibility = updateSimulationIconVisibility; 

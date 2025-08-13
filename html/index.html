@@ -180,6 +180,14 @@
 
           <div class="form-group checkbox-group">
             <label class="checkbox-label">
+              <input type="checkbox" id="configSimulationScore">
+              <span class="checkmark"></span>
+              模拟积分功能
+            </label>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
               <input type="checkbox" id="configFastAddRecord">
               <span class="checkmark"></span>
               快捷新建记录
@@ -288,6 +296,12 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- 悬浮模拟图标 -->
+  <div id="simulationIcon" class="simulation-icon" style="display: none;">
+    <span class="simulation-icon-text">模拟</span>
+    <div class="simulation-tooltip">模拟计算积分</div>
   </div>
 
   <script src="toast.js"></script>

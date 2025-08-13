@@ -78,57 +78,6 @@ async function updateDataInAPI(newData) {
   }
 }
 
-// 添加新用户数据
-async function addUserData(userId, userData, currentData) {
-  try {
-    currentData[userId] = userData;
-    const success = await updateDataInAPI(currentData);
-    if (success) {
-      console.log(`✅ 用户 ${userId} 数据添加成功`);
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.error('❌ 添加用户数据失败:', error);
-    return false;
-  }
-}
-
-// 更新用户数据
-async function updateUserData(userId, userData, currentData) {
-  try {
-    currentData[userId] = userData;
-    const success = await updateDataInAPI(currentData);
-    if (success) {
-      console.log(`✅ 用户 ${userId} 数据更新成功`);
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.error('❌ 更新用户数据失败:', error);
-    return false;
-  }
-}
-
-// 删除用户数据
-async function deleteUserData(userId, currentData) {
-  try {
-    if (currentData[userId]) {
-      delete currentData[userId];
-      const success = await updateDataInAPI(currentData);
-      if (success) {
-        console.log(`✅ 用户 ${userId} 数据删除成功`);
-        return true;
-      }
-      return false;
-    }
-    return false;
-  } catch (error) {
-    console.error('❌ 删除用户数据失败:', error);
-    return false;
-  }
-}
-
 // 更新用户配置
 async function updateUserConfig(userId, configKey, configValue) {
   try {
@@ -156,12 +105,10 @@ async function updateUserConfig(userId, configKey, configValue) {
     const success = await updateDataInAPI(mockData);
 
     if (success) {
-      console.log(`✅ 用户 ${userId} 的 ${configKey} 配置更新成功:`, configValue);
       return true;
     }
     return false;
   } catch (error) {
-    console.error(`❌ 更新用户配置失败:`, error);
     return false;
   }
 }
@@ -197,12 +144,10 @@ async function updateUserConfigBatch(userId, configUpdates) {
     const success = await updateDataInAPI(mockData);
 
     if (success) {
-      console.log(`✅ 用户 ${userId} 的批量配置更新成功:`, configUpdates);
       return true;
     }
     return false;
   } catch (error) {
-    console.error(`❌ 批量更新用户配置失败:`, error);
     return false;
   }
 }
@@ -212,10 +157,7 @@ async function toggleCalendarDisplay() {
 
   // 显示加载状态
   const btn = document.querySelector('.icon-btn[onclick="API.toggleCalendarDisplay()"]');
-  if (!btn) {
-    console.error('❌ 找不到日历显示切换按钮');
-    return;
-  }
+  if (!btn) return;
 
   btn.innerHTML = '<span class="calendar-display-icon">⏳</span>';
   btn.disabled = true;
@@ -226,31 +168,25 @@ async function toggleCalendarDisplay() {
 
     if (success) {
       window.calendarDisplayMode = newMode;
-      console.log('✅ API: calendarDisplayMode 已更新为:', newMode);
 
-      if (window.updateCalendarDisplayIcon) {
-        window.updateCalendarDisplayIcon();
-      }
-
+      // 重新渲染日历以更新显示
       if (window.renderCalendar) {
-        console.log('🔄 API: 开始重新渲染日历');
-        window.renderCalendar(); // 重新渲染日历以更新显示
-      } else {
-        console.error('❌ API: renderCalendar 函数未找到');
-      }
-    } else {
-      // 恢复原始状态
-      if (window.updateCalendarDisplayIcon) {
-        window.updateCalendarDisplayIcon();
+        window.renderCalendar();
       }
     }
   } catch (error) {
     console.error('❌ 日历显示模式更新出错:', error);
+  } finally {
     // 恢复原始状态
     if (window.updateCalendarDisplayIcon) {
       window.updateCalendarDisplayIcon();
     }
-  } finally {
+
+    // 更新模拟图标显示状态
+    if (window.updateSimulationIconVisibility) {
+      window.updateSimulationIconVisibility();
+    }
+
     // 恢复按钮状态
     btn.disabled = false;
   }
@@ -262,10 +198,7 @@ async function toggleTheme() {
 
   // 显示加载状态
   const btn = document.querySelector('.icon-btn[onclick="API.toggleTheme()"]');
-  if (!btn) {
-    console.error('❌ 找不到主题切换按钮');
-    return;
-  }
+  if (!btn) return;
 
   btn.innerHTML = '<span class="theme-icon">⏳</span>';
   btn.disabled = true;
@@ -277,22 +210,14 @@ async function toggleTheme() {
     if (success) {
       window.currentTheme = newTheme;
       document.documentElement.setAttribute('data-theme', window.currentTheme);
-      if (window.updateThemeIcon) {
-        window.updateThemeIcon();
-      }
-    } else {
-      // 恢复原始状态
-      if (window.updateThemeIcon) {
-        window.updateThemeIcon();
-      }
     }
   } catch (error) {
     console.error('❌ 主题更新出错:', error);
-    // 恢复原始状态
+  } finally {
+    // 更新主题图标
     if (window.updateThemeIcon) {
       window.updateThemeIcon();
     }
-  } finally {
     // 恢复按钮状态
     btn.disabled = false;
   }
@@ -302,12 +227,8 @@ async function toggleTheme() {
 window.API = {
   fetchDataFromAPI,
   updateDataInAPI,
-  addUserData,
-  updateUserData,
-  deleteUserData,
   updateUserConfig,
   updateUserConfigBatch,
   toggleCalendarDisplay,
-  toggleTheme,
-  JSONBIN_CONFIG
+  toggleTheme
 }; 

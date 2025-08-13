@@ -34,6 +34,7 @@ const Config = {
     document.getElementById('configShowThemeIcon').checked = userConfig.showThemeIcon === true;
     document.getElementById('configShowCalendarDisplayModeIcon').checked = userConfig.showCalendarDisplayModeIcon === true;
     document.getElementById('configShowImportExportIcon').checked = userConfig.showImportExportIcon === true;
+    document.getElementById('configSimulationScore').checked = userConfig.showSimulationScore === true;
   },
 
   // 保存配置
@@ -51,7 +52,8 @@ const Config = {
       const userConfig = {
         showThemeIcon: document.getElementById('configShowThemeIcon').checked,
         showCalendarDisplayModeIcon: document.getElementById('configShowCalendarDisplayModeIcon').checked,
-        showImportExportIcon: document.getElementById('configShowImportExportIcon').checked
+        showImportExportIcon: document.getElementById('configShowImportExportIcon').checked,
+        showSimulationScore: document.getElementById('configSimulationScore').checked
       };
 
       // 通过API更新配置
@@ -73,6 +75,11 @@ const Config = {
         // 刷新页面配置显示
         if (window.updateConfigVisibility) {
           window.updateConfigVisibility();
+        }
+
+        // 更新悬浮模拟图标显示状态
+        if (window.updateSimulationIconVisibility) {
+          window.updateSimulationIconVisibility();
         }
 
         // 刷新日历显示（以更新新建按钮的显示状态）
