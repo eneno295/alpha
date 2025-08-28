@@ -1138,7 +1138,8 @@ body {
   }
 
   .calendar-section {
-    padding: 1rem;
+    padding: 0;
+    box-shadow: none;
   }
 
   .score-row {

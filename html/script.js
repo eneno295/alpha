@@ -660,7 +660,7 @@ function createDayElement(day, className = '', dateStr = null) {
     if (simulationScore > 0) {
       const simulationIndicator = document.createElement('div');
       simulationIndicator.className = 'simulation-score-indicator';
-      simulationIndicator.textContent = `模拟: ${simulationScore}`;
+      simulationIndicator.textContent = `${simulationScore}`;
 
       // 创建提示框，显示模拟积分详情
       const tooltip = document.createElement('div');
