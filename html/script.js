@@ -338,16 +338,7 @@ function previousMonth() {
 }
 
 function nextMonth() {
-  // 获取当前实际时间
-  const now = new Date();
-  const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth();
-
-  // 如果当前显示的是当前月份或更晚的月份，不允许继续
-  if (currentDate.getFullYear() >= currentYear && currentDate.getMonth() >= currentMonth) {
-    return;
-  }
-
+  // 允许查看未来月份，不限制当前时间
   currentDate.setMonth(currentDate.getMonth() + 1);
   renderCalendar();
   updateDailySummary();
@@ -358,19 +349,9 @@ function updateArrowStates() {
   const nextArrow = document.querySelector('.nav-arrow:last-child');
 
   if (nextArrow) {
-    // 获取当前实际时间
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth();
-
-    // 如果当前显示的是当前月份或更晚的月份，禁用右箭头
-    if (currentDate.getFullYear() >= currentYear && currentDate.getMonth() >= currentMonth) {
-      nextArrow.classList.add('disabled');
-      nextArrow.style.cursor = 'not-allowed';
-    } else {
-      nextArrow.classList.remove('disabled');
-      nextArrow.style.cursor = 'pointer';
-    }
+    // 允许查看未来月份，不禁用右箭头
+    nextArrow.classList.remove('disabled');
+    nextArrow.style.cursor = 'pointer';
   }
 }
 
@@ -436,7 +417,7 @@ function renderCalendar() {
       today.getFullYear() === year;
 
     // 检查是否有数据
-    const hasEarnings = dayData && dayData.coin && dayData.amount > 0;
+    const hasEarnings = dayData && dayData.coin && dayData.coin.trim() !== '';
     const hasFees = dayData && dayData.fee > 0;
 
     if (hasEarnings) {
@@ -453,9 +434,19 @@ function renderCalendar() {
     calendarGrid.appendChild(dayElement);
   }
 
-  // 渲染下个月的日期（填充到42个格子）
+  // 渲染下个月的日期（智能填充）
   const totalDays = prevMonthDays + lastDay.getDate();
-  const nextMonthDays = 42 - totalDays;
+
+  // 计算需要多少行来显示所有日期
+  const totalRows = Math.ceil(totalDays / 7);
+
+  // 智能填充：确保最后一行被填满，但避免多余的整行
+  let targetCells = 42;
+  if (totalRows <= 5) {
+    // 如果5行足够，填充到35个格子（5行×7列）
+    targetCells = 35;
+  }
+  const nextMonthDays = targetCells - totalDays;
 
   for (let day = 1; day <= nextMonthDays; day++) {
     const dayElement = createDayElement(day, 'other-month');
@@ -493,8 +484,6 @@ function shouldShowNewButton(dateStr) {
     return false;
   }
 }
-
-
 
 // 根据快捷配置创建记录
 async function createRecordFromFastConfig(dateStr) {
@@ -617,7 +606,7 @@ function createDayElement(day, className = '', dateStr = null) {
   const dayDataList = dateData.filter(item => item.date === dateStr);
 
   // 检查是否有抢到币的数据，如果有则添加has-data样式
-  const hasData = dayDataList.some(item => (item.coin && item.coin.trim() !== '' && item.amount > 0));
+  const hasData = dayDataList.some(item => (item.coin && item.coin.trim() !== ''));
   if (hasData) {
     dayElement.classList.add('has-data');
   }
@@ -637,7 +626,7 @@ function createDayElement(day, className = '', dateStr = null) {
 
   // 显示所有收益数据
   dayDataList.forEach(dayData => {
-    if (dayData.coin && dayData.coin.trim() !== '' && dayData.amount > 0) {
+    if (dayData.coin && dayData.coin.trim() !== '') {
       const earningsDataEl = document.createElement('div');
       earningsDataEl.className = 'day-data claimed-data';
       earningsDataEl.textContent = `${dayData.coin}: ${dayData.amount}`;
@@ -665,6 +654,25 @@ function createDayElement(day, className = '', dateStr = null) {
     dayElement.appendChild(newButton);
   }
 
+  // 显示模拟积分（如果启用且该日期没有积分记录）
+  if (shouldShowSimulationScore(dateStr)) {
+    const simulationScore = calculateSimulationScore(dateStr);
+    if (simulationScore > 0) {
+      const simulationIndicator = document.createElement('div');
+      simulationIndicator.className = 'simulation-score-indicator';
+      simulationIndicator.textContent = `模拟: ${simulationScore}`;
+
+      // 创建提示框，显示模拟积分详情
+      const tooltip = document.createElement('div');
+      tooltip.className = 'custom-tooltip';
+
+      tooltip.innerHTML = `${simulationScore}<br>基于(${getDateRangeText(dateStr)})计算`;
+      dayElement.appendChild(tooltip);
+
+      dayElement.appendChild(simulationIndicator);
+    }
+  }
+
   // 根据显示模式添加右上角标识
   const currentDisplayMode = window.calendarDisplayMode || calendarDisplayMode;
   if (currentDisplayMode === 'claimable' && isClaimableDate) {
@@ -689,7 +697,7 @@ function createDayElement(day, className = '', dateStr = null) {
 
     // 显示所有收益数据
     originalDataList.forEach(originalData => {
-      if (originalData.coin && originalData.coin.trim() !== '' && originalData.amount > 0) {
+      if (originalData.coin && originalData.coin.trim() !== '') {
         tooltipContent += `${originalData.coin}: ${originalData.amount}<br>`;
       }
     });
@@ -706,28 +714,39 @@ function createDayElement(day, className = '', dateStr = null) {
     // 创建自定义提示框
     const tooltip = document.createElement('div');
     tooltip.className = 'custom-tooltip';
+
     tooltip.innerHTML = tooltipContent;
     dayElement.appendChild(tooltip);
 
     dayElement.appendChild(claimableIndicator);
   } else if (currentDisplayMode === 'score') {
-    // 显示当前积分
+    // 在积分模式下，总是显示积分弹窗
+    // 但是如果有模拟积分弹窗，则不显示普通积分弹窗
+    const hasSimulationScore = shouldShowSimulationScore(dateStr);
+
+    if (!hasSimulationScore) {
+      const scoreData = dayDataList.find(item => item.curScore > 0);
+      const todayScoreData = dayDataList.find(item => item.todayScore > 0);
+      const consumptionData = dayDataList.find(item => item.ConsumptionScore > 0);
+
+      // 创建提示框，显示三个积分数据
+      const tooltip = document.createElement('div');
+      tooltip.className = 'custom-tooltip';
+
+      tooltip.innerHTML = `
+        当前积分: ${scoreData?.curScore || 0}<br>
+        刷的积分: ${todayScoreData?.todayScore || 0}<br>
+        消耗积分: ${consumptionData?.ConsumptionScore || 0}
+      `;
+      dayElement.appendChild(tooltip);
+    }
+
+    // 如果有积分数据，显示积分指示器
     const scoreData = dayDataList.find(item => item.curScore > 0);
     if (scoreData && scoreData.curScore > 0) {
       const scoreIndicator = document.createElement('div');
       scoreIndicator.className = 'score-indicator';
       scoreIndicator.textContent = `${scoreData.curScore}`;
-
-      // 创建提示框，显示三个积分数据
-      const tooltip = document.createElement('div');
-      tooltip.className = 'custom-tooltip';
-      tooltip.innerHTML = `
-        当前积分: ${scoreData.curScore}<br>
-        刷的积分: ${scoreData.todayScore || 0}<br>
-        消耗积分: ${scoreData.ConsumptionScore || 0}
-      `;
-      dayElement.appendChild(tooltip);
-
       dayElement.appendChild(scoreIndicator);
     }
   }
@@ -741,7 +760,7 @@ function checkIfClaimableDate(dateStr, dateData) {
 
   // 遍历所有数据，检查是否有15天前的收益
   for (const item of dateData) {
-    if (item.coin && item.amount > 0) {
+    if (item.coin && item.coin.trim() !== '') {
       const earningDate = new Date(item.date);
       const daysDiff = Math.floor((currentDate - earningDate) / (1000 * 60 * 60 * 24));
 
@@ -834,4 +853,121 @@ window.nextMonth = nextMonth;
 window.updateThemeIcon = updateThemeIcon;
 window.updateCalendarDisplayIcon = updateCalendarDisplayIcon;
 window.renderCalendar = renderCalendar;
-window.updateSimulationIconVisibility = updateSimulationIconVisibility; 
+window.updateSimulationIconVisibility = updateSimulationIconVisibility;
+window.toggleSimulationMode = toggleSimulationMode;
+
+// 模拟积分模式开关
+window.isSimulationMode = false;
+
+// 切换模拟积分模式
+function toggleSimulationMode() {
+  window.isSimulationMode = !window.isSimulationMode;
+
+  // 更新按钮状态
+  const simulationIcon = document.getElementById('simulationIcon');
+  if (simulationIcon) {
+    if (window.isSimulationMode) {
+      simulationIcon.classList.add('active');
+      simulationIcon.querySelector('.simulation-tooltip').textContent = '关闭模拟';
+    } else {
+      simulationIcon.classList.remove('active');
+      simulationIcon.querySelector('.simulation-tooltip').textContent = '模拟计算积分';
+    }
+  }
+
+  // 重新渲染日历以显示/隐藏模拟积分
+  renderCalendar();
+}
+
+// 计算模拟积分
+function calculateSimulationScore(targetDate) {
+  try {
+    const userData = mockData.data?.[currentUser] || mockData.data?.[defaultUser];
+    if (!userData || !userData.date) return 0;
+
+    const dateData = userData.date;
+    const targetDateObj = new Date(targetDate);
+
+    // 获取配置的刷的积分
+    const configScore = userData.config?.fastConfig?.todayScore || 0;
+
+    let totalEarnedScore = 0;  // 前15天刷的积分总和
+    let totalConsumedScore = 0; // 前15天扣的积分总和
+
+    // 计算前15天的积分
+    for (let i = 1; i <= 15; i++) {
+      const checkDate = new Date(targetDateObj);
+      checkDate.setDate(checkDate.getDate() - i);
+      const checkDateStr = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, '0')}-${String(checkDate.getDate()).padStart(2, '0')}`;
+
+      // 查找该日期的记录
+      const dayRecords = dateData.filter(item => item.date === checkDateStr);
+
+      if (dayRecords.length > 0) {
+        // 有记录，累加刷的积分和扣的积分
+        dayRecords.forEach(record => {
+          const earnedScore = parseFloat(record.todayScore) || 0;
+          const consumedScore = parseFloat(record.ConsumptionScore) || 0;
+
+          totalEarnedScore += earnedScore;
+          totalConsumedScore += consumedScore;
+        });
+      } else {
+        // 没有记录，使用配置的刷的积分
+        totalEarnedScore += parseFloat(configScore) || 0;
+      }
+    }
+
+    // 模拟积分 = 前15天刷的积分总和 - 前15天扣的积分总和
+    const simulationScore = totalEarnedScore - totalConsumedScore;
+
+    // 检查积分是否合理
+    if (simulationScore > 1000000) {
+      return 0;
+    }
+
+    return Math.max(0, simulationScore); // 积分不能为负数
+
+  } catch (error) {
+    console.error('计算模拟积分时出错:', error);
+    return 0;
+  }
+}
+
+// 检查是否应该显示模拟积分
+function shouldShowSimulationScore(dateStr) {
+  if (!window.isSimulationMode) return false;
+
+  const userData = mockData.data?.[currentUser] || mockData.data?.[defaultUser];
+  if (!userData || !userData.date) return false;
+
+  // 检查当前显示模式，只有在积分模式下才显示模拟积分
+  const currentDisplayMode = window.calendarDisplayMode || 'score';
+  if (currentDisplayMode !== 'score') return false;
+
+  // 检查该日期是否已有积分记录
+  const hasScoreRecord = userData.date.some(item =>
+    item.date === dateStr && (item.curScore > 0 || item.todayScore > 0)
+  );
+
+  // 如果没有积分记录，显示模拟积分
+  return !hasScoreRecord;
+}
+
+// 获取前15天的日期范围文字
+function getDateRangeText(targetDate) {
+  try {
+    const targetDateObj = new Date(targetDate);
+    const endDate = new Date(targetDateObj);
+    endDate.setDate(endDate.getDate() - 1); // 前一天
+    const startDate = new Date(endDate);
+    startDate.setDate(startDate.getDate() - 14); // 再往前14天
+
+    const startStr = `${startDate.getMonth() + 1}/${startDate.getDate()}`;
+    const endStr = `${endDate.getMonth() + 1}/${endDate.getDate()}`;
+
+    return `${startStr}-${endStr}`;
+  } catch (error) {
+    return '前15天';
+  }
+} 

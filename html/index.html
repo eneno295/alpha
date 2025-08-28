@@ -269,6 +269,7 @@
                 <div class="airdrop-item">
                   <input type="text" class="airdrop-name" placeholder="输入空投名称" required>
                   <input type="number" class="airdrop-income" step="0.01" placeholder="收入" required>
+                  <input type="number" class="airdrop-consumption" step="1" placeholder="消耗积分" value="15" required>
                   <button type="button" class="remove-airdrop" onclick="Modal.removeAirdrop(this)">×</button>
                 </div>
               </div>
@@ -299,7 +300,7 @@
   </div>
 
   <!-- 悬浮模拟图标 -->
-  <div id="simulationIcon" class="simulation-icon" style="display: none;">
+  <div id="simulationIcon" class="simulation-icon" style="display: none;" onclick="toggleSimulationMode()">
     <span class="simulation-icon-text">模拟</span>
     <div class="simulation-tooltip">模拟计算积分</div>
   </div>

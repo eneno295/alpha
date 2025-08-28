@@ -59,6 +59,7 @@ function clearForm() {
     <div class="airdrop-item">
       <input type="text" class="airdrop-name" placeholder="输入空投名称" required>
       <input type="number" class="airdrop-income" step="0.01" placeholder="收入" required>
+      <input type="number" class="airdrop-consumption" step="1" placeholder="消耗积分" value="15" required>
       <button type="button" class="remove-airdrop" onclick="Modal.removeAirdrop(this)">×</button>
     </div>
   `;
@@ -80,6 +81,7 @@ function addAirdropField() {
   newItem.innerHTML = `
     <input type="text" class="airdrop-name" placeholder="输入空投名称" required>
     <input type="number" class="airdrop-income" step="0.01" placeholder="收入" required>
+    <input type="number" class="airdrop-consumption" step="1" placeholder="消耗积分" value="15" required>
     <button type="button" class="remove-airdrop" onclick="Modal.removeAirdrop(this)">×</button>
   `;
   airdropList.appendChild(newItem);
@@ -113,29 +115,52 @@ function addAirdropChangeListeners() {
     // 使用 MutationObserver 监听 DOM 变化
     const observer = new MutationObserver(() => {
       updateConsumptionScore();
+      // 为新添加的消耗积分输入框添加事件监听器
+      addConsumptionInputListeners();
     });
 
     observer.observe(airdropList, {
       childList: true,
       subtree: true
     });
+
+    // 初始添加事件监听器
+    addConsumptionInputListeners();
   }
+}
+
+// 为消耗积分输入框添加事件监听器
+function addConsumptionInputListeners() {
+  const consumptionInputs = document.querySelectorAll('.airdrop-consumption');
+  consumptionInputs.forEach(input => {
+    // 移除已存在的事件监听器，避免重复
+    input.removeEventListener('input', updateConsumptionScore);
+    input.removeEventListener('change', updateConsumptionScore);
+
+    // 添加新的事件监听器
+    input.addEventListener('input', updateConsumptionScore);
+    input.addEventListener('change', updateConsumptionScore);
+  });
 }
 
 // 计算并更新消耗积分
 function updateConsumptionScore() {
   const airdropItems = document.querySelectorAll('.airdrop-item');
-  const airdropData = [];
-  // 收集每个空投的数据（包括没有收益的）
+  let totalConsumption = 0;
+
+  // 计算所有空投消耗积分的总和
   airdropItems.forEach(item => {
-    const name = item.querySelector('.airdrop-name').value.trim();
-    name && airdropData.push(name);
+    const nameInput = item.querySelector('.airdrop-name');
+    const consumptionInput = item.querySelector('.airdrop-consumption');
+
+    // 只有当空投名称有内容时才计算消耗积分
+    if (nameInput && nameInput.value.trim() && consumptionInput && consumptionInput.value) {
+      totalConsumption += parseInt(consumptionInput.value) || 0;
+    }
   });
-  const airdropCount = airdropData.length;
-  const consumptionScore = airdropCount * 15;
 
   const consumptionInput = document.getElementById('ConsumptionScore');
-  consumptionInput.value = consumptionScore;
+  consumptionInput.value = totalConsumption;
 
   // 确保字段保持禁用状态
   consumptionInput.disabled = true;
@@ -158,6 +183,7 @@ function fillFormWithExistingData(existingData) {
     newItem.innerHTML = `
       <input type="text" class="airdrop-name" placeholder="输入空投名称" required value="${item.coin || ''}">
       <input type="number" class="airdrop-income" step="0.01" placeholder="收入" required value="${item.amount || ''}">
+      <input type="number" class="airdrop-consumption" step="1" placeholder="消耗积分" value="${item.consumption || 15}" required>
       <button type="button" class="remove-airdrop" onclick="Modal.removeAirdrop(this)">×</button>
     `;
     airdropList.appendChild(newItem);
@@ -170,6 +196,7 @@ function fillFormWithExistingData(existingData) {
     newItem.innerHTML = `
       <input type="text" class="airdrop-name" placeholder="输入空投名称" required>
       <input type="number" class="airdrop-income" step="0.01" placeholder="收入" required>
+      <input type="number" class="airdrop-consumption" step="1" placeholder="消耗积分" value="15" required>
       <button type="button" class="remove-airdrop" onclick="Modal.removeAirdrop(this)">×</button>
     `;
     airdropList.appendChild(newItem);
@@ -236,7 +263,8 @@ async function saveRecord(currentUser, mockData, callbacks) {
   airdropItems.forEach(item => {
     const name = item.querySelector('.airdrop-name').value.trim();
     const income = parseFloat(item.querySelector('.airdrop-income').value) || 0;
-    airdropData.push({ name, income });
+    const consumption = parseInt(item.querySelector('.airdrop-consumption').value) || 15;
+    airdropData.push({ name, income, consumption });
   });
 
   const fee = parseFloat(document.getElementById('fee').value) || 0;
@@ -265,11 +293,12 @@ async function saveRecord(currentUser, mockData, callbacks) {
     }
 
     // 为每个空投创建记录
-    airdropData.forEach(({ name, income }) => {
+    airdropData.forEach(({ name, income, consumption }) => {
       const newRecord = {
         date: selectedDate,
         coin: name,
         amount: income,
+        consumption: consumption,
         fee: fee,
         curScore: curScore,
         todayScore: todayScore,
@@ -280,6 +309,12 @@ async function saveRecord(currentUser, mockData, callbacks) {
       // 添加记录
       userData.date.push(newRecord);
     });
+
+    // 去重：删除完全重复的记录
+    userData.date = removeDuplicateRecords(userData.date);
+
+    // 排序：按日期排序
+    userData.date.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     // 更新数据
     mockData.data[currentUser] = userData;
@@ -666,4 +701,34 @@ window.Modal = {
   importData,
   exportData,
   loadTemplateData
-}; 
+};
+
+// 去重函数：删除完全重复的记录
+function removeDuplicateRecords(records) {
+  const seen = new Set();
+  const uniqueRecords = [];
+
+  records.forEach(record => {
+    // 创建记录的键，包含所有重要字段
+    const key = JSON.stringify({
+      date: record.date,
+      coin: record.coin,
+      amount: record.amount,
+      consumption: record.consumption,
+      fee: record.fee,
+      curScore: record.curScore,
+      todayScore: record.todayScore,
+      ConsumptionScore: record.ConsumptionScore,
+      remark: record.remark
+    });
+
+    if (!seen.has(key)) {
+      seen.add(key);
+      uniqueRecords.push(record);
+    } else {
+      console.log(`发现重复记录，已删除: ${record.date} - ${record.coin}`);
+    }
+  });
+
+  return uniqueRecords;
+} 

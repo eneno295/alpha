@@ -537,17 +537,24 @@ body {
   border-radius: 2px;
 }
 
-.score-indicator {
+.score-indicator,
+.simulation-score-indicator {
   position: absolute;
   top: 5px;
   right: 5px;
   font-size: 0.6rem;
-  color: var(--primary);
   font-weight: 600;
-  z-index: 1;
   background: rgba(255, 255, 255, 0.9);
   padding: 1px 2px;
   border-radius: 2px;
+}
+
+.score-indicator {
+  color: var(--primary);
+}
+
+.simulation-score-indicator {
+  color: var(--warning);
 }
 
 .custom-tooltip {
@@ -564,9 +571,28 @@ body {
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s ease;
-  z-index: 10;
+  z-index: 100000;
   pointer-events: none;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 前7个日历格子（第一行）的tooltip显示在下方 */
+.calendar-grid .calendar-day:nth-child(-n+7) .custom-tooltip {
+  top: 100%;
+  bottom: auto;
+}
+
+/* 前7个日历格子的tooltip箭头指向下方 */
+.calendar-grid .calendar-day:nth-child(-n+7) .custom-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  top: auto;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-bottom-color: rgba(0, 0, 0, 0.9);
+  border-top-color: transparent;
 }
 
 .custom-tooltip::after {
@@ -797,6 +823,11 @@ body {
 }
 
 .airdrop-income {
+  flex: 1;
+  margin: 0 !important;
+}
+
+.airdrop-consumption {
   flex: 1;
   margin: 0 !important;
 }
@@ -1580,6 +1611,16 @@ body {
 .simulation-icon:hover {
   transform: translateY(-50%) scale(1.1);
   box-shadow: var(--shadow-xl);
+}
+
+.simulation-icon.active {
+  background: var(--warning);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.simulation-icon.active:hover {
+  background: #d97706;
+  transform: translateY(-50%) scale(1.1);
 }
 
 .simulation-icon-text {
