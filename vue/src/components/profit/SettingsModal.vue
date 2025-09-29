@@ -323,18 +323,17 @@ watch(isVisible, (newVisible) => {
 
   .footer-left {
     .btn-clear {
-      background: none;
-      border: 1px solid var(--border-color);
-      color: var(--text-muted);
-      padding: 8px 16px;
+      background: var(--warning);
+      color: white;
+      border: none;
       border-radius: 6px;
+      padding: 8px 16px;
       cursor: pointer;
       font-size: 14px;
       transition: all 0.3s ease;
 
       &:hover {
-        background: var(--bg-secondary);
-        color: var(--text-primary);
+        opacity: 0.8;
       }
     }
   }
@@ -354,7 +353,7 @@ watch(isVisible, (newVisible) => {
       transition: all 0.3s ease;
 
       &:hover {
-        background: var(--bg-secondary);
+        opacity: 0.8;
       }
     }
 
@@ -369,7 +368,7 @@ watch(isVisible, (newVisible) => {
       transition: all 0.3s ease;
 
       &:hover {
-        background: var(--primary-dark);
+        opacity: 0.8;
       }
     }
   }

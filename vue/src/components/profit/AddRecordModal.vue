@@ -103,6 +103,8 @@
 import { ref, computed, watch } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useLoading } from '@/composables/useLoading'
+import { calculatePrevious15DaysScore } from '@/composables/useScoreCalculation'
+import { fetchDataFromAPI } from '@/api'
 import type { DateRecord } from '@/types'
 
 interface Props {
@@ -189,6 +191,17 @@ const fillWithFastConfig = () => {
   if (fastConfig) {
     if (fastConfig.fee) formData.value.fee = parseFloat(fastConfig.fee) || 0
     if (fastConfig.todayScore) formData.value.todayScore = parseInt(fastConfig.todayScore) || 0
+
+    // 如果启用了自动计算当前积分，且当前积分为空，则自动计算
+    if (
+      fastConfig.autoCalcCurScore &&
+      (!formData.value.curScore || formData.value.curScore === 0)
+    ) {
+      if (props.selectedDate) {
+        const calculatedScore = calculatePrevious15DaysScore(props.selectedDate)
+        formData.value.curScore = calculatedScore
+      }
+    }
   }
 }
 
@@ -232,10 +245,19 @@ const saveRecord = async () => {
       }
 
       // 获取当前用户数据
-      const currentUser = store.currentUser
+      let currentUser = store.currentUser
       if (!currentUser) {
         throw new Error('未找到用户信息')
       }
+
+      // 获取最新数据
+      const latestData = await fetchDataFromAPI()
+
+      // 合并最新数据到 store
+      store.profitData = latestData
+
+      // 重新获取当前用户数据（可能已被其他用户修改）
+      currentUser = store.profitData.data[currentUser.config.userName]
 
       // 创建新记录
       const newRecord: DateRecord = {
@@ -272,6 +294,9 @@ const saveRecord = async () => {
       if (!success) {
         throw new Error('保存失败')
       }
+
+      // 更新当前用户数据，确保页面显示最新数据
+      store.currentUser = currentUser
     }, '保存记录中...')
 
     // 关闭弹窗
@@ -314,6 +339,9 @@ const clearCurrentDayData = async () => {
       if (!success) {
         throw new Error('清空失败')
       }
+
+      // 更新当前用户数据，确保页面显示最新数据
+      store.currentUser = currentUser
     }, '清空数据中...')
 
     // 关闭弹窗
@@ -586,7 +614,7 @@ watch(
       transition: all 0.3s ease;
 
       &:hover {
-        background: var(--warning-dark);
+        opacity: 0.8;
       }
     }
   }
@@ -606,8 +634,7 @@ watch(
       transition: all 0.3s ease;
 
       &:hover {
-        background: var(--bg-secondary);
-        color: var(--text-primary);
+        opacity: 0.8;
       }
     }
 
@@ -622,7 +649,7 @@ watch(
       transition: all 0.3s ease;
 
       &:hover {
-        background: var(--primary-dark);
+        opacity: 0.8;
       }
     }
   }

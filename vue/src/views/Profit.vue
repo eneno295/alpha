@@ -162,6 +162,8 @@ onUnmounted(() => {
   min-height: 100vh;
   background: var(--bg-primary);
   color: var(--text-primary);
+  position: relative;
+  overflow-x: hidden;
 }
 
 // 右侧悬浮按钮组
@@ -177,24 +179,26 @@ onUnmounted(() => {
 }
 
 .floating-btn {
-  background: var(--bg-primary);
+  background: var(--bg-card);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 12px 16px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
-  min-width: 120px;
   box-shadow: var(--shadow-md);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 14px;
   font-weight: 500;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 
   &:hover {
-    transform: translateX(-4px);
-    box-shadow: var(--shadow-lg);
+    transform: translateX(-4px) scale(1.02);
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+    border-color: var(--border-glow);
   }
 
   .btn-icon {
@@ -209,59 +213,83 @@ onUnmounted(() => {
   // 不同按钮的主题色
   &.current-score-btn {
     border-color: var(--primary);
+    background: var(--gradient-button);
 
     &:hover,
     &.active {
-      background: var(--primary);
+      background: var(--gradient-primary);
       color: white;
+      box-shadow:
+        var(--shadow-lg),
+        0 0 20px rgba(59, 130, 246, 0.4);
     }
 
     &.active {
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+      box-shadow:
+        0 0 0 3px rgba(59, 130, 246, 0.3),
+        0 0 20px rgba(59, 130, 246, 0.4);
     }
   }
 
   &.today-score-btn {
     border-color: var(--primary);
+    background: var(--gradient-button);
 
     &:hover,
     &.active {
-      background: var(--primary);
+      background: var(--gradient-primary);
       color: white;
+      box-shadow:
+        var(--shadow-lg),
+        0 0 20px rgba(59, 130, 246, 0.4);
     }
 
     &.active {
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+      box-shadow:
+        0 0 0 3px rgba(59, 130, 246, 0.3),
+        0 0 20px rgba(59, 130, 246, 0.4);
     }
   }
 
   &.add-score-btn {
     border-color: var(--success);
+    background: var(--gradient-button);
 
     &:hover,
     &.active {
-      background: var(--success);
+      background: var(--gradient-success);
       color: white;
+      box-shadow:
+        var(--shadow-lg),
+        0 0 20px rgba(16, 185, 129, 0.4);
     }
 
     &.active {
-      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.3);
+      box-shadow:
+        0 0 0 3px rgba(34, 197, 94, 0.3),
+        0 0 20px rgba(16, 185, 129, 0.4);
     }
   }
 
   &.simulation-btn {
-    border-color: var(--primary);
+    border-color: var(--warning);
+    background: var(--gradient-button);
 
     &:hover {
-      background: var(--primary);
+      background: var(--gradient-warning);
       color: white;
+      box-shadow:
+        var(--shadow-lg),
+        0 0 20px rgba(245, 158, 11, 0.4);
     }
 
     &.active {
-      background: var(--warning);
+      background: var(--gradient-warning);
       color: white;
       border-color: var(--warning);
-      box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.3);
+      box-shadow:
+        0 0 0 3px rgba(255, 193, 7, 0.3),
+        0 0 20px rgba(245, 158, 11, 0.4);
     }
   }
 }
@@ -269,12 +297,12 @@ onUnmounted(() => {
 /* 响应式设计 */
 @media (max-width: 768px) {
   .floating-buttons {
+    top: 170px;
     right: 15px;
     gap: 8px;
   }
 
   .floating-btn {
-    min-width: 100px;
     padding: 10px 12px;
     font-size: 12px;
 
@@ -284,24 +312,6 @@ onUnmounted(() => {
 
     .btn-text {
       display: none; // 小屏幕隐藏文字，只显示图标
-    }
-  }
-}
-
-@media (max-width: 480px) {
-  .floating-buttons {
-    right: 10px;
-    gap: 6px;
-  }
-
-  .floating-btn {
-    min-width: 50px;
-    padding: 8px;
-    border-radius: 50%;
-    justify-content: center;
-
-    .btn-icon {
-      font-size: 16px;
     }
   }
 }

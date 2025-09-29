@@ -64,7 +64,7 @@
                   'simulation-score-data-value',
                   shouldShowSimulationScore(val.date, true) ? 'hasData' : 'noData',
                 ]"
-                >{{ calculateSimulationScore(val.date) }}</span
+                >{{ calculatePrevious15DaysScore(val.date) }}</span
               >
             </div>
           </div>
@@ -117,7 +117,6 @@
       :selectedDate="selectedDate"
       :isEditing="isEditing"
       @close="closeAddRecordModal"
-      @success="onRecordSuccess"
     />
   </div>
 </template>
@@ -125,6 +124,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useAppStore } from '@/stores/app'
+import { calculatePrevious15DaysScore } from '@/composables/useScoreCalculation'
 import AddRecordModal from './AddRecordModal.vue'
 
 // 使用 store
@@ -355,11 +355,6 @@ const closeAddRecordModal = () => {
   isEditing.value = false
 }
 
-const onRecordSuccess = () => {
-  // 记录保存成功后，可以在这里添加额外的逻辑
-  console.log('记录保存成功')
-}
-
 // 检查是否应该显示模拟积分
 const shouldShowSimulationScore = (dateStr: string | null, isTooltip: boolean = false) => {
   if (!dateStr || !store.openSimulation) return false
@@ -377,60 +372,6 @@ const shouldShowSimulationScore = (dateStr: string | null, isTooltip: boolean = 
 
   // 如果没有当前积分记录，显示模拟积分
   return !hasCurScoreRecord
-}
-
-// 计算模拟积分 - 从最后一天有数据开始计算前15天
-const calculateSimulationScore = (targetDate: string) => {
-  try {
-    const userData = store.currentUser
-    if (!userData || !userData.date) return 0
-
-    const dateData = userData.date
-    const targetDateObj = new Date(targetDate)
-
-    // 获取配置的刷的积分
-    const configScore = store.currentConfig?.fastConfig?.todayScore || 0
-
-    let totalEarnedScore = 0 // 前15天刷的积分总和
-    let totalConsumedScore = 0 // 前15天扣的积分总和
-
-    // 计算前15天的积分
-    for (let i = 1; i <= 15; i++) {
-      const checkDate = new Date(targetDateObj)
-      checkDate.setDate(checkDate.getDate() - i)
-      const checkDateStr = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, '0')}-${String(checkDate.getDate()).padStart(2, '0')}`
-
-      // 查找该日期的记录
-      const dayRecords = dateData.filter((item) => item.date === checkDateStr)
-
-      if (dayRecords.length > 0) {
-        // 有记录，累加刷的积分和扣的积分
-        dayRecords.forEach((record) => {
-          const earnedScore = Number(record.todayScore) || 0
-          const consumedScore = Number(record.consumptionScore) || 0
-
-          totalEarnedScore += earnedScore
-          totalConsumedScore += consumedScore
-        })
-      } else {
-        // 没有记录，使用配置的刷的积分
-        totalEarnedScore += Number(configScore) || 0
-      }
-    }
-
-    // 模拟积分 = 前15天刷的积分总和 - 前15天扣的积分总和
-    const simulationScore = totalEarnedScore - totalConsumedScore
-
-    // 检查积分是否合理
-    if (simulationScore > 1000000) {
-      return 0
-    }
-
-    return Math.max(0, simulationScore) // 积分不能为负数
-  } catch (error) {
-    console.error('计算模拟积分时出错:', error)
-    return 0
-  }
 }
 
 // 获取前15天的日期范围文字
@@ -599,12 +540,12 @@ const getDateRangeText = (targetDate: string) => {
       }
 
       &.has-data {
-        background: var(--success);
+        background: #10b981;
         color: white;
         box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
 
         &:hover {
-          background: var(--success);
+          background: #10b981;
           opacity: 0.9;
         }
         .day-number {
@@ -750,8 +691,7 @@ const getDateRangeText = (targetDate: string) => {
 /* 简化的响应式设计 */
 @media (max-width: 768px) {
   .calendar-container {
-    padding-left: 8px;
-    padding-right: 8px;
+    padding: 0;
   }
 
   .main-title {

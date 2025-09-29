@@ -49,12 +49,6 @@ export const useAppStore = defineStore('app', () => {
   // 更新数据到 API
   const updateData = async (newData: ProfitData) => {
     const res = await updateDataInAPI(newData)
-    if (res) {
-      // 更新成功，保持原有数据结构
-      console.log('✅ 数据更新成功')
-    } else {
-      console.error('❌ 数据更新失败')
-    }
     return res
   }
 
