@@ -10,32 +10,51 @@
     </div>
 
     <div class="header-right">
-      <button class="icon-btn" title="导入导出">
+      <button v-if="showFastConfig" class="icon-btn" title="快捷配置" @click="openSettingsModal">
+        <span class="config-icon">⚙️</span>
+      </button>
+      <!-- <button v-if="showImportExportIcon" class="icon-btn" title="导入导出">
         <span class="import-export-icon">📁</span>
-      </button>
-      <button class="icon-btn" title="切换日历显示模式" @click="toggleCalendarDisplayMode">
-        <span class="calendar-display-icon">{{
-          calendarDisplayMode === 'claimable' ? '📊' : '🎯'
-        }}</span>
-      </button>
-      <button class="icon-btn" title="切换主题" @click="toggleTheme">
+      </button> -->
+      <button v-if="showThemeIcon" class="icon-btn" title="切换主题" @click="toggleTheme">
         <span class="theme-icon">{{ currentTheme === 'light' ? '☀️' : '🌙' }}</span>
       </button>
     </div>
   </header>
+
+  <!-- 设置弹窗 -->
+  <SettingsModal :visible="showSettingsModal" @close="closeSettingsModal" />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useAppStore } from '@/stores/app'
 import UserSelector from './UserSelector.vue'
+import SettingsModal from './SettingsModal.vue'
 
 // 获取 store
 const store = useAppStore()
 
+// 设置弹窗状态
+const showSettingsModal = ref(false)
+
 // 内部状态管理
 const currentTheme = computed(() => store.currentConfig?.theme || 'light')
-const calendarDisplayMode = computed(() => store.currentConfig?.calendarDisplayMode || 'claimable')
+
+// 按钮显示控制
+const showFastConfig = computed(() => store.currentConfig?.showFastConfig)
+const showImportExportIcon = computed(() => store.currentConfig?.showImportExportIcon)
+const showThemeIcon = computed(() => store.currentConfig?.showThemeIcon)
+
+// 打开设置弹窗
+const openSettingsModal = () => {
+  showSettingsModal.value = true
+}
+
+// 关闭设置弹窗
+const closeSettingsModal = () => {
+  showSettingsModal.value = false
+}
 
 // 切换主题
 const toggleTheme = async () => {
@@ -43,25 +62,9 @@ const toggleTheme = async () => {
 
   try {
     const newTheme = currentTheme.value === 'light' ? 'dark' : 'light'
-    const res = await store.updateUserConfigAction(store.currentConfig.userName, 'theme', newTheme)
+    await store.updateUserConfigAction(store.currentConfig?.userName, 'theme', newTheme)
   } catch (error) {
     console.error('❌ 主题更新出错:', error)
-  }
-}
-
-// 切换日历显示模式
-const toggleCalendarDisplayMode = async () => {
-  if (!store.currentUser) return
-
-  try {
-    const newMode = calendarDisplayMode.value === 'claimable' ? 'score' : 'claimable'
-    const res = await store.updateUserConfigAction(
-      store.currentConfig.userName,
-      'calendarDisplayMode',
-      newMode,
-    )
-  } catch (error) {
-    console.error('❌ 日历显示模式更新出错:', error)
   }
 }
 </script>
@@ -70,7 +73,7 @@ const toggleCalendarDisplayMode = async () => {
 // 导航栏样式
 .header {
   background: var(--gradient-primary);
-  padding: 1rem 1.5rem;
+  padding: 16px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -83,7 +86,7 @@ const toggleCalendarDisplayMode = async () => {
   &-right {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 16px;
   }
 
   &-center {
@@ -94,9 +97,9 @@ const toggleCalendarDisplayMode = async () => {
 
 .main-title {
   color: white;
-  font-size: 1.5rem;
+  font-size: 24px;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 8px;
 }
 
 // 用户资料按钮
@@ -108,17 +111,26 @@ const toggleCalendarDisplayMode = async () => {
   background: rgba(255, 255, 255, 0.1);
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
+  padding: 8px 16px;
   border-radius: 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
+  gap: 8px;
+  font-size: 14px;
   transition: all 0.3s ease;
 
   &:hover {
     background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+.dropdown-arrow {
+  font-size: 12px;
+  transition: transform 0.3s ease;
+
+  &.rotated {
+    transform: rotate(180deg);
   }
 }
 
@@ -136,6 +148,27 @@ const toggleCalendarDisplayMode = async () => {
   transform: translateY(-10px);
   transition: all 0.3s ease;
   z-index: 1000;
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+}
+
+.menu-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  color: var(--text-primary);
+
+  &:hover {
+    background: var(--bg-secondary);
+  }
+
+  &.active {
+    color: var(--primary);
+  }
 }
 
 // 图标按钮
@@ -150,11 +183,11 @@ const toggleCalendarDisplayMode = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 19px;
   transition: all 0.3s ease;
 
   &:hover {
     background: rgba(255, 255, 255, 0.2);
-    transform: scale(1.05);
   }
 }
 
@@ -162,10 +195,10 @@ const toggleCalendarDisplayMode = async () => {
   font-size: 1.2rem;
 }
 
-// 响应式设计
+/* 简化的响应式设计 */
 @media (max-width: 768px) {
   .header {
-    padding: 0.75rem 1rem;
+    padding: 12px 16px;
     flex-direction: row;
     gap: 0.5rem;
     align-items: center;

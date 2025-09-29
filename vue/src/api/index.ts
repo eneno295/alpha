@@ -4,11 +4,14 @@ import type { ProfitData, ApiResponse, UserConfig } from '@/types'
 
 // 用户BIN_ID映射
 const binIdMap = new Map([
-  ['lanbb', '68919b1aae596e708fc1da23'],
+  ['ss', '68da884143b1c97be9543259'],
+  ['ll', '68919b1aae596e708fc1da23'],
+  ['mm', '68939dfbf7e7a370d1f59af1'],
   ['knine', '68919d64f7e7a370d1f412ca'],
   ['kayla', '68919d3bae596e708fc1dc8e'],
   ['echo', '68919d4fae596e708fc1dcb1'],
-  ['ces', '6891a9a77b4b8670d8ad84da']
+  ['adam', '6892fc5af7e7a370d1f50b35'],
+  ['ces', '68b06dffd0ea881f4069538e']
 ])
 
 // 从URL参数获取当前BIN_ID
@@ -102,6 +105,38 @@ export async function updateUserConfig(
     return false
   } catch (error) {
     console.error(`❌ 更新用户配置失败:`, error)
+    return false
+  }
+}
+
+/**
+ * 批量更新用户配置
+ * @param userName 用户名
+ * @param configs 配置对象
+ * @param currentData 当前数据
+ * @returns true/false 是否更新成功
+ */
+export async function updateUserConfigs(
+  userName: string,
+  configs: Partial<UserConfig>,
+  currentData: ProfitData,
+): Promise<boolean> {
+  try {
+    // 批量更新配置
+    Object.entries(configs).forEach(([key, value]) => {
+      ; (currentData.data[userName].config as any)[key] = value
+    })
+
+    // 只调用一次API
+    const res = await updateDataInAPI(currentData)
+
+    if (res) {
+      console.log(`✅ ${userName} 的批量配置更新成功:`, configs)
+      return res
+    }
+    return false
+  } catch (error) {
+    console.error(`❌ 批量更新用户配置失败:`, error)
     return false
   }
 }

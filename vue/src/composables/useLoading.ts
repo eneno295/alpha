@@ -19,10 +19,31 @@ export function useLoading() {
     globalIsLoading.value = false
   }
 
+  // 设置加载消息
+  const setLoadingMessage = (message: string) => {
+    globalLoadingMessage.value = message
+  }
+
+  // 带自动隐藏的加载状态
+  const withLoading = async <T>(
+    asyncFn: () => Promise<T>,
+    message?: string
+  ): Promise<T> => {
+    showLoadingState(message)
+    try {
+      const result = await asyncFn()
+      return result
+    } finally {
+      hideLoadingState()
+    }
+  }
+
   return {
     isLoading: globalIsLoading,
     loadingMessage: globalLoadingMessage,
     showLoadingState,
-    hideLoadingState
+    hideLoadingState,
+    setLoadingMessage,
+    withLoading
   }
 } 

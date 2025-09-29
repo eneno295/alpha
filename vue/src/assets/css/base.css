@@ -31,6 +31,24 @@
   --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
 }
 
+/* rem自适应设置 */
+html {
+  font-size: 16px;
+}
+
+/* 响应式rem缩放 */
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 380px) {
+  html {
+    font-size: 12px;
+  }
+}
+
 /* 深色主题 */
 [data-theme="dark"] {
   --bg-primary: #0f172a;

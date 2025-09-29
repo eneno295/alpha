@@ -30,19 +30,13 @@ const store = useAppStore()
 const isMenuOpen = ref(false)
 
 // 当前用户名
-const currentUserName = computed(() => {
-  return store.currentConfig?.userName
-})
+const currentUserName = computed(() => store.currentConfig?.userName)
 
 // 计算可用用户列表
-const availableUsers = computed(() => {
-  return store.profitData?.users || []
-})
+const availableUsers = computed(() => store.profitData?.users || [])
 
 // 下拉框是否可用
-const selectAvailable = computed(() => {
-  return availableUsers.value.length > 1
-})
+const selectAvailable = computed(() => availableUsers.value.length > 1)
 
 // 切换用户菜单
 const toggleUserMenu = () => {
@@ -52,10 +46,9 @@ const toggleUserMenu = () => {
 
 // 选择用户
 const selectUser = (userName: string) => {
-  // 直接更新 store 中的当前用户
-  store.currentUser = store.profitData?.data[userName] || null
+  // 切换 store 中的当前用户
+  store.toggleUser(userName)
   isMenuOpen.value = false
-  console.log('👤 当前用户:', userName)
 }
 
 // 点击外部关闭菜单
@@ -86,13 +79,13 @@ onUnmounted(() => {
   background: rgba(255, 255, 255, 0.1);
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
+  padding: 8px 16px;
   border-radius: 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
+  gap: 8px;
+  font-size: 14px;
   transition: all 0.3s ease;
 
   &:hover {
@@ -101,7 +94,7 @@ onUnmounted(() => {
 }
 
 .dropdown-arrow {
-  font-size: 0.75rem;
+  font-size: 12px;
   transition: transform 0.3s ease;
 
   &.rotated {
@@ -132,7 +125,7 @@ onUnmounted(() => {
 }
 
 .menu-item {
-  padding: 0.75rem 1rem;
+  padding: 12px 16px;
   cursor: pointer;
   transition: background 0.3s ease;
   color: var(--text-primary);
