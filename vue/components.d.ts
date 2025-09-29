@@ -10,7 +10,6 @@ declare module 'vue' {
   export interface GlobalComponents {
     AddRecordModal: typeof import('./src/components/profit/AddRecordModal.vue')['default']
     Calendar: typeof import('./src/components/profit/Calendar.vue')['default']
-    copy: typeof import('./src/components/profit/Calendar copy.vue')['default']
     Header: typeof import('./src/components/profit/Header.vue')['default']
     LoadingSpinner: typeof import('./src/components/common/LoadingSpinner.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
