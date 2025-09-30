@@ -44,13 +44,13 @@ let timer: number | null = null
 const startTimer = () => {
   if (timer) clearTimeout(timer)
   timer = setTimeout(() => {
-    close()
+    // close()
   }, props.duration)
 }
 
 const close = () => {
-  visible.value = false
-  emit('close')
+  // visible.value = false
+  // emit('close')
 }
 
 watch(
@@ -136,6 +136,10 @@ onUnmounted(() => {
 
 .toast-content {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 
   .toast-title {
     font-weight: 600;

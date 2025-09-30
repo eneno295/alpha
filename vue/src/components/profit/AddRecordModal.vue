@@ -1,108 +1,103 @@
 <template>
-  <div v-if="visible" class="modal-overlay" @click.self="closeModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>{{ modalTitle }}</h3>
-        <button class="modal-close" @click="closeModal">×</button>
+  <BaseModal
+    :visible="visible"
+    :title="modalTitle"
+    size="medium"
+    @close="closeModal"
+    @confirm="saveRecord"
+  >
+    <form @submit.prevent="saveRecord">
+      <!-- 积分信息 -->
+      <div class="score-row">
+        <div class="form-group">
+          <label>当前积分</label>
+          <input v-model="formData.curScore" type="number" step="1" placeholder="0" />
+        </div>
+
+        <div class="form-group">
+          <label>今日刷的积分</label>
+          <input v-model="formData.todayScore" type="number" step="1" placeholder="0" />
+        </div>
+
+        <div class="form-group">
+          <label>消耗积分</label>
+          <input
+            v-model="formData.consumptionScore"
+            type="number"
+            step="1"
+            placeholder="0"
+            readonly
+            disabled
+          />
+        </div>
+
+        <div class="form-group">
+          <label>手续费</label>
+          <input v-model="formData.fee" type="number" step="0.01" placeholder="0.00" />
+        </div>
       </div>
 
-      <div class="modal-body">
-        <form @submit.prevent="saveRecord">
-          <!-- 积分信息 -->
-          <div class="score-row">
-            <div class="form-group">
-              <label>当前积分</label>
-              <input v-model="formData.curScore" type="number" step="1" placeholder="0" />
-            </div>
-
-            <div class="form-group">
-              <label>今日刷的积分</label>
-              <input v-model="formData.todayScore" type="number" step="1" placeholder="0" />
-            </div>
-
-            <div class="form-group">
-              <label>消耗积分</label>
+      <!-- 空投信息 -->
+      <div class="form-group lineBreak-group">
+        <label>空投信息</label>
+        <div class="airdrop-container">
+          <div class="airdrop-list">
+            <div v-for="(airdrop, index) in formData.coin" :key="index" class="airdrop-item">
               <input
-                v-model="formData.consumptionScore"
-                type="number"
-                step="1"
-                placeholder="0"
-                readonly
-                disabled
+                v-model="airdrop.name"
+                type="text"
+                class="airdrop-name"
+                placeholder="输入空投名称"
+                required
               />
-            </div>
-
-            <div class="form-group">
-              <label>手续费</label>
-              <input v-model="formData.fee" type="number" step="0.01" placeholder="0.00" />
-            </div>
-          </div>
-
-          <!-- 空投信息 -->
-          <div class="form-group lineBreak-group">
-            <label>空投信息</label>
-            <div class="airdrop-container">
-              <div class="airdrop-list">
-                <div v-for="(airdrop, index) in formData.coin" :key="index" class="airdrop-item">
-                  <input
-                    v-model="airdrop.name"
-                    type="text"
-                    class="airdrop-name"
-                    placeholder="输入空投名称"
-                    required
-                  />
-                  <input
-                    v-model="airdrop.amount"
-                    type="number"
-                    class="airdrop-income"
-                    step="0.01"
-                    placeholder="收入"
-                    required
-                  />
-                  <input
-                    v-model="airdrop.score"
-                    type="number"
-                    class="airdrop-consumption"
-                    step="1"
-                    placeholder="消耗积分"
-                    required
-                  />
-                  <button type="button" class="remove-airdrop" @click="removeAirdrop(index)">
-                    ×
-                  </button>
-                </div>
-              </div>
-              <button type="button" class="add-airdrop-btn" @click="addAirdrop">
-                <span>+</span> 添加空投
-              </button>
+              <input
+                v-model="airdrop.amount"
+                type="number"
+                class="airdrop-income"
+                step="0.01"
+                placeholder="收入"
+                required
+              />
+              <input
+                v-model="airdrop.score"
+                type="number"
+                class="airdrop-consumption"
+                step="1"
+                placeholder="消耗积分"
+                required
+              />
+              <button type="button" class="remove-airdrop" @click="removeAirdrop(index)">×</button>
             </div>
           </div>
-
-          <!-- 备注 -->
-          <div class="form-group">
-            <label>备注</label>
-            <textarea v-model="formData.remark" placeholder="添加备注信息" rows="3"></textarea>
-          </div>
-        </form>
-      </div>
-
-      <div class="modal-footer">
-        <div class="footer-left">
-          <button type="button" class="btn-clear" @click="clearCurrentDayData">清空</button>
-        </div>
-        <div class="footer-right">
-          <button type="button" class="btn-cancel" @click="closeModal">取消</button>
-          <button type="button" class="btn-save" @click="saveRecord">保存</button>
+          <button type="button" class="add-airdrop-btn" @click="addAirdrop">
+            <span>+</span> 添加空投
+          </button>
         </div>
       </div>
-    </div>
-  </div>
+
+      <!-- 备注 -->
+      <div class="form-group">
+        <label>备注</label>
+        <textarea v-model="formData.remark" placeholder="添加备注信息" rows="3"></textarea>
+      </div>
+    </form>
+
+    <template #footer-left>
+      <button type="button" class="btn-clear" @click="clearCurrentDayData">清空</button>
+    </template>
+
+    <template #footer-right>
+      <button type="button" class="btn-cancel" @click="closeModal">取消</button>
+      <button type="button" class="btn-save" @click="saveRecord">保存</button>
+    </template>
+  </BaseModal>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useLoading } from '@/composables/useLoading'
+import BaseModal from '@/components/common/BaseModal.vue'
 import { calculatePrevious15DaysScore } from '@/composables/useScoreCalculation'
 import { fetchDataFromAPI } from '@/api'
 import type { DateRecord } from '@/types'
@@ -259,6 +254,9 @@ const saveRecord = async () => {
       // 重新获取当前用户数据（可能已被其他用户修改）
       currentUser = store.profitData.data[currentUser.config.userName]
 
+      // 获取旧记录（用于日志对比）
+      const oldRecord = currentUser.date.find((item) => item.date === props.selectedDate)
+
       // 创建新记录
       const newRecord: DateRecord = {
         date: props.selectedDate,
@@ -286,17 +284,26 @@ const saveRecord = async () => {
       currentUser.date = removeDuplicateRecords(currentUser.date)
       currentUser.date.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
-      // 更新数据
+      // 先更新 store.currentUser，让 createLogEntry 能正确访问
+      store.currentUser = currentUser
       store.profitData.data[currentUser.config.userName] = currentUser
 
-      // 保存到API
-      const success = await store.updateData(store.profitData)
+      // 准备日志信息
+      const action = props.isEditing ? '修改记录' : '新增记录'
+      const logEntry = {
+        action,
+        type: (props.isEditing ? 'editRecord' : 'addRecord') as 'editRecord' | 'addRecord',
+        details: JSON.stringify({
+          oldData: oldRecord,
+          newData: newRecord,
+        }),
+      }
+
+      // 一次性保存数据和日志（日志会添加到 store.currentUser，然后更新到 profitData）
+      const success = await store.updateData(store.profitData, logEntry)
       if (!success) {
         throw new Error('保存失败')
       }
-
-      // 更新当前用户数据，确保页面显示最新数据
-      store.currentUser = currentUser
     }, '保存记录中...')
 
     // 关闭弹窗
@@ -331,17 +338,22 @@ const clearCurrentDayData = async () => {
       // 删除该日期的所有记录
       currentUser.date = currentUser.date.filter((item) => item.date !== props.selectedDate)
 
-      // 更新数据
+      // 先更新 store.currentUser，让 createLogEntry 能正确访问
+      store.currentUser = currentUser
       store.profitData.data[currentUser.config.userName] = currentUser
 
-      // 保存到API
-      const success = await store.updateData(store.profitData)
+      // 准备日志信息
+      const logEntry = {
+        action: '清空记录',
+        type: 'clearRecord' as const,
+        details: `${props.selectedDate} 的数据已清空`,
+      }
+
+      // 一次性保存数据和日志
+      const success = await store.updateData(store.profitData, logEntry)
       if (!success) {
         throw new Error('清空失败')
       }
-
-      // 更新当前用户数据，确保页面显示最新数据
-      store.currentUser = currentUser
     }, '清空数据中...')
 
     // 关闭弹窗
@@ -402,266 +414,169 @@ watch(
 </script>
 
 <style lang="scss" scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+.score-row {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10000;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-
-.modal-content {
-  background: var(--bg-primary);
-  border-radius: 12px;
-  box-shadow: var(--shadow-lg);
-  width: 90%;
-  max-width: 500px;
-  max-height: 85vh;
-  overflow-y: auto;
-  animation: modalSlideIn 0.3s ease;
-}
-
-@keyframes modalSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  gap: 15px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  .form-group {
+    flex: 1;
+    min-width: 120px;
   }
 }
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border-color);
-
-  h3 {
-    margin: 0;
+.form-group {
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
     color: var(--text-primary);
-    font-size: 18px;
-    font-weight: 600;
   }
 
-  .modal-close {
-    background: none;
+  input,
+  textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: border-color 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    &:disabled {
+      background: var(--bg-tertiary);
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+  }
+
+  textarea {
+    min-height: 60px;
+    resize: vertical;
+  }
+
+  &.lineBreak-group {
+    margin-bottom: 15px;
+  }
+}
+
+.airdrop-container {
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  padding: 15px;
+  border-radius: 8px;
+  .airdrop-list {
+    margin-bottom: 12px;
+
+    .airdrop-item {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr auto;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+
+      input {
+        margin-bottom: 0;
+      }
+
+      .remove-airdrop {
+        background: var(--error);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all 0.3s ease;
+
+        &:hover {
+          transform: scale(1.1);
+          font-size: 17px;
+        }
+      }
+    }
+  }
+
+  .add-airdrop-btn {
+    background: var(--primary);
+    color: white;
     border: none;
-    font-size: 24px;
-    color: var(--text-muted);
+    border-radius: 6px;
+    padding: 10px 16px;
     cursor: pointer;
-    padding: 0;
-    width: 32px;
-    height: 32px;
+    font-size: 14px;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: all 0.3s ease;
+    gap: 8px;
 
     &:hover {
-      background: var(--bg-secondary);
-      color: var(--text-primary);
+      background: var(--primary-dark);
+    }
+
+    span {
+      font-size: 16px;
+      font-weight: bold;
     }
   }
 }
 
-.modal-body {
-  padding: 20px;
+.btn-clear {
+  background: var(--warning);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
 
-  .score-row {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 15px;
-    flex-wrap: wrap;
-    .form-group {
-      flex: 1;
-      min-width: 120px;
-    }
-  }
-
-  .form-group {
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
-      color: var(--text-primary);
-    }
-
-    input,
-    textarea {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-      transition: border-color 0.3s ease;
-
-      &:focus {
-        outline: none;
-        border-color: var(--primary);
-      }
-
-      &:disabled {
-        background: var(--bg-tertiary);
-        color: var(--text-muted);
-        cursor: not-allowed;
-      }
-    }
-
-    textarea {
-      min-height: 60px;
-      resize: vertical;
-    }
-
-    &.lineBreak-group {
-      margin-bottom: 15px;
-    }
-  }
-
-  .airdrop-container {
-    border: 1px solid var(--border-color);
-    background: var(--bg-secondary);
-    padding: 15px;
-    border-radius: 8px;
-    .airdrop-list {
-      margin-bottom: 12px;
-
-      .airdrop-item {
-        display: grid;
-        grid-template-columns: 2fr 1fr 1fr auto;
-        gap: 8px;
-        align-items: center;
-        margin-bottom: 8px;
-
-        input {
-          margin-bottom: 0;
-        }
-
-        .remove-airdrop {
-          background: var(--error);
-          color: white;
-          border: none;
-          border-radius: 50%;
-          width: 24px;
-          height: 24px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          font-size: 16px;
-          transition: all 0.3s ease;
-
-          &:hover {
-            transform: scale(1.1);
-            font-size: 17px;
-          }
-        }
-      }
-    }
-
-    .add-airdrop-btn {
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 16px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
-      &:hover {
-        background: var(--primary-dark);
-      }
-
-      span {
-        font-size: 16px;
-        font-weight: bold;
-      }
-    }
+  &:hover {
+    opacity: 0.8;
   }
 }
 
-.modal-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 20px;
-  border-top: 1px solid var(--border-color);
+.btn-cancel {
+  background: none;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
 
-  .footer-left {
-    .btn-clear {
-      background: var(--warning);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 20px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.3s ease;
-
-      &:hover {
-        opacity: 0.8;
-      }
-    }
+  &:hover {
+    opacity: 0.8;
   }
+}
 
-  .footer-right {
-    display: flex;
-    gap: 10px;
+.btn-save {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
 
-    .btn-cancel {
-      background: none;
-      color: var(--text-muted);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      padding: 10px 20px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.3s ease;
-
-      &:hover {
-        opacity: 0.8;
-      }
-    }
-
-    .btn-save {
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 20px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.3s ease;
-
-      &:hover {
-        opacity: 0.8;
-      }
-    }
+  &:hover {
+    opacity: 0.8;
   }
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .modal-content {
-    width: 95%;
-    margin: 20px;
-  }
-
   .score-row {
     grid-template-columns: 1fr;
     gap: 12px;
@@ -670,12 +585,6 @@ watch(
   .airdrop-item {
     grid-template-columns: 1fr;
     gap: 8px;
-  }
-
-  .modal-header,
-  .modal-body,
-  .modal-footer {
-    padding: 16px;
   }
 }
 </style>

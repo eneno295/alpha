@@ -141,5 +141,20 @@ export async function updateUserConfigs(
   }
 }
 
+// 获取用户 IP 地址
+export async function getUserIP(): Promise<string> {
+  try {
+    const response = await fetch('https://api.ipify.org?format=json')
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    const data = await response.json()
+    return data.ip || 'Unknown'
+  } catch (error) {
+    console.error('❌ 获取IP地址失败:', error)
+    return 'Unknown'
+  }
+}
+
 // 导出配置
 export { JSONBIN_CONFIG, binIdMap } 

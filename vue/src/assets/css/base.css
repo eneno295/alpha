@@ -94,6 +94,12 @@ html {
   --gradient-card: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%);
 }
 
+/* 浅色主题 */
+[data-theme="light"] {
+  --header-bg: var(--gradient-primary);
+  --other-month-bg: var(--bg-primary);
+}
+
 /* 基础样式 */
 * {
   margin: 0;

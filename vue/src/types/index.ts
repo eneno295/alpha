@@ -12,6 +12,7 @@ export interface ApiResponse {
 export interface UserData {
   config: UserConfig // 用户配置
   date: DateRecord[] // 日期记录列表
+  log?: LogEntry[] // 操作日志
 }
 
 export interface UserConfig {
@@ -23,6 +24,7 @@ export interface UserConfig {
   showImportExportIcon: boolean // 是否显示导入导出图标
   showSimulationScore?: boolean // 是否显示模拟积分功能
   showFastConfig?: boolean // 是否显示快捷配置
+  showClearLogs?: boolean // 是否显示清空日志按钮
   fastConfig?: {
     fee: string // 手续费
     todayScore: string // 今日积分
@@ -42,4 +44,13 @@ export interface DateRecord {
   todayScore?: number // 今日积分
   consumptionScore?: number // 消耗积分
   remark?: string // 备注
+}
+
+export interface LogEntry {
+  id: number // 日志ID
+  timestamp: number // 时间戳
+  action: string // 操作类型
+  details?: string // 操作详情
+  ip: string // IP 地址
+  type: 'addRecord' | 'editRecord' | 'clearRecord' | 'editConfigs' | 'editConfig' // 操作类型
 }

@@ -1,84 +1,75 @@
 <template>
-  <!-- 设置弹窗 -->
-  <div v-if="isVisible" class="modal-overlay" @click="closeModal">
-    <div class="modal-content" @click.stop>
-      <div class="modal-header">
-        <h3>快捷配置</h3>
-        <button class="modal-close" @click="closeModal">×</button>
-      </div>
-
-      <div class="modal-body">
-        <form @submit.prevent="saveConfig">
-          <!-- 快捷配置区域 -->
-          <div class="score-row">
-            <div class="form-group">
-              <label>手续费</label>
-              <input v-model="config.fastConfig.fee" type="number" step="0.01" placeholder="0.00" />
-            </div>
-
-            <div class="form-group">
-              <label>刷的积分</label>
-              <input
-                v-model="config.fastConfig.todayScore"
-                type="number"
-                step="1"
-                placeholder="0"
-              />
-            </div>
-          </div>
-
-          <!-- 功能开关区域 -->
-          <div class="form-group checkbox-group">
-            <label class="checkbox-label">
-              <input v-model="config.fastConfig.autoCalcCurScore" type="checkbox" />
-              <span class="checkmark"></span>
-              自动计算当前积分
-            </label>
-          </div>
-
-          <div class="form-group checkbox-group">
-            <label class="checkbox-label">
-              <input v-model="config.showSimulationScore" type="checkbox" />
-              <span class="checkmark"></span>
-              模拟积分功能
-            </label>
-          </div>
-
-          <div class="form-group checkbox-group">
-            <label class="checkbox-label">
-              <input v-model="config.showThemeIcon" type="checkbox" />
-              <span class="checkmark"></span>
-              主题切换
-            </label>
-          </div>
-
-          <!-- <div class="form-group checkbox-group">
-            <label class="checkbox-label">
-              <input v-model="config.showImportExportIcon" type="checkbox" />
-              <span class="checkmark"></span>
-              导入导出功能
-            </label>
-          </div> -->
-        </form>
-      </div>
-
-      <div class="modal-footer">
-        <div class="footer-left">
-          <button type="button" class="btn-clear" @click="clearConfig">清空</button>
+  <BaseModal
+    :visible="isVisible"
+    title="快捷配置"
+    size="medium"
+    @close="closeModal"
+    @confirm="saveConfig"
+  >
+    <form @submit.prevent="saveConfig">
+      <!-- 快捷配置区域 -->
+      <div class="score-row">
+        <div class="form-group">
+          <label>手续费</label>
+          <input v-model="config.fastConfig.fee" type="number" step="0.01" placeholder="0.00" />
         </div>
-        <div class="footer-right">
-          <button type="button" class="btn-cancel" @click="closeModal">取消</button>
-          <button type="button" class="btn-save" @click="saveConfig">保存</button>
+
+        <div class="form-group">
+          <label>刷的积分</label>
+          <input v-model="config.fastConfig.todayScore" type="number" step="1" placeholder="0" />
         </div>
       </div>
-    </div>
-  </div>
+
+      <!-- 功能开关区域 -->
+      <div class="form-group checkbox-group">
+        <label class="checkbox-label">
+          <input v-model="config.fastConfig.autoCalcCurScore" type="checkbox" />
+          <span class="checkmark"></span>
+          自动计算当前积分
+        </label>
+      </div>
+
+      <div class="form-group checkbox-group">
+        <label class="checkbox-label">
+          <input v-model="config.showSimulationScore" type="checkbox" />
+          <span class="checkmark"></span>
+          模拟积分功能
+        </label>
+      </div>
+
+      <div class="form-group checkbox-group">
+        <label class="checkbox-label">
+          <input v-model="config.showThemeIcon" type="checkbox" />
+          <span class="checkmark"></span>
+          主题切换
+        </label>
+      </div>
+
+      <!-- <div class="form-group checkbox-group">
+        <label class="checkbox-label">
+          <input v-model="config.showImportExportIcon" type="checkbox" />
+          <span class="checkmark"></span>
+          导入导出功能
+        </label>
+      </div> -->
+    </form>
+
+    <template #footer-left>
+      <button type="button" class="btn-clear" @click="clearConfig">清空</button>
+    </template>
+
+    <template #footer-right>
+      <button type="button" class="btn-cancel" @click="closeModal">取消</button>
+      <button type="button" class="btn-save" @click="saveConfig">保存</button>
+    </template>
+  </BaseModal>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useLoading } from '@/composables/useLoading'
+import BaseModal from '@/components/common/BaseModal.vue'
 
 // Props
 interface Props {
@@ -142,6 +133,9 @@ const saveConfig = async () => {
         throw new Error('未找到用户信息')
       }
 
+      // 获取旧配置（深拷贝，避免引用被修改）
+      const oldConfig = JSON.parse(JSON.stringify(store.currentUser?.config))
+
       // 批量更新所有配置
       const configsToUpdate = {
         fastConfig: config.value.fastConfig,
@@ -150,7 +144,14 @@ const saveConfig = async () => {
         showImportExportIcon: config.value.showImportExportIcon,
       }
 
-      const success = await store.updateUserConfigsAction(userName, configsToUpdate)
+      // 准备日志详情
+      const logDetails = {
+        oldData: oldConfig,
+        newData: config.value,
+      }
+
+      // 一次性更新配置并记录日志
+      const success = await store.updateUserConfigsAction(userName, configsToUpdate, logDetails)
       if (!success) {
         throw new Error('配置保存失败')
       }
@@ -197,199 +198,110 @@ watch(isVisible, (newVisible) => {
 </script>
 
 <style lang="scss" scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+.score-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
-.modal-content {
-  background: var(--bg-primary);
-  border-radius: 12px;
-  box-shadow: var(--shadow-lg);
-  max-width: 500px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-}
+.form-group {
+  margin-bottom: 16px;
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--border-color);
-
-  h3 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
     color: var(--text-primary);
   }
 
-  .modal-close {
-    background: none;
-    border: none;
-    font-size: 24px;
-    color: var(--text-muted);
-    cursor: pointer;
-    padding: 0;
-    width: 32px;
-    height: 32px;
+  input[type='number'] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 14px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: border-color 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+  }
+}
+
+.checkbox-group {
+  .checkbox-label {
     display: flex;
     align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: all 0.3s ease;
+    cursor: pointer;
+    font-weight: 400;
 
-    &:hover {
-      background: var(--bg-secondary);
-      color: var(--text-primary);
+    input[type='checkbox'] {
+      margin-right: 12px;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+    }
+
+    .checkmark {
+      margin-left: 8px;
     }
   }
 }
 
-.modal-body {
-  padding: 24px;
+.btn-clear {
+  background: var(--warning);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
 
-  .score-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 20px;
-  }
-
-  .form-group {
-    margin-bottom: 16px;
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
-      color: var(--text-primary);
-    }
-
-    input[type='number'] {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      font-size: 14px;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      transition: border-color 0.3s ease;
-
-      &:focus {
-        outline: none;
-        border-color: var(--primary);
-      }
-    }
-  }
-
-  .checkbox-group {
-    .checkbox-label {
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-      font-weight: 400;
-
-      input[type='checkbox'] {
-        margin-right: 12px;
-        width: 18px;
-        height: 18px;
-        accent-color: var(--primary);
-      }
-
-      .checkmark {
-        margin-left: 8px;
-      }
-    }
+  &:hover {
+    opacity: 0.8;
   }
 }
 
-.modal-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 24px;
-  border-top: 1px solid var(--border-color);
+.btn-cancel {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
 
-  .footer-left {
-    .btn-clear {
-      background: var(--warning);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 8px 16px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.3s ease;
-
-      &:hover {
-        opacity: 0.8;
-      }
-    }
+  &:hover {
+    opacity: 0.8;
   }
+}
 
-  .footer-right {
-    display: flex;
-    gap: 12px;
+.btn-save {
+  background: var(--primary);
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
 
-    .btn-cancel {
-      background: none;
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.3s ease;
-
-      &:hover {
-        opacity: 0.8;
-      }
-    }
-
-    .btn-save {
-      background: var(--primary);
-      border: none;
-      color: white;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.3s ease;
-
-      &:hover {
-        opacity: 0.8;
-      }
-    }
+  &:hover {
+    opacity: 0.8;
   }
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .modal-content {
-    width: 95%;
-    margin: 20px;
-  }
-
   .score-row {
     grid-template-columns: 1fr;
     gap: 12px;
-  }
-
-  .modal-header,
-  .modal-body,
-  .modal-footer {
-    padding: 16px;
   }
 }
 </style>

@@ -10,7 +10,7 @@
     </div>
 
     <div class="header-right">
-      <button v-if="showFastConfig" class="icon-btn" title="快捷配置" @click="openSettingsModal">
+      <button v-if="showFastConfig" class="icon-btn" title="快捷配置" @click="toggleSettingsModal">
         <span class="config-icon">⚙️</span>
       </button>
       <!-- <button v-if="showImportExportIcon" class="icon-btn" title="导入导出">
@@ -19,11 +19,17 @@
       <button v-if="showThemeIcon" class="icon-btn" title="切换主题" @click="toggleTheme">
         <span class="theme-icon">{{ currentTheme === 'light' ? '☀️' : '🌙' }}</span>
       </button>
+      <button class="icon-btn" title="操作日志" @click="toggleLogModal">
+        <span class="log-icon">📋</span>
+      </button>
     </div>
   </header>
 
   <!-- 设置弹窗 -->
-  <SettingsModal :visible="showSettingsModal" @close="closeSettingsModal" />
+  <SettingsModal :visible="showSettingsModal" @close="toggleSettingsModal" />
+
+  <!-- 日志弹窗 -->
+  <LogModal :visible="showLogModal" @close="toggleLogModal" />
 </template>
 
 <script setup lang="ts">
@@ -38,6 +44,9 @@ const store = useAppStore()
 // 设置弹窗状态
 const showSettingsModal = ref(false)
 
+// 日志弹窗状态
+const showLogModal = ref(false)
+
 // 内部状态管理
 const currentTheme = computed(() => store.currentConfig?.theme || 'light')
 
@@ -46,14 +55,14 @@ const showFastConfig = computed(() => store.currentConfig?.showFastConfig)
 const showImportExportIcon = computed(() => store.currentConfig?.showImportExportIcon)
 const showThemeIcon = computed(() => store.currentConfig?.showThemeIcon)
 
-// 打开设置弹窗
-const openSettingsModal = () => {
-  showSettingsModal.value = true
+// 切换设置弹窗打开状态
+const toggleSettingsModal = () => {
+  showSettingsModal.value = !showSettingsModal.value
 }
 
-// 关闭设置弹窗
-const closeSettingsModal = () => {
-  showSettingsModal.value = false
+// 切换日志弹窗打开状态
+const toggleLogModal = () => {
+  showLogModal.value = !showLogModal.value
 }
 
 // 切换主题
@@ -62,7 +71,7 @@ const toggleTheme = async () => {
 
   try {
     const newTheme = currentTheme.value === 'light' ? 'dark' : 'light'
-    await store.updateUserConfigAction(store.currentConfig?.userName, 'theme', newTheme)
+    await store.updateUserConfigAction(store.currentConfig?.userName, 'theme', newTheme, '主题')
   } catch (error) {
     console.error('❌ 主题更新出错:', error)
   }
@@ -72,7 +81,7 @@ const toggleTheme = async () => {
 <style lang="scss" scoped>
 // 导航栏样式
 .header {
-  background: var(--gradient-primary);
+  background: var(--header-bg);
   padding: 16px 24px;
   display: flex;
   justify-content: space-between;

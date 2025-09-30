@@ -9,9 +9,11 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AddRecordModal: typeof import('./src/components/profit/AddRecordModal.vue')['default']
+    BaseModal: typeof import('./src/components/common/BaseModal.vue')['default']
     Calendar: typeof import('./src/components/profit/Calendar.vue')['default']
     Header: typeof import('./src/components/profit/Header.vue')['default']
     LoadingSpinner: typeof import('./src/components/common/LoadingSpinner.vue')['default']
+    LogModal: typeof import('./src/components/profit/LogModal.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SettingsModal: typeof import('./src/components/profit/SettingsModal.vue')['default']

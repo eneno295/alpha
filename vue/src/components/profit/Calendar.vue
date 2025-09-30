@@ -73,7 +73,7 @@
           <div class="day-data-container">
             <!-- 收益数据 -->
             <template v-if="val.dayData?.coin?.length > 0">
-              <div v-for="coin in val.dayData.coin" :key="coin.name" class="day-data claimed-data">
+              <div v-for="coin in val.dayData.coin" :key="coin.name" class="day-data">
                 {{ coin.name }}: {{ coin.amount }}
               </div>
             </template>
@@ -344,7 +344,15 @@ const openAddRecordModal = (date: string) => {
   selectedDate.value = date
   // 检查该日期是否有数据，有数据就是编辑模式，没有数据就是新建模式
   const dayData = getDayData(date)
-  const hasData = Boolean(dayData && dayData.coin && dayData.coin.length > 0)
+  const hasData = Boolean(
+    dayData &&
+      ((dayData.coin && dayData.coin.length > 0) ||
+        dayData.curScore ||
+        dayData.todayScore ||
+        dayData.fee ||
+        dayData.consumptionScore ||
+        dayData.remark),
+  )
   isEditing.value = hasData
   showAddRecordModal.value = true
 }
@@ -481,9 +489,6 @@ const getDateRangeText = (targetDate: string) => {
 
 /* 日历网格 */
 .calendar-section {
-  padding-bottom: 16px;
-  overflow-x: auto;
-
   .calendar-weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -528,7 +533,7 @@ const getDateRangeText = (targetDate: string) => {
       &.other-month {
         opacity: 0.5;
         cursor: default;
-        background: var(--bg-primary);
+        background: var(--other-month-bg);
       }
 
       &.today {
@@ -622,16 +627,11 @@ const getDateRangeText = (targetDate: string) => {
 
         .day-data {
           font-size: 14px;
-          padding: 1px 4px;
           border-radius: 0;
           background: transparent;
           line-height: 1.2;
           word-break: break-all;
           text-align: right;
-
-          &.claimed-data {
-            color: white;
-          }
 
           &.fee-data {
             color: var(--error);
