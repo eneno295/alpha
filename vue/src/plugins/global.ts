@@ -1,5 +1,7 @@
 import { ref } from 'vue'
 import { useLoading } from '@/composables/useLoading'
+import { createApp } from 'vue'
+import Toast from '@/components/common/Toast.vue'
 
 // 全局状态
 const toastState = ref({
@@ -7,7 +9,7 @@ const toastState = ref({
   type: 'info' as 'success' | 'error' | 'warning' | 'info',
   title: '',
   message: '',
-  duration: 3000
+  duration: 3000,
 })
 
 // Toast 队列管理
@@ -20,82 +22,26 @@ const { showLoadingState, hideLoadingState, withLoading } = useLoading()
 // 初始化全局组件
 const initGlobalComponents = () => {
   // 创建 Toast 容器
-  if (!document.getElementById('global-toast')) {
+  if (!document.getElementById('global-toast-container')) {
     const toastContainer = document.createElement('div')
-    toastContainer.id = 'global-toast'
-    toastContainer.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 10000;
-      pointer-events: none;
-    `
+    toastContainer.id = 'global-toast-container'
     document.body.appendChild(toastContainer)
-
-    // 简单的 DOM 操作方式
-    const createToastElement = (toastData: typeof toastState.value) => {
-      const toastEl = document.createElement('div')
-      toastEl.className = `toast toast-${toastData.type}`
-      toastEl.style.cssText = `
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        background: var(--bg-primary);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        box-shadow: var(--shadow-lg);
-        padding: 16px;
-        min-width: 300px;
-        max-width: 400px;
-        pointer-events: auto;
-        animation: slideIn 0.3s ease-out;
-        margin-bottom: 10px;
-        border-left: 4px solid ${toastData.type === 'success' ? 'var(--success)' : toastData.type === 'error' ? 'var(--error)' : toastData.type === 'warning' ? 'var(--warning)' : 'var(--primary)'};
-      `
-      toastEl.innerHTML = `
-        <div class="toast-icon" style="font-size: 20px; flex-shrink: 0; margin-top: 2px;">
-          <span>${toastData.type === 'success' ? '✅' : toastData.type === 'error' ? '❌' : toastData.type === 'warning' ? '⚠️' : 'ℹ️'}</span>
-        </div>
-        <div class="toast-content" style="flex: 1;">
-          <div class="toast-title" style="font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">${toastData.title}</div>
-          ${toastData.message ? `<div class="toast-message" style="font-size: 14px; color: var(--text-secondary); line-height: 1.4;">${toastData.message}</div>` : ''}
-        </div>
-        <button class="toast-close" style="background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 0; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s ease; flex-shrink: 0;">×</button>
-      `
-
-      // 添加关闭事件
-      const closeBtn = toastEl.querySelector('.toast-close')
-      closeBtn?.addEventListener('click', () => {
-        toastEl.remove()
-        handleToastClose()
-      })
-
-      // 自动关闭
-      if (toastData.duration > 0) {
-        setTimeout(() => {
-          if (toastEl.parentNode) {
-            toastEl.remove()
-            handleToastClose()
-          }
-        }, toastData.duration)
-      }
-
-      return toastEl
-    }
-
-      // 存储创建函数供后续使用
-      ; (toastContainer as any).createToast = createToastElement
   }
 }
 
 // Toast 相关方法
-const showToast = (type: 'success' | 'error' | 'warning' | 'info', title: string, message?: string, duration?: number) => {
+const showToast = (
+  type: 'success' | 'error' | 'warning' | 'info',
+  title: string,
+  message?: string,
+  duration?: number,
+) => {
   const toastData = {
     visible: true,
     type,
     title,
     message: message || '',
-    duration: duration || 3000
+    duration: duration || 3000,
   }
 
   if (isShowingToast) {
@@ -111,17 +57,39 @@ const displayToast = (toastData: typeof toastState.value) => {
   isShowingToast = true
 
   // 更新响应式状态
-  toastState.value.visible = toastData.visible
-  toastState.value.type = toastData.type
-  toastState.value.title = toastData.title
-  toastState.value.message = toastData.message
-  toastState.value.duration = toastData.duration
+  toastState.value = { ...toastData }
 
-  // 简单的 DOM 操作
-  const toastContainer = document.getElementById('global-toast')
-  if (toastContainer && (toastContainer as any).createToast) {
-    const toastEl = (toastContainer as any).createToast(toastData)
-    toastContainer.appendChild(toastEl)
+  // 使用 Vue 组件渲染 Toast
+  const container = document.getElementById('global-toast-container')
+  if (container) {
+    const toastDiv = document.createElement('div')
+    container.appendChild(toastDiv)
+
+    const app = createApp(Toast, {
+      visible: toastData.visible,
+      type: toastData.type,
+      title: toastData.title,
+      message: toastData.message,
+      duration: toastData.duration,
+      onClose: () => {
+        app.unmount()
+        toastDiv.remove()
+        handleToastClose()
+      },
+    })
+
+    app.mount(toastDiv)
+
+    // 自动关闭
+    if (toastData.duration > 0) {
+      setTimeout(() => {
+        if (toastDiv.parentNode) {
+          app.unmount()
+          toastDiv.remove()
+          handleToastClose()
+        }
+      }, toastData.duration)
+    }
   }
 }
 

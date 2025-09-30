@@ -44,13 +44,13 @@ let timer: number | null = null
 const startTimer = () => {
   if (timer) clearTimeout(timer)
   timer = setTimeout(() => {
-    // close()
+    close()
   }, props.duration)
 }
 
 const close = () => {
-  // visible.value = false
-  // emit('close')
+  visible.value = false
+  emit('close')
 }
 
 watch(
@@ -83,7 +83,7 @@ onUnmounted(() => {
 
 .toast {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
@@ -136,18 +136,14 @@ onUnmounted(() => {
 
 .toast-content {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
 
   .toast-title {
     font-weight: 600;
     color: var(--text-primary);
-    margin-bottom: 4px;
   }
 
   .toast-message {
+    margin-top: 4px;
     font-size: 14px;
     color: var(--text-secondary);
     line-height: 1.4;

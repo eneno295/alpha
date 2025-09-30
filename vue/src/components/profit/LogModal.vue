@@ -413,7 +413,7 @@ const formatTime = (timestamp: number) => {
 // 清空日志
 const clearLogs = () => {
   store.clearLogs()
-  window.GlobalPlugin.toast.success('日志已清空', '所有操作日志已被清除')
+  window.GlobalPlugin.toast.success('日志已清空')
 }
 </script>
 
