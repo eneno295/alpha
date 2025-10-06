@@ -29,4 +29,15 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  server: {
+    proxy: {
+      '/api': {
+        // Testnet 测试网下单地址
+        target: 'https://testnet.binance.vision',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '/api'),
+        secure: true,
+      }
+    }
+  }
 })

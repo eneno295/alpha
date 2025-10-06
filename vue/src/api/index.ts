@@ -11,7 +11,8 @@ const binIdMap = new Map([
   ['kayla', '68919d3bae596e708fc1dc8e'],
   ['echo', '68919d4fae596e708fc1dcb1'],
   ['adam', '6892fc5af7e7a370d1f50b35'],
-  ['ces', '68b06dffd0ea881f4069538e']
+  ['ces', '68b06dffd0ea881f4069538e'],
+  ['Beth', '68e3a2f443b1c97be95c38c6']
 ])
 
 // 从URL参数获取当前BIN_ID
