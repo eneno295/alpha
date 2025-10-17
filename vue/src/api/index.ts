@@ -1,4 +1,4 @@
-import type { ProfitData, ApiResponse, UserConfig } from '@/types'
+import type { ProfitData, ApiResponse } from '@/types'
 
 // API 管理文件 - 处理所有数据请求功能
 
@@ -11,7 +11,7 @@ const binIdMap = new Map([
   ['kayla', '68919d3bae596e708fc1dc8e'],
   ['echo', '68919d4fae596e708fc1dcb1'],
   ['adam', '6892fc5af7e7a370d1f50b35'],
-  ['ces', '68b06dffd0ea881f4069538e'],
+  ['ces', '6891a9a77b4b8670d8ad84da'],
   ['Beth', '68e3a2f443b1c97be95c38c6']
 ])
 
@@ -77,67 +77,6 @@ export async function updateDataInAPI(newData: ProfitData): Promise<boolean> {
     return result
   } catch (error) {
     console.error('❌ 更新数据失败:', error)
-    return false
-  }
-}
-
-/**
- * 更新用户配置
- * @param userName 用户名
- * @param configKey 配置项
- * @param configValue 配置值
- * @param currentData 当前数据
- * @returns true/false 是否更新成功
- */
-export async function updateUserConfig(
-  userName: string,
-  configKey: keyof UserConfig,
-  configValue: UserConfig[keyof UserConfig],
-  currentData: ProfitData,
-): Promise<boolean> {
-  try {
-    ; (currentData.data[userName].config as any)[configKey] = configValue
-    const res = await updateDataInAPI(currentData)
-
-    if (res) {
-      console.log(`✅ ${userName} 的 ${configKey} 配置更新成功:`, configValue)
-      return res
-    }
-    return false
-  } catch (error) {
-    console.error(`❌ 更新用户配置失败:`, error)
-    return false
-  }
-}
-
-/**
- * 批量更新用户配置
- * @param userName 用户名
- * @param configs 配置对象
- * @param currentData 当前数据
- * @returns true/false 是否更新成功
- */
-export async function updateUserConfigs(
-  userName: string,
-  configs: Partial<UserConfig>,
-  currentData: ProfitData,
-): Promise<boolean> {
-  try {
-    // 批量更新配置
-    Object.entries(configs).forEach(([key, value]) => {
-      ; (currentData.data[userName].config as any)[key] = value
-    })
-
-    // 只调用一次API
-    const res = await updateDataInAPI(currentData)
-
-    if (res) {
-      console.log(`✅ ${userName} 的批量配置更新成功:`, configs)
-      return res
-    }
-    return false
-  } catch (error) {
-    console.error(`❌ 批量更新用户配置失败:`, error)
     return false
   }
 }

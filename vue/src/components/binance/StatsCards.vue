@@ -29,11 +29,11 @@ const appStore = useAppStore()
 
 // 计算总项目数
 const totalProjects = computed(() => {
-  const userData = appStore.currentUser
-  if (!userData?.date) return 0
+  const userData = appStore.binance.profitData
+  if (!userData) return 0
 
   let count = 0
-  userData.date.forEach((item) => {
+  userData.forEach((item) => {
     if (item.coin && Array.isArray(item.coin)) {
       item.coin.forEach((coin: any) => {
         if (coin.name && coin.amount > 0) {
@@ -47,11 +47,11 @@ const totalProjects = computed(() => {
 
 // 计算累计收入
 const totalIncome = computed(() => {
-  const userData = appStore.currentUser
-  if (!userData?.date) return 0
+  const userData = appStore.binance.profitData
+  if (!userData) return 0
 
   let total = 0
-  userData.date.forEach((item) => {
+  userData.forEach((item) => {
     if (item.coin && Array.isArray(item.coin)) {
       item.coin.forEach((coin: any) => {
         if (coin.name && coin.amount > 0) {
@@ -65,11 +65,11 @@ const totalIncome = computed(() => {
 
 // 计算总手续费
 const totalFees = computed(() => {
-  const userData = appStore.currentUser
-  if (!userData?.date) return 0
+  const userData = appStore.binance.profitData
+  if (!userData) return 0
 
   let total = 0
-  userData.date.forEach((item) => {
+  userData.forEach((item) => {
     total += item.fee || 0
   })
   return total

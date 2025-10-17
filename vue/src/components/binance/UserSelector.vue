@@ -24,16 +24,16 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useAppStore } from '@/stores/app'
 
 // 获取 store
-const store = useAppStore()
+const appStore = useAppStore()
 
 // 用户菜单状态
 const isMenuOpen = ref(false)
 
 // 当前用户名
-const currentUserName = computed(() => store.currentConfig?.userName)
+const currentUserName = computed(() => appStore.currentUserName)
 
 // 计算可用用户列表
-const availableUsers = computed(() => store.profitData?.users || [])
+const availableUsers = computed(() => appStore.availableUsers || [])
 
 // 下拉框是否可用
 const selectAvailable = computed(() => availableUsers.value.length > 1)
@@ -46,8 +46,8 @@ const toggleUserMenu = () => {
 
 // 选择用户
 const selectUser = (userName: string) => {
-  // 切换 store 中的当前用户
-  store.toggleUser(userName)
+  // 切换 appStore 中的当前用户
+  appStore.toggleUser(userName)
   isMenuOpen.value = false
 }
 

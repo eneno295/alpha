@@ -1,59 +1,41 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, computed } from 'vue'
-import { fetchDataFromAPI } from '@/api'
-import Header from '@/components/profit/Header.vue'
-import StatsCards from '@/components/profit/StatsCards.vue'
-import Calendar from '@/components/profit/Calendar.vue'
+import Header from '@/components/binance/Header.vue'
+import StatsCards from '@/components/binance/StatsCards.vue'
+import Calendar from '@/components/binance/Calendar.vue'
 import { useAppStore } from '@/stores/app'
 import { useLoading } from '@/composables/useLoading'
 
+// 获取 store
+const appStore = useAppStore()
+
 // 加载状态管理
 const { withLoading } = useLoading()
-
-// 获取 store
-const store = useAppStore()
 
 // 定时器相关
 let refreshTimer: number | null = null
 
 // 模拟积分相关
-const showSimulationScore = computed(() => store.currentConfig?.showSimulationScore)
-const openSimulation = computed(() => store.openSimulation)
+const showSimulationScore = computed(() => appStore.binance.config?.showSimulationScore)
+const openSimulation = computed(() => appStore.binance.openSimulation)
 
 // 积分显示模式
-const scoreDisplayMode = computed(() => store.scoreDisplayMode)
+const scoreDisplayMode = computed(() => appStore.binance.scoreDisplayMode)
 
 // 切换模拟积分
 const toggleSimulationStatus = async () => {
-  store.toggleSimulation()
+  appStore.binance.toggleSimulation()
 }
 
 // 设置积分显示模式
 const setScoreMode = (mode: 'current' | 'today' | 'add') => {
-  store.setScoreDisplayMode(mode)
-}
-
-// 获取最新数据
-const fetchLatestData = async () => {
-  try {
-    const data = await fetchDataFromAPI()
-    store.profitData = data
-    // 重新初始化当前用户数据
-    store.initializeCurrentUser()
-    console.log('✅ 数据已更新')
-  } catch (error) {
-    console.error('❌ 数据更新失败:', error)
-  }
+  appStore.binance.setScoreDisplayMode(mode)
 }
 
 const initializeApp = async () => {
   try {
     await withLoading(async () => {
-      // 从API获取数据
-      const data = await fetchDataFromAPI()
-      store.profitData = data
-      // 初始化当前用户数据
-      store.initializeCurrentUser()
+      await appStore.api.fetchData()
     }, '加载数据中...')
   } catch (error) {
     console.error('数据加载失败:', error)
@@ -71,7 +53,7 @@ const startRefreshTimer = () => {
   refreshTimer = setInterval(
     () => {
       console.log('🔄 定时器触发，开始更新数据...')
-      fetchLatestData()
+      appStore.api.fetchData()
     },
     10 * 60 * 1000,
   )

@@ -99,8 +99,10 @@ import { useAppStore } from '@/stores/app'
 import { useLoading } from '@/composables/useLoading'
 import BaseModal from '@/components/common/BaseModal.vue'
 import { calculatePrevious15DaysScore } from '@/composables/useScoreCalculation'
-import { fetchDataFromAPI } from '@/api'
 import type { DateRecord } from '@/types'
+
+// 获取 store
+const appStore = useAppStore()
 
 interface Props {
   visible: boolean
@@ -118,7 +120,6 @@ const emit = defineEmits<{
   success: []
 }>()
 
-const store = useAppStore()
 const { withLoading } = useLoading()
 
 // 表单数据
@@ -182,7 +183,7 @@ const removeAirdrop = (index: number) => {
 
 // 填充快速配置
 const fillWithFastConfig = () => {
-  const fastConfig = store.currentConfig?.fastConfig
+  const fastConfig = appStore.binance.config?.fastConfig
   if (fastConfig) {
     if (fastConfig.fee) formData.value.fee = parseFloat(fastConfig.fee) || 0
     if (fastConfig.todayScore) formData.value.todayScore = parseInt(fastConfig.todayScore) || 0
@@ -240,22 +241,18 @@ const saveRecord = async () => {
       }
 
       // 获取当前用户数据
-      let currentUser = store.currentUser
-      if (!currentUser) {
+      let userName = appStore.currentUserName
+      if (!userName) {
         throw new Error('未找到用户信息')
       }
 
-      // 获取最新数据
-      const latestData = await fetchDataFromAPI()
-
-      // 合并最新数据到 store
-      store.profitData = latestData
-
-      // 重新获取当前用户数据（可能已被其他用户修改）
-      currentUser = store.profitData.data[currentUser.config.userName]
-
       // 获取旧记录（用于日志对比）
-      const oldRecord = currentUser.date.find((item) => item.date === props.selectedDate)
+      const oldRecord = appStore.binance.profitData.find(
+        (item: any) => item.date === props.selectedDate,
+      )
+
+      // 获取最新数据
+      const latestData = await appStore.api.fetchData(userName)
 
       // 创建新记录
       const newRecord: DateRecord = {
@@ -275,18 +272,22 @@ const saveRecord = async () => {
       }
 
       // 先删除该日期的记录（无论是否有数据）
-      currentUser.date = currentUser.date.filter((item) => item.date !== props.selectedDate)
+      if (appStore.binance.profitData) {
+        let newProfitData = appStore.binance.profitData.filter(
+          (item: any) => item.date !== props.selectedDate,
+        )
 
-      // 添加新记录
-      currentUser.date.push(newRecord)
+        // 添加新记录
+        newProfitData.push(newRecord)
 
-      // 去重和排序
-      currentUser.date = removeDuplicateRecords(currentUser.date)
-      currentUser.date.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        // 去重和排序
+        newProfitData = removeDuplicateRecords(newProfitData)
+        newProfitData.sort(
+          (a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+        )
 
-      // 先更新 store.currentUser，让 createLogEntry 能正确访问
-      store.currentUser = currentUser
-      store.profitData.data[currentUser.config.userName] = currentUser
+        appStore.binance.data!.date = newProfitData
+      }
 
       // 准备日志信息
       const action = props.isEditing ? '修改记录' : '新增记录'
@@ -299,11 +300,8 @@ const saveRecord = async () => {
         }),
       }
 
-      // 一次性保存数据和日志（日志会添加到 store.currentUser，然后更新到 profitData）
-      const success = await store.updateData(store.profitData, logEntry)
-      if (!success) {
-        throw new Error('保存失败')
-      }
+      // 一次性保存数据和日志
+      await appStore.api.updateData(logEntry, 'binance')
     }, '保存记录中...')
 
     // 关闭弹窗
@@ -330,17 +328,10 @@ const clearCurrentDayData = async () => {
         throw new Error('请选择日期')
       }
 
-      const currentUser = store.currentUser
-      if (!currentUser) {
-        throw new Error('未找到用户信息')
-      }
-
       // 删除该日期的所有记录
-      currentUser.date = currentUser.date.filter((item) => item.date !== props.selectedDate)
-
-      // 先更新 store.currentUser，让 createLogEntry 能正确访问
-      store.currentUser = currentUser
-      store.profitData.data[currentUser.config.userName] = currentUser
+      appStore.binance.data!.date = appStore.binance.data!.date.filter(
+        (item: any) => item.date !== props.selectedDate,
+      )
 
       // 准备日志信息
       const logEntry = {
@@ -350,10 +341,7 @@ const clearCurrentDayData = async () => {
       }
 
       // 一次性保存数据和日志
-      const success = await store.updateData(store.profitData, logEntry)
-      if (!success) {
-        throw new Error('清空失败')
-      }
+      await appStore.api.updateData(logEntry, 'binance')
     }, '清空数据中...')
 
     // 关闭弹窗
@@ -398,8 +386,10 @@ watch(
       clearForm()
 
       // 检查是否有现有数据
-      if (props.selectedDate && store.currentUser) {
-        const existingData = store.currentUser.date.find((item) => item.date === props.selectedDate)
+      if (props.selectedDate && appStore.currentUser) {
+        const existingData = appStore.currentUser.binance.date.find(
+          (item) => item.date === props.selectedDate,
+        )
         if (existingData) {
           fillWithExistingData(existingData)
         } else {

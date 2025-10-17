@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Profit from '@/views/Profit.vue'
+import Profit from '@/views/Binance.vue'
 import Bot from '@/views/Bot.vue'
+import OKX from '@/views/OKX.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,6 +15,11 @@ const router = createRouter({
       path: '/bot',
       name: 'bot',
       component: Bot,
+    },
+    {
+      path: '/okx',
+      name: 'okx',
+      component: OKX,
     },
   ],
 })

@@ -1,0 +1,78 @@
+{
+  "users": [
+    "adam"
+  ],
+  "data": {
+    "adam": {
+      "config": {
+        "userName": "adam"
+      },
+      "binance": {
+        "config": {
+          "theme": "light",
+          "todayFastScore": 0,
+          "showMockScoreIcon": true,
+          "showThemeIcon": true,
+          "showImportExportIcon": true,
+          "showSimulationScore": true,
+          "showFastConfig": true,
+          "showClearLogs": true,
+          "fastConfig": {
+            "fee": 3.3,
+            "todayScore": "19",
+            "autoCalcCurScore": true
+          }
+        },
+        "date": [
+          {
+            "date": "2025-07-21",
+            "coin": [],
+            "fee": 0.9,
+            "curScore": 0,
+            "todayScore": 0,
+            "consumptionScore": 0,
+            "remark": null
+          }
+        ],
+        "log": [
+          {
+            "id": 1,
+            "timestamp": 1759859645454,
+            "action": "修改记录",
+            "type": "editRecord",
+            "details": "{\"oldData\":{\"date\":\"2025-10-04\",\"curScore\":197,\"todayScore\":18,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-04\",\"curScore\":197,\"todayScore\":18,\"consumptionScore\":0,\"fee\":4.54,\"coin\":[],\"remark\":\"\"}}",
+            "ip": "114.38.22.247"
+          }
+        ]
+      },
+      "okx": {
+        "config": {
+          "showClearLogs": true
+        },
+        "date": [
+          {
+            "date": "2025-10-10",
+            "coin": [
+              {
+                "name": "vra",
+                "amount": 37
+              }
+            ],
+            "fee": 0.9,
+            "remark": null
+          }
+        ],
+        "log": [
+          {
+            "id": 1,
+            "timestamp": 1759859645454,
+            "action": "修改记录",
+            "type": "editRecord",
+            "details": "",
+            "ip": "114.38.22.247"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -7,15 +7,15 @@ import { useAppStore } from '@/stores/app'
  */
 export const calculatePrevious15DaysScore = (targetDate: string): number => {
   try {
-    const store = useAppStore()
-    const userData = store.currentUser
+    const appStore = useAppStore()
+    const userData = appStore.binance.data
     if (!userData || !userData.date) return 0
 
     const dateData = userData.date
     const targetDateObj = new Date(targetDate)
 
     // 获取配置的刷的积分
-    const configScore = store.currentConfig?.fastConfig?.todayScore || 0
+    const configScore = appStore.binance.config?.fastConfig?.todayScore || 0
 
     let totalEarnedScore = 0 // 前15天刷的积分总和
     let totalConsumedScore = 0 // 前15天扣的积分总和

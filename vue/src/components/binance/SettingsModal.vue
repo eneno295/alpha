@@ -71,6 +71,9 @@ import { useAppStore } from '@/stores/app'
 import { useLoading } from '@/composables/useLoading'
 import BaseModal from '@/components/common/BaseModal.vue'
 
+// 获取 store
+const appStore = useAppStore()
+
 // Props
 interface Props {
   visible: boolean
@@ -82,9 +85,6 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   close: []
 }>()
-
-// Store
-const store = useAppStore()
 
 // 加载状态
 const { withLoading } = useLoading()
@@ -106,7 +106,7 @@ const config = ref({
 
 // 加载配置
 const loadConfig = () => {
-  const userConfig = store.currentUser?.config
+  const userConfig = appStore.binance.config
   if (!userConfig) return
 
   // 加载fastConfig配置
@@ -128,33 +128,8 @@ const loadConfig = () => {
 const saveConfig = async () => {
   try {
     await withLoading(async () => {
-      const userName = store.currentUser?.config?.userName
-      if (!userName) {
-        throw new Error('未找到用户信息')
-      }
-
-      // 获取旧配置（深拷贝，避免引用被修改）
-      const oldConfig = JSON.parse(JSON.stringify(store.currentUser?.config))
-
-      // 批量更新所有配置
-      const configsToUpdate = {
-        fastConfig: config.value.fastConfig,
-        showSimulationScore: config.value.showSimulationScore,
-        showThemeIcon: config.value.showThemeIcon,
-        showImportExportIcon: config.value.showImportExportIcon,
-      }
-
-      // 准备日志详情
-      const logDetails = {
-        oldData: oldConfig,
-        newData: config.value,
-      }
-
-      // 一次性更新配置并记录日志
-      const success = await store.updateUserConfigsAction(userName, configsToUpdate, logDetails)
-      if (!success) {
-        throw new Error('配置保存失败')
-      }
+      // 更新配置并记录日志
+      await appStore.binance.updateUserConfigsAction(config.value)
     }, '保存配置中...')
 
     // 关闭弹窗
@@ -181,7 +156,6 @@ const clearConfig = () => {
     showThemeIcon: false,
     showImportExportIcon: false,
   }
-  window.GlobalPlugin.toast.info('配置已清空', '所有配置已重置为默认值')
 }
 
 // 关闭弹窗

@@ -6,7 +6,26 @@
     </div>
 
     <div class="header-center">
-      <h1 class="main-title">Binance Alpha 收益日历</h1>
+      <nav class="nav-menu">
+        <router-link
+          :to="{ path: '/', query: $route.query }"
+          class="nav-link"
+          :class="{ active: $route.name === 'home' }"
+        >
+          Binance
+        </router-link>
+        <router-link
+          :to="{ path: '/okx', query: $route.query }"
+          class="nav-link"
+          :class="{ active: $route.name === 'okx' }"
+          v-if="showOKXLink"
+        >
+          OKX
+        </router-link>
+        <!-- <router-link to="/bot" class="nav-link" :class="{ active: $route.name === 'bot' }">
+          Bot
+        </router-link> -->
+      </nav>
     </div>
 
     <div class="header-right">
@@ -33,13 +52,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useAppStore } from '@/stores/app'
 import UserSelector from './UserSelector.vue'
 import SettingsModal from './SettingsModal.vue'
 
 // 获取 store
-const store = useAppStore()
+const appStore = useAppStore()
 
 // 设置弹窗状态
 const showSettingsModal = ref(false)
@@ -48,12 +67,12 @@ const showSettingsModal = ref(false)
 const showLogModal = ref(false)
 
 // 内部状态管理
-const currentTheme = computed(() => store.currentConfig?.theme || 'light')
+const currentTheme = computed(() => appStore.binance.config?.theme || 'light')
 
 // 按钮显示控制
-const showFastConfig = computed(() => store.currentConfig?.showFastConfig)
-const showImportExportIcon = computed(() => store.currentConfig?.showImportExportIcon)
-const showThemeIcon = computed(() => store.currentConfig?.showThemeIcon)
+const showFastConfig = computed(() => appStore.binance.config?.showFastConfig)
+const showThemeIcon = computed(() => appStore.binance.config?.showThemeIcon)
+const showOKXLink = computed(() => appStore.currentUser?.config?.showOKXLink)
 
 // 切换设置弹窗打开状态
 const toggleSettingsModal = () => {
@@ -67,11 +86,14 @@ const toggleLogModal = () => {
 
 // 切换主题
 const toggleTheme = async () => {
-  if (!store.currentUser) return
-
   try {
     const newTheme = currentTheme.value === 'light' ? 'dark' : 'light'
-    await store.updateUserConfigAction(store.currentConfig?.userName, 'theme', newTheme, '主题')
+    await appStore.binance.updateUserConfigAction({
+      configKey: 'theme',
+      configValue: newTheme,
+      name: '主题',
+      action: '切换主题',
+    })
   } catch (error) {
     console.error('❌ 主题更新出错:', error)
   }
@@ -104,11 +126,31 @@ const toggleTheme = async () => {
   }
 }
 
-.main-title {
-  color: white;
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 8px;
+// 导航菜单
+.nav-menu {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+
+  .nav-link {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+
+    &:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    &.active {
+      color: white;
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
 }
 
 // 用户资料按钮
@@ -223,10 +265,6 @@ const toggleTheme = async () => {
       gap: 0.5rem;
       width: auto;
     }
-  }
-
-  .main-title {
-    display: none;
   }
 }
 </style>

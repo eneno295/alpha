@@ -56,7 +56,9 @@
             </div>
             <!-- 模拟积分 -->
             <div
-              v-if="store.openSimulation && val.date && shouldShowSimulationScore(val.date)"
+              v-if="
+                appStore.binance.openSimulation && val.date && shouldShowSimulationScore(val.date)
+              "
               class="simulation-score-data"
             >
               <span
@@ -95,7 +97,11 @@
             <!-- 积分信息提示框 -->
             <template v-else>
               <template
-                v-if="store.openSimulation && val.date && shouldShowSimulationScore(val.date, true)"
+                v-if="
+                  appStore.binance.openSimulation &&
+                  val.date &&
+                  shouldShowSimulationScore(val.date, true)
+                "
               >
                 <div class="tooltip-item">计算日期: {{ getDateRangeText(val.date) }}</div>
                 <div class="tooltip-item">基于前15天计算</div>
@@ -122,13 +128,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { calculatePrevious15DaysScore } from '@/composables/useScoreCalculation'
 import AddRecordModal from './AddRecordModal.vue'
 
-// 使用 store
-const store = useAppStore()
+// 获取 store
+const appStore = useAppStore()
 
 // 星期标签
 const weekdays = ['日', '一', '二', '三', '四', '五', '六']
@@ -150,8 +156,8 @@ const currentMonthYear = computed(() => {
 
 // 计算月度统计数据
 const monthlyStats = computed(() => {
-  const userData = store.currentUser
-  if (!userData?.date) return { projects: 0, income: 0, fees: 0, profit: 0 }
+  const userData = appStore.binance.profitData
+  if (!userData) return { projects: 0, income: 0, fees: 0, profit: 0 }
 
   const year = currentDate.value.getFullYear()
   const month = currentDate.value.getMonth() + 1
@@ -161,7 +167,7 @@ const monthlyStats = computed(() => {
   let monthlyProjects = 0
   let monthlyFees = 0
 
-  userData.date.forEach((item) => {
+  userData.forEach((item) => {
     if (item.date?.startsWith(monthStr)) {
       // 统计 coin 数据
       if (item.coin && item.coin.length > 0) {
@@ -189,7 +195,7 @@ const monthlyProjects = computed(() => monthlyStats.value.projects)
 const monthlyIncome = computed(() => monthlyStats.value.income)
 const monthlyFees = computed(() => monthlyStats.value.fees)
 const monthlyProfit = computed(() => monthlyStats.value.profit)
-const scoreDisplayMode = computed(() => store.scoreDisplayMode)
+const scoreDisplayMode = computed(() => appStore.binance.scoreDisplayMode)
 
 // 计算日历天数
 const calendarDays = computed(() => {
@@ -275,10 +281,10 @@ const calendarDays = computed(() => {
 
 // 获取某天的数据
 const getDayData = (dateStr: string) => {
-  const userData = store.currentUser
-  if (!userData?.date) return null
+  const userData = appStore.binance.profitData
+  if (!userData) return null
 
-  const dayData = userData.date.find((item) => item.date === dateStr)
+  const dayData = userData.find((item) => item.date === dateStr)
 
   // 如果没有找到数据，返回一个默认对象，而不是 null
   if (!dayData) {
@@ -297,8 +303,8 @@ const getDayData = (dateStr: string) => {
 
 // 检查某天是否应该显示加分提示
 const shouldShowScoreGain = (dateStr: string, dayData: any) => {
-  const userData = store.currentUser
-  if (!userData?.date) return null
+  const userData = appStore.binance.profitData
+  if (!userData) return null
 
   // 计算15天前的日期
   const currentDate = new Date(dateStr)
@@ -307,7 +313,7 @@ const shouldShowScoreGain = (dateStr: string, dayData: any) => {
   const fifteenDaysAgoStr = fifteenDaysAgo.toISOString().split('T')[0]
 
   // 查找15天前是否有抢过空投（有 coin 数据）
-  const fifteenDaysAgoData = userData.date.find((item) => item.date === fifteenDaysAgoStr)
+  const fifteenDaysAgoData = userData.find((item) => item.date === fifteenDaysAgoStr)
 
   if (fifteenDaysAgoData?.coin && fifteenDaysAgoData.coin.length > 0) {
     // 如果15天前抢过空投，返回那天的完整数据
@@ -365,18 +371,18 @@ const closeAddRecordModal = () => {
 
 // 检查是否应该显示模拟积分
 const shouldShowSimulationScore = (dateStr: string | null, isTooltip: boolean = false) => {
-  if (!dateStr || !store.openSimulation) return false
+  if (!dateStr || !appStore.binance.openSimulation) return false
 
-  const userData = store.currentUser
-  if (!userData?.date) return false
+  const userData = appStore.binance.profitData
+  if (!userData) return false
 
   // 检查该日期是否已有当前积分记录
   const hasCurScoreRecord = isTooltip
-    ? userData.date.some(
+    ? userData.some(
         (item) =>
           item.date === dateStr && (item.todayScore || item.consumptionScore || item.fee || 0) > 0,
       )
-    : userData.date.some((item) => item.date === dateStr && (item.curScore || 0) > 0)
+    : userData.some((item) => item.date === dateStr && (item.curScore || 0) > 0)
 
   // 如果没有当前积分记录，显示模拟积分
   return !hasCurScoreRecord

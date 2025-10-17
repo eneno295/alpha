@@ -10,13 +10,25 @@ export interface ApiResponse {
 }
 
 export interface UserData {
-  config: UserConfig // 用户配置
-  date: DateRecord[] // 日期记录列表
-  log?: LogEntry[] // 操作日志
+  config: Config // 用户配置
+  binance: {
+    config: platformConfig // Binance 配置
+    date: DateRecord[] // 日期记录列表
+    log?: LogEntry[] // 操作日志
+  }
+  okx: {
+    config: platformConfig // OKX 配置
+    date: DateRecord[] // 日期记录列表
+    log?: LogEntry[] // 操作日志
+  }
 }
 
-export interface UserConfig {
+export interface Config {
   userName: string // 用户名称
+  showOKXLink: boolean // 是否显示OKX链接
+}
+
+export interface platformConfig {
   theme: 'light' | 'dark' // 主题模式
   todayFastScore: number // 今日快速积分
   showMockScoreIcon: boolean // 是否显示模拟积分图标

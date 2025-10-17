@@ -317,6 +317,9 @@ import { useAppStore } from '@/stores/app'
 import BaseModal from '@/components/common/BaseModal.vue'
 import type { LogEntry } from '@/types'
 
+// 获取 store
+const appStore = useAppStore()
+
 interface Props {
   visible: boolean
 }
@@ -328,16 +331,14 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// 获取 store
-const store = useAppStore()
-
 // 获取日志列表（最多显示前500条）
 const logs = computed(() => {
-  const allLogs = store.currentUser?.log || []
+  const allLogs = appStore.binance.data?.log || []
   return allLogs.slice(0, 500)
 })
 
-const showClearLogs = computed(() => store.currentConfig?.showClearLogs)
+// 显示清空日志按钮
+const showClearLogs = computed(() => appStore.binance.config?.showClearLogs)
 
 // 详情弹窗状态
 const showDetailModal = ref(false)
@@ -387,7 +388,7 @@ const formatLogDetails = (details: string, type: string) => {
     } else if (type === 'editConfigs') {
       return `手续费：${data.newData.fastConfig.fee || '未设置'}，今日刷的积分：${data.newData.fastConfig.todayScore || '未设置'}`
     } else if (type === 'editConfig') {
-      return `修改配置 ${data.oldData.name}：旧值：${data.oldData.value}，新值：${data.newData.value}`
+      return `旧值：${data.oldData.value}，新值：${data.newData.value}`
     }
 
     return details
@@ -412,7 +413,7 @@ const formatTime = (timestamp: number) => {
 
 // 清空日志
 const clearLogs = () => {
-  store.clearLogs()
+  appStore.log.clearLogs('binance')
   window.GlobalPlugin.toast.success('日志已清空')
 }
 </script>
