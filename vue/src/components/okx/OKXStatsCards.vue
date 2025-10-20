@@ -85,7 +85,8 @@ const totalFees = computed(() => {
 
 // 计算总收入：空投收入 + 手续费收入
 const totalProfit = computed(() => {
-  return totalIncome.value + totalFees.value
+  console.log(totalIncome.value, totalFees.value)
+  return totalIncome.value - totalFees.value
 })
 </script>
 

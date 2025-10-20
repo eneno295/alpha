@@ -8,10 +8,10 @@
           <div class="center-content">
             <div class="month-year">{{ currentMonthYear }}</div>
             <div class="monthly-summary">
-              空投 <span class="highlight">{{ monthlyProjects }}</span> 收入
-              <span class="highlight income">{{ monthlyIncome.toFixed(1) }}</span> 手续费
-              <span class="highlight fees">{{ monthlyFees.toFixed(1) }}</span> 总收入
-              <span class="highlight profit">{{ monthlyTotal.toFixed(1) }}</span>
+              项目 <span class="highlight">{{ monthlyProjects }}</span> 收入
+              <span class="highlight income">{{ formatDecimal(monthlyIncome) }}</span> 手续费
+              <span class="highlight fees">{{ formatDecimal(monthlyFees) }}</span> 利润
+              <span class="highlight profit">{{ formatDecimal(monthlyTotal) }}</span>
             </div>
           </div>
           <button class="nav-arrow" @click="nextMonth">›</button>
@@ -40,11 +40,13 @@
             <div class="day-data-container" v-if="val.dayData">
               <!-- 总收益 -->
               <div class="day-data income-data" v-if="val.dayData.coin.length > 0">
-                ${{ getTotalIncome(val.dayData).toFixed(2) }}
+                ${{ formatDecimal(getTotalIncome(val.dayData)) }}
               </div>
 
               <!-- 手续费 -->
-              <div v-if="val.dayData.fee" class="day-data fee-data">fee: {{ val.dayData.fee }}</div>
+              <div v-if="val.dayData.fee" class="day-data fee-data">
+                fee: {{ formatDecimal(val.dayData.fee) }}
+              </div>
             </div>
 
             <!-- 信息提示框 -->
@@ -53,11 +55,16 @@
               <div class="tooltip-item">空投数目：{{ val.dayData?.coin?.length || 0 }}</div>
               <div class="tooltip-item">
                 总收入：{{
-                  (val.dayData?.fee || 0) +
-                  (val.dayData?.coin?.reduce((sum: number, coin: any) => sum + coin.amount, 0) || 0)
+                  formatDecimal(
+                    (val.dayData?.fee || 0) +
+                      (val.dayData?.coin?.reduce(
+                        (sum: number, coin: any) => sum + coin.amount,
+                        0,
+                      ) || 0),
+                  )
                 }}
               </div>
-              <div class="tooltip-item">手续费：{{ val.dayData?.fee || 0 }}</div>
+              <div class="tooltip-item">手续费：{{ formatDecimal(val.dayData?.fee || 0) }}</div>
             </div>
           </div>
         </div>
@@ -69,6 +76,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useAppStore } from '@/stores/app'
+import { formatDecimal } from '@/utils/format'
 
 // 使用 store
 const store = useAppStore()
@@ -121,7 +129,7 @@ const monthlyStats = computed(() => {
     projects: monthlyProjects,
     income: monthlyIncome,
     fees: monthlyFees,
-    total: monthlyIncome + monthlyFees,
+    total: monthlyIncome - monthlyFees,
   }
 })
 
