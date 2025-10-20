@@ -11,7 +11,7 @@
           <router-link
             :to="{ path: '/', query: $route.query }"
             class="nav-link"
-            :class="{ active: $route.name === 'home' }"
+            :class="{ active: $route.name === 'binance' }"
           >
             <GradientText text="Binance" style="font-size: 18px" />
           </router-link>

@@ -10,7 +10,7 @@
         <router-link
           :to="{ path: '/', query: $route.query }"
           class="nav-link"
-          :class="{ active: $route.name === 'home' }"
+          :class="{ active: $route.name === 'binance' }"
         >
           Binance
         </router-link>

@@ -1,0 +1,39 @@
+{
+  "users": [
+    "lan"
+  ],
+  "data": {
+    "lan": {
+      "config": {
+        "userName": "lan",
+        "showOKXLink": true
+      },
+      "binance": {
+        "config": {
+          "theme": "light",
+          "showMockScoreIcon": true,
+          "showThemeIcon": true,
+          "showImportExportIcon": true,
+          "showSimulationScore": true,
+          "showFastConfig": true,
+          "showClearLogs": true,
+          "fastConfig": {
+            "fee": "",
+            "todayScore": "",
+            "autoCalcCurScore": true
+          }
+        },
+        "date": [],
+        "log": []
+      },
+      "okx": {
+        "config": {
+          "showClearLogs": true,
+          "showFastConfig": true
+        },
+        "accounts": {},
+        "log": []
+      }
+    }
+  }
+}
