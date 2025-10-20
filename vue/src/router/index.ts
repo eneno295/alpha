@@ -1,11 +1,11 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import Binance from '@/views/Binance.vue'
 import Bot from '@/views/Bot.vue'
 import OKX from '@/views/OKX.vue'
 import Gate from '@/views/Gate.vue'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
