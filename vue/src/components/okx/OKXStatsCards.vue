@@ -4,19 +4,19 @@
       <div class="stats-container">
         <div class="stat-card">
           <div class="stat-value projects">{{ totalProjects }}</div>
-          <div class="stat-label">空投项目</div>
+          <div class="stat-label">项目总数</div>
         </div>
         <div class="stat-card">
           <div class="stat-value income">${{ totalIncome.toFixed(1) }}</div>
-          <div class="stat-label">空投收入</div>
+          <div class="stat-label">累计收入</div>
         </div>
         <div class="stat-card">
           <div class="stat-value fees">${{ totalFees.toFixed(1) }}</div>
-          <div class="stat-label">手续费收入</div>
+          <div class="stat-label">手续费</div>
         </div>
         <div class="stat-card">
           <div class="stat-value profit">${{ totalProfit.toFixed(1) }}</div>
-          <div class="stat-label">总收入</div>
+          <div class="stat-label">利润</div>
         </div>
       </div>
     </section>
@@ -32,17 +32,19 @@ const appStore = useAppStore()
 // 计算总空投项目数
 const totalProjects = computed(() => {
   const userData = appStore.currentUser
-  if (!userData?.okx?.date) return 0
+  if (!userData?.okx?.accounts) return 0
 
   let count = 0
-  userData.okx.date.forEach((item: any) => {
-    if (item.coin && Array.isArray(item.coin)) {
-      item.coin.forEach((coin: any) => {
-        if (coin.name && coin.amount > 0) {
-          count++
-        }
-      })
-    }
+  Object.values(userData.okx.accounts).forEach((accountData: any) => {
+    accountData.date.forEach((item: any) => {
+      if (item.coin && Array.isArray(item.coin)) {
+        item.coin.forEach((coin: any) => {
+          if (coin.name && coin.amount > 0) {
+            count++
+          }
+        })
+      }
+    })
   })
   return count
 })
@@ -50,17 +52,19 @@ const totalProjects = computed(() => {
 // 计算空投总收入
 const totalIncome = computed(() => {
   const userData = appStore.currentUser
-  if (!userData?.okx?.date) return 0
+  if (!userData?.okx?.accounts) return 0
 
   let total = 0
-  userData.okx.date.forEach((item: any) => {
-    if (item.coin && Array.isArray(item.coin)) {
-      item.coin.forEach((coin: any) => {
-        if (coin.name && coin.amount > 0) {
-          total += coin.amount
-        }
-      })
-    }
+  Object.values(userData.okx.accounts).forEach((accountData: any) => {
+    accountData.date.forEach((item: any) => {
+      if (item.coin && Array.isArray(item.coin)) {
+        item.coin.forEach((coin: any) => {
+          if (coin.name && coin.amount > 0) {
+            total += coin.amount
+          }
+        })
+      }
+    })
   })
   return total
 })
@@ -68,11 +72,13 @@ const totalIncome = computed(() => {
 // 计算手续费总收入
 const totalFees = computed(() => {
   const userData = appStore.currentUser
-  if (!userData?.okx?.date) return 0
+  if (!userData?.okx?.accounts) return 0
 
   let total = 0
-  userData.okx.date.forEach((item: any) => {
-    total += item.fee || 0
+  Object.values(userData.okx.accounts).forEach((accountData: any) => {
+    accountData.date.forEach((item: any) => {
+      total += item.fee || 0
+    })
   })
   return total
 })

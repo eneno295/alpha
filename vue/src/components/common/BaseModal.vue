@@ -22,8 +22,14 @@
           </div>
           <div class="footer-right">
             <slot name="footer-right">
-              <button class="btn-cancel" @click="handleClose">取消</button>
-              <button class="btn-confirm" @click="handleConfirm">确认</button>
+              <button class="btn-cancel" @click="handleClose">{{ cancelText }}</button>
+              <button
+                class="btn-confirm"
+                @click="handleConfirm"
+                :disabled="confirmDisabled || confirmLoading"
+              >
+                {{ confirmLoading ? '处理中...' : confirmText }}
+              </button>
             </slot>
           </div>
         </slot>
@@ -45,6 +51,11 @@ interface Props {
   size?: 'small' | 'medium' | 'large' | 'full'
   contentClass?: string
   bodyClass?: string
+  // 按钮配置
+  cancelText?: string
+  confirmText?: string
+  confirmDisabled?: boolean
+  confirmLoading?: boolean
 }
 
 interface Emits {
@@ -58,6 +69,10 @@ const props = withDefaults(defineProps<Props>(), {
   showCloseButton: true,
   closeOnOverlay: true,
   size: 'medium',
+  cancelText: '取消',
+  confirmText: '确认',
+  confirmDisabled: false,
+  confirmLoading: false,
 })
 
 const emit = defineEmits<Emits>()

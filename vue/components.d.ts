@@ -17,9 +17,12 @@ declare module 'vue' {
     Header: typeof import('./src/components/binance/Header.vue')['default']
     LoadingSpinner: typeof import('./src/components/common/LoadingSpinner.vue')['default']
     LogModal: typeof import('./src/components/binance/LogModal.vue')['default']
+    OKXAccountEditModal: typeof import('./src/components/okx/OKXAccountEditModal.vue')['default']
     OKXAddRecordModal: typeof import('./src/components/okx/OKXAddRecordModal.vue')['default']
     OKXCalendar: typeof import('./src/components/okx/OKXCalendar.vue')['default']
     OKXHeader: typeof import('./src/components/okx/OKXHeader.vue')['default']
+    OKXLogModal: typeof import('./src/components/okx/OKXLogModal.vue')['default']
+    OKXSettingsModal: typeof import('./src/components/okx/OKXSettingsModal.vue')['default']
     OKXStatsCards: typeof import('./src/components/okx/OKXStatsCards.vue')['default']
     OrderHistory: typeof import('./src/components/bot/OrderHistory.vue')['default']
     PriceInfo: typeof import('./src/components/bot/PriceInfo.vue')['default']
@@ -32,6 +35,6 @@ declare module 'vue' {
     TradeConfig: typeof import('./src/components/bot/TradeConfig.vue')['default']
     TradeLog: typeof import('./src/components/bot/TradeLog.vue')['default']
     UserInfo: typeof import('./src/components/bot/UserInfo.vue')['default']
-    UserSelector: typeof import('./src/components/binance/UserSelector.vue')['default']
+    UserSelector: typeof import('./src/components/common/UserSelector.vue')['default']
   }
 }

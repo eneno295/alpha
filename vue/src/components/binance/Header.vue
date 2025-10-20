@@ -54,8 +54,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useAppStore } from '@/stores/app'
-import UserSelector from './UserSelector.vue'
-import SettingsModal from './SettingsModal.vue'
 
 // 获取 store
 const appStore = useAppStore()

@@ -3,6 +3,8 @@
     :visible="visible"
     :title="modalTitle"
     size="medium"
+    cancel-text="取消"
+    confirm-text="保存"
     @close="closeModal"
     @confirm="saveRecord"
   >
@@ -85,11 +87,6 @@
     <template #footer-left>
       <button type="button" class="btn-clear" @click="clearCurrentDayData">清空</button>
     </template>
-
-    <template #footer-right>
-      <button type="button" class="btn-cancel" @click="closeModal">取消</button>
-      <button type="button" class="btn-save" @click="saveRecord">保存</button>
-    </template>
   </BaseModal>
 </template>
 
@@ -97,9 +94,8 @@
 import { ref, computed, watch } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useLoading } from '@/composables/useLoading'
-import BaseModal from '@/components/common/BaseModal.vue'
 import { calculatePrevious15DaysScore } from '@/composables/useScoreCalculation'
-import type { DateRecord } from '@/types'
+import type { DateRecord, LogType } from '@/types'
 
 // 获取 store
 const appStore = useAppStore()
@@ -213,7 +209,7 @@ const fillWithExistingData = (existingData: DateRecord) => {
     formData.value.coin = existingData.coin.map((coin) => ({
       name: coin.name,
       amount: coin.amount,
-      score: coin.score,
+      score: coin.score || 0,
     }))
   } else {
     formData.value.coin = [{ name: '', amount: '', score: 15 }]
@@ -251,7 +247,7 @@ const saveRecord = async () => {
         (item: any) => item.date === props.selectedDate,
       )
 
-      // 获取最新数据
+      // 获取最新数据(避免在其他地方被改过)
       const latestData = await appStore.api.fetchData(userName)
 
       // 创建新记录
@@ -293,15 +289,17 @@ const saveRecord = async () => {
       const action = props.isEditing ? '修改记录' : '新增记录'
       const logEntry = {
         action,
-        type: (props.isEditing ? 'editRecord' : 'addRecord') as 'editRecord' | 'addRecord',
+        type: (props.isEditing ? 'editRecord' : 'addRecord') as LogType,
         details: JSON.stringify({
           oldData: oldRecord,
           newData: newRecord,
         }),
       }
 
-      // 一次性保存数据和日志
-      await appStore.api.updateData(logEntry, 'binance')
+      // 更新日志
+      await appStore.log.createLogEntry(logEntry)
+      // 更新数据
+      await appStore.api.updateData()
     }, '保存记录中...')
 
     // 关闭弹窗
@@ -340,8 +338,10 @@ const clearCurrentDayData = async () => {
         details: `${props.selectedDate} 的数据已清空`,
       }
 
-      // 一次性保存数据和日志
-      await appStore.api.updateData(logEntry, 'binance')
+      // 更新日志
+      await appStore.log.createLogEntry(logEntry)
+      // 更新数据
+      await appStore.api.updateData()
     }, '清空数据中...')
 
     // 关闭弹窗
@@ -517,51 +517,6 @@ watch(
       font-size: 16px;
       font-weight: bold;
     }
-  }
-}
-
-.btn-clear {
-  background: var(--warning);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 10px 20px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    opacity: 0.8;
-  }
-}
-
-.btn-cancel {
-  background: none;
-  color: var(--text-muted);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 10px 20px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    opacity: 0.8;
-  }
-}
-
-.btn-save {
-  background: var(--primary);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 10px 20px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    opacity: 0.8;
   }
 }
 

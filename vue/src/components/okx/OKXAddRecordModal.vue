@@ -1,78 +1,98 @@
 <template>
   <BaseModal
     :visible="visible"
-    :title="modalTitle"
-    size="medium"
+    :title="`${selectedDate} - 设置 OKX 收益`"
+    size="large"
+    :show-footer="false"
     @close="closeModal"
-    @confirm="saveRecord"
   >
-    <form @submit.prevent="saveRecord">
-      <!-- 手续费信息 -->
-      <div class="fee-row">
-        <div class="form-group">
-          <label>手续费</label>
-          <input v-model="formData.fee" type="number" step="0.01" placeholder="0.00" />
-        </div>
-      </div>
-
-      <!-- 空投信息 -->
-      <div class="form-group lineBreak-group">
-        <label>空投信息</label>
-        <div class="airdrop-container">
-          <div class="airdrop-list">
-            <div v-for="(airdrop, index) in formData.coin" :key="index" class="airdrop-item">
-              <input
-                v-model="airdrop.name"
-                type="text"
-                class="airdrop-name"
-                placeholder="输入空投名称"
-                required
-              />
-              <input
-                v-model="airdrop.amount"
-                type="number"
-                class="airdrop-income"
-                step="0.01"
-                placeholder="收入"
-                required
-              />
-              <button type="button" class="remove-airdrop" @click="removeAirdrop(index)">×</button>
+    <div class="accounts-modal">
+      <!-- 账号列表 -->
+      <div class="accounts-list">
+        <div
+          v-for="account in availableAccounts"
+          :key="account"
+          class="account-card"
+          @click="openAccountEdit(account)"
+        >
+          <div class="account-header">
+            <h4>{{ account }}</h4>
+            <div class="account-status">
+              <span
+                :class="{
+                  'status-set': getAccountStatus(account) === '已设置',
+                  'status-modified': getAccountStatus(account) === '已修改',
+                  'status-added': getAccountStatus(account) === '已添加',
+                  'status-cleared': getAccountStatus(account) === '已清空',
+                  'status-cleared-added': getAccountStatus(account) === '已清空添加',
+                  'status-empty': getAccountStatus(account) === '未设置',
+                }"
+              >
+                {{ getAccountStatus(account) }}
+              </span>
             </div>
           </div>
-          <button type="button" class="add-airdrop-btn" @click="addAirdrop">
-            <span>+</span> 添加空投
-          </button>
+
+          <div v-if="getAccountData(account)" class="account-summary">
+            <div class="summary-item">
+              <span class="label">币种:</span>
+              <span class="value">{{ getCoinNames(account) }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">总收益:</span>
+              <span class="value income">${{ getTotalIncome(account).toFixed(6) }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">手续费:</span>
+              <span class="value">{{ getAccountData(account)?.fee || 0 }} USDT</span>
+            </div>
+          </div>
+
+          <div v-else class="account-empty">
+            <p>点击设置该账号的收益数据</p>
+          </div>
+
+          <div class="account-actions">
+            <button
+              v-if="getAccountData(account)"
+              class="btn-clear"
+              @click.stop="clearAccountData(account)"
+            >
+              清空
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- 备注 -->
-      <div class="form-group">
-        <label>备注</label>
-        <textarea v-model="formData.remark" placeholder="添加备注信息" rows="3"></textarea>
+      <!-- 操作按钮 -->
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" @click="closeModal">取消</button>
+        <button type="button" class="btn-save" @click="saveAllData" :disabled="!hasAnyData">
+          保存全部
+        </button>
       </div>
-    </form>
+    </div>
 
-    <template #footer-left>
-      <button type="button" class="btn-clear" @click="clearCurrentDayData">清空</button>
-    </template>
-
-    <template #footer-right>
-      <button type="button" class="btn-cancel" @click="closeModal">取消</button>
-      <button type="button" class="btn-save" @click="saveRecord">保存</button>
-    </template>
+    <!-- 账号编辑小弹窗 -->
+    <OKXAccountEditModal
+      :visible="showAccountEdit"
+      :selectedAccount="selectedAccount"
+      :selectedDate="selectedDate"
+      :existingData="getAccountData(selectedAccount) || undefined"
+      @close="closeAccountEdit"
+      @save="saveAccountData"
+      @clear="clearAccountData"
+    />
   </BaseModal>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useAppStore } from '@/stores/app'
-
-const appStore = useAppStore()
 import { useLoading } from '@/composables/useLoading'
-import BaseModal from '@/components/common/BaseModal.vue'
-import { fetchDataFromAPI } from '@/api'
-import type { DateRecord } from '@/types'
+import type { LogType } from '@/types'
 
+// Props
 interface Props {
   visible: boolean
   selectedDate?: string
@@ -84,233 +104,340 @@ const props = withDefaults(defineProps<Props>(), {
   isEditing: false,
 })
 
+// Emits
 const emit = defineEmits<{
   close: []
   success: []
 }>()
 
-const store = useAppStore()
+// Store
+const appStore = useAppStore()
 const { withLoading } = useLoading()
 
-// 表单数据
-const formData = ref({
-  fee: '' as string | number,
-  coin: [
+// 小弹窗状态
+const showAccountEdit = ref(false)
+const selectedAccount = ref('')
+
+// 临时数据存储（用于批量保存）
+const tempAccountData = ref<
+  Record<
+    string,
     {
-      name: '',
-      amount: '' as string | number,
-    },
-  ],
-  remark: '',
+      coins: Array<{ name: string; amount: number }>
+      fee: number
+      remark: string
+      _cleared?: boolean // 标记是否已清空
+      _wasCleared?: boolean // 标记是否曾经清空过（清空后又添加）
+    }
+  >
+>({})
+
+// OKX 可用账号列表（从 OKX 的 accounts 中获取，按 order 排序）
+const availableAccounts = computed(() => {
+  if (!appStore.okx.data?.accounts) return []
+
+  // 获取所有账号并按 order 排序
+  return Object.entries(appStore.okx.data.accounts)
+    .sort(([, a], [, b]) => a.order - b.order)
+    .map(([name]) => name)
 })
 
-// 计算属性
-const modalTitle = computed(() => {
-  if (!props.selectedDate) return '记录'
-
-  const date = new Date(props.selectedDate)
-  const formattedDate = `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`
-  const action = props.isEditing ? '修改' : '新增'
-  return `${action} ${formattedDate} 的记录`
+// 是否有任何数据
+const hasAnyData = computed(() => {
+  return Object.keys(tempAccountData.value).length > 0
 })
 
-// 添加空投
-const addAirdrop = () => {
-  formData.value.coin.push({
-    name: '',
-    amount: '' as string | number,
-  })
+// 获取账号数据（优先从临时数据，其次从现有数据）
+const getAccountData = (
+  account: string,
+):
+  | {
+      coins: Array<{ name: string; amount: number }>
+      fee: number
+      remark: string
+    }
+  | undefined => {
+  // 先检查临时数据
+  if (tempAccountData.value[account]) {
+    // 如果标记为已清空，返回 undefined
+    if (tempAccountData.value[account]._cleared) {
+      return undefined
+    }
+    return tempAccountData.value[account]
+  }
+
+  // 再检查现有数据
+  const accountData = appStore.okx.data?.accounts?.[account]
+  if (accountData) {
+    const existingRecord = accountData.date.find((item: any) => item.date === props.selectedDate)
+    if (existingRecord) {
+      return {
+        coins: existingRecord.coin || [],
+        fee: existingRecord.fee || 0,
+        remark: existingRecord.remark || '',
+      }
+    }
+  }
+
+  return undefined
 }
 
-// 删除空投
-const removeAirdrop = (index: number) => {
-  if (formData.value.coin.length > 1) {
-    formData.value.coin.splice(index, 1)
+// 获取账号总收益
+const getTotalIncome = (account: string) => {
+  const data = getAccountData(account)
+  if (!data) return 0
+
+  return data.coins.reduce((total, coin) => {
+    return total + (coin.amount || 0)
+  }, 0)
+}
+
+// 获取币种名称列表
+const getCoinNames = (account: string) => {
+  const data = getAccountData(account)
+  if (!data || !data.coins || data.coins.length === 0) return '-'
+
+  return data.coins.map((coin) => coin.name).join(', ')
+}
+
+// 获取账号状态标签
+const getAccountStatus = (account: string): string => {
+  const tempData = tempAccountData.value[account]
+  const originalData = appStore.okx.data?.accounts?.[account]?.date.find(
+    (item: any) => item.date === props.selectedDate,
+  )
+
+  // 已清空
+  if (tempData?._cleared) {
+    return '已清空'
+  }
+
+  // 有临时数据（修改或新增）
+  if (tempData && !tempData._cleared) {
+    // 原数据不存在 → 已添加
+    if (!originalData) {
+      return '已添加'
+    }
+    // 原数据存在，且曾经清空过 → 已清空添加
+    if (tempData._wasCleared) {
+      return '已清空添加'
+    }
+    // 原数据存在，但有修改 → 已修改
+    return '已修改'
+  }
+
+  // 没有临时数据，但有原数据 → 已设置
+  if (originalData) {
+    return '已设置'
+  }
+
+  // 没有任何数据 → 未设置
+  return '未设置'
+}
+
+// 打开账号编辑弹窗
+const openAccountEdit = (account: string) => {
+  selectedAccount.value = account
+  showAccountEdit.value = true
+}
+
+// 关闭账号编辑弹窗
+const closeAccountEdit = () => {
+  showAccountEdit.value = false
+  selectedAccount.value = ''
+}
+
+// 保存账号数据（临时存储）
+const saveAccountData = (data: {
+  account: string
+  date: string
+  coins: Array<{ name: string; amount: number }>
+  fee: number
+  remark: string
+}) => {
+  // 检查是否之前被清空过
+  const wasCleared = tempAccountData.value[data.account]?._cleared === true
+
+  tempAccountData.value[data.account] = {
+    coins: data.coins,
+    fee: data.fee,
+    remark: data.remark,
+    _wasCleared: wasCleared, // 如果之前清空过，标记为已清空添加
   }
 }
 
-// 填充现有数据
-const fillWithExistingData = (existingData: DateRecord) => {
-  formData.value.fee = existingData.fee || 0
-  formData.value.remark = existingData.remark || ''
-
-  if (existingData.coin && existingData.coin.length > 0) {
-    formData.value.coin = existingData.coin.map((coin) => ({
-      name: coin.name,
-      amount: coin.amount,
-    }))
-  } else {
-    formData.value.coin = [{ name: '', amount: '' }]
-  }
-}
-
-// 清空表单
-const clearForm = () => {
-  formData.value = {
-    fee: '',
-    coin: [{ name: '', amount: '' }],
+// 清空账号数据
+const clearAccountData = (account: string) => {
+  // 标记为已清空
+  tempAccountData.value[account] = {
+    coins: [],
+    fee: 0,
     remark: '',
+    _cleared: true,
   }
 }
 
-// 保存记录
-const saveRecord = async () => {
+// 保存所有数据
+const saveAllData = async () => {
   try {
     await withLoading(async () => {
       if (!props.selectedDate) {
         throw new Error('请选择日期')
       }
 
-      // 获取当前用户数据
-      let currentUser = store.currentUser
-      if (!currentUser) {
-        throw new Error('未找到用户信息')
-      }
-
-      // 获取最新数据
-      const latestData = await fetchDataFromAPI()
-
-      // 合并最新数据到 store
-      store.profitData = latestData
-
-      // 重新获取当前用户数据（可能已被其他用户修改）
-      currentUser = store.profitData.data[currentUser.config.userName]
-
-      // 获取旧记录（用于日志对比）
-      const oldRecord = appStore.currentUser?.okx?.date.find(
-        (item: any) => item.date === props.selectedDate,
-      )
-
-      // 创建新记录
-      const newRecord: DateRecord = {
+      // 准备日志信息（所有变更合并成一条日志）
+      const logDetails = {
         date: props.selectedDate,
-        fee: Number(formData.value.fee) || 0,
-        coin: formData.value.coin
-          .filter((coin) => coin.name.trim())
-          .map((coin) => ({
-            name: coin.name,
-            amount: Number(coin.amount) || 0,
-            score: 0, // OKX 不需要积分
-          })),
-        remark: formData.value.remark,
+        accounts: [] as Array<{
+          account: string
+          type: 'add' | 'edit' | 'clear'
+          oldData?: any
+          newData?: any
+        }>,
       }
 
-      // 先删除该日期的记录（无论是否有数据）
-      if (appStore.currentUser?.okx?.date) {
-        appStore.currentUser.okx.date = appStore.currentUser.okx.date.filter(
-          (item: any) => item.date !== props.selectedDate,
-        )
+      // 处理每个账号的数据
+      for (const [account, data] of Object.entries(tempAccountData.value)) {
+        // 获取旧记录
+        const accountData = appStore.okx.data?.accounts?.[account]
+        const oldRecord = accountData?.date.find((item: any) => item.date === props.selectedDate)
 
-        // 添加新记录
-        appStore.currentUser.okx.date.push(newRecord)
+        // 如果标记为已清空
+        if (data._cleared) {
+          if (oldRecord) {
+            logDetails.accounts.push({
+              account,
+              type: 'clear',
+              oldData: oldRecord,
+            })
+          }
+          continue
+        }
 
-        // 去重和排序
-        appStore.currentUser.okx.date = removeDuplicateRecords(appStore.currentUser.okx.date)
-        appStore.currentUser.okx.date.sort(
-          (a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-        )
-      }
+        // 创建新记录
+        const newRecord = {
+          date: props.selectedDate,
+          coin: data.coins
+            .filter((coin) => coin.name.trim() && coin.amount > 0)
+            .map((coin) => ({
+              name: coin.name,
+              amount: coin.amount,
+              score: 0, // OKX 不需要积分，设为 0
+            })),
+          fee: data.fee || 0,
+          remark: data.remark || undefined,
+        }
 
-      // 先更新 store.currentUser，让 createLogEntry 能正确访问
-      store.currentUser = currentUser
-      store.profitData.data[currentUser.config.userName] = currentUser
-
-      // 准备日志信息
-      const action = props.isEditing ? '修改记录' : '新增记录'
-      const logEntry = {
-        action,
-        type: (props.isEditing ? 'editRecord' : 'addRecord') as 'editRecord' | 'addRecord',
-        details: JSON.stringify({
+        // 记录变更
+        logDetails.accounts.push({
+          account,
+          type: oldRecord ? 'edit' : 'add',
           oldData: oldRecord,
           newData: newRecord,
-        }),
+        })
       }
 
-      // 一次性保存数据和日志
-      await appStore.api.updateData(logEntry, 'okx')
-    }, '保存记录中...')
+      // 更新本地数据
+      if (appStore.okx.data) {
+        // 确保 accounts 结构存在
+        if (!appStore.okx.data.accounts) {
+          appStore.okx.data.accounts = {}
+        }
+
+        // 更新每个账号的数据
+        for (const [account, data] of Object.entries(tempAccountData.value)) {
+          if (!appStore.okx.data.accounts[account]) {
+            // 计算新账号的 order（当前最大 order + 1）
+            const maxOrder = Object.values(appStore.okx.data.accounts).reduce(
+              (max, acc) => Math.max(max, acc.order),
+              -1,
+            )
+            appStore.okx.data.accounts[account] = { date: [], order: maxOrder + 1 }
+          }
+
+          // 移除该日期的旧记录
+          appStore.okx.data.accounts[account].date = appStore.okx.data.accounts[
+            account
+          ].date.filter((item: any) => item.date !== props.selectedDate)
+
+          // 如果标记为已清空，跳过添加新记录
+          if (data._cleared) {
+            continue
+          }
+
+          // 添加新记录
+          const newRecord = {
+            date: props.selectedDate,
+            coin: data.coins
+              .filter((coin) => coin.name.trim() && coin.amount > 0)
+              .map((coin) => ({
+                name: coin.name,
+                amount: coin.amount,
+                score: 0, // OKX 不需要积分，设为 0
+              })),
+            fee: data.fee || 0,
+            remark: data.remark || undefined,
+          }
+
+          appStore.okx.data.accounts[account].date.push(newRecord)
+
+          // 排序
+          appStore.okx.data.accounts[account].date.sort(
+            (a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+          )
+        }
+      }
+
+      // 保存日志（合并成一条记录）
+      if (logDetails.accounts.length > 0) {
+        // 生成日志描述
+        const addCount = logDetails.accounts.filter((a) => a.type === 'add').length
+        const editCount = logDetails.accounts.filter((a) => a.type === 'edit').length
+        const clearCount = logDetails.accounts.filter((a) => a.type === 'clear').length
+
+        const actionParts = []
+        if (addCount > 0) actionParts.push(`新增${addCount}个`)
+        if (editCount > 0) actionParts.push(`修改${editCount}个`)
+        if (clearCount > 0) actionParts.push(`清空${clearCount}个`)
+
+        const action = `账号记录(${actionParts.join('、')})`
+
+        // 判断日志类型
+        let logType: LogType = 'editRecord'
+        if (addCount > 0 && editCount === 0 && clearCount === 0) {
+          logType = 'addRecord'
+        } else if (clearCount > 0 && addCount === 0 && editCount === 0) {
+          logType = 'clearRecord'
+        }
+
+        await appStore.log.createLogEntry({
+          action,
+          type: logType,
+          details: JSON.stringify(logDetails),
+        })
+
+        // 一次性提交所有修改到服务器
+        await appStore.api.updateData()
+      }
+    }, '保存数据中...')
+
+    // 清空临时数据
+    tempAccountData.value = {}
 
     // 关闭弹窗
     closeModal()
 
     // 触发成功事件
     emit('success')
-
-    // 显示成功提示
-    const message = props.isEditing ? '记录修改成功！' : '记录新增成功！'
-    window.GlobalPlugin.toast.success(message)
   } catch (error) {
-    console.error('保存记录失败:', error)
-    const errorMessage = error instanceof Error ? error.message : '保存失败，请重试'
-    window.GlobalPlugin.toast.error('保存失败', errorMessage)
+    console.error('保存数据失败:', error)
   }
-}
-
-// 清空当前日期数据
-const clearCurrentDayData = async () => {
-  try {
-    await withLoading(async () => {
-      if (!props.selectedDate) {
-        throw new Error('请选择日期')
-      }
-
-      const currentUser = store.currentUser
-      if (!currentUser) {
-        throw new Error('未找到用户信息')
-      }
-
-      // 删除该日期的所有记录
-      if (appStore.currentUser?.okx?.date) {
-        appStore.currentUser.okx.date = appStore.currentUser.okx.date.filter(
-          (item: any) => item.date !== props.selectedDate,
-        )
-      }
-
-      // 先更新 store.currentUser，让 createLogEntry 能正确访问
-      store.currentUser = currentUser
-      store.profitData.data[currentUser.config.userName] = currentUser
-
-      // 准备日志信息
-      const logEntry = {
-        action: '清空记录',
-        type: 'clearRecord' as const,
-        details: `${props.selectedDate} 的数据已清空`,
-      }
-
-      // 一次性保存数据和日志
-      await appStore.api.updateData(logEntry, 'okx')
-    }, '清空数据中...')
-
-    // 关闭弹窗
-    closeModal()
-
-    // 触发成功事件
-    emit('success')
-
-    // 显示成功提示
-    window.GlobalPlugin.toast.success('数据已清空')
-  } catch (error) {
-    console.error('清空数据失败:', error)
-    const errorMessage = error instanceof Error ? error.message : '清空失败，请重试'
-    window.GlobalPlugin.toast.error('清空失败', errorMessage)
-  }
-}
-
-// 去重函数
-const removeDuplicateRecords = (records: DateRecord[]): DateRecord[] => {
-  const seen = new Set()
-  return records.filter((record) => {
-    const key = `${record.date}-${record.coin?.map((c) => c.name).join(',')}-${record.fee}`
-    if (seen.has(key)) {
-      return false
-    }
-    seen.add(key)
-    return true
-  })
 }
 
 // 关闭弹窗
 const closeModal = () => {
+  // 清空临时数据
+  tempAccountData.value = {}
   emit('close')
 }
 
@@ -319,195 +446,223 @@ watch(
   () => props.visible,
   (newVisible) => {
     if (newVisible) {
-      // 清空表单
-      clearForm()
-
-      // 检查是否有现有数据
-      if (props.selectedDate && store.currentUser) {
-        const existingData = appStore.currentUser?.okx?.date.find(
-          (item: any) => item.date === props.selectedDate,
-        )
-        if (existingData) {
-          fillWithExistingData(existingData)
-        }
-      }
+      // 初始化时清空临时数据
+      tempAccountData.value = {}
     }
   },
 )
+
+// 组件挂载时初始化
+onMounted(() => {
+  if (props.visible) {
+    tempAccountData.value = {}
+  }
+})
 </script>
 
 <style lang="scss" scoped>
-.fee-row {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 15px;
-  flex-wrap: wrap;
-  .form-group {
-    flex: 1;
-    min-width: 120px;
-  }
-}
+.accounts-modal {
+  .accounts-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
 
-.form-group {
-  label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    color: var(--text-primary);
-  }
+    .account-card {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
 
-  input,
-  textarea {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    transition: border-color 0.3s ease;
-
-    &:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    &:disabled {
-      background: var(--bg-tertiary);
-      color: var(--text-muted);
-      cursor: not-allowed;
-    }
-  }
-
-  textarea {
-    min-height: 60px;
-    resize: vertical;
-  }
-
-  &.lineBreak-group {
-    margin-bottom: 15px;
-  }
-}
-
-.airdrop-container {
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-  padding: 15px;
-  border-radius: 8px;
-  .airdrop-list {
-    margin-bottom: 12px;
-
-    .airdrop-item {
-      display: grid;
-      grid-template-columns: 2fr 1fr auto;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 8px;
-
-      input {
-        margin-bottom: 0;
+      &:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
 
-      .remove-airdrop {
-        background: var(--error);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
+      .account-header {
         display: flex;
+        justify-content: space-between;
         align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 16px;
-        transition: all 0.3s ease;
+        margin-bottom: 16px;
 
-        &:hover {
-          transform: scale(1.1);
-          font-size: 17px;
+        h4 {
+          margin: 0;
+          color: var(--text-primary);
+          font-size: 16px;
+          font-weight: 600;
+        }
+
+        .account-status {
+          span {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+          }
+
+          .status-set {
+            background: #6b7280;
+            color: white;
+          }
+
+          .status-modified {
+            background: #3b82f6;
+            color: white;
+          }
+
+          .status-added {
+            background: #10b981;
+            color: white;
+          }
+
+          .status-cleared {
+            background: #f97316;
+            color: white;
+          }
+
+          .status-cleared-added {
+            background: #8b5cf6;
+            color: white;
+          }
+
+          .status-empty {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+          }
+        }
+      }
+
+      .account-summary {
+        margin-bottom: 16px;
+
+        .summary-item {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 8px;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+
+          .label {
+            color: var(--text-secondary);
+            font-size: 14px;
+          }
+
+          .value {
+            font-weight: 600;
+            font-size: 14px;
+
+            &.income {
+              color: var(--success);
+            }
+          }
+        }
+      }
+
+      .account-empty {
+        margin-bottom: 16px;
+        text-align: center;
+        padding: 20px;
+        background: var(--bg-primary);
+        border-radius: 8px;
+        border: 1px dashed var(--border-color);
+
+        p {
+          margin: 0;
+          color: var(--text-secondary);
+          font-size: 14px;
+        }
+      }
+
+      .account-actions {
+        display: flex;
+        gap: 8px;
+
+        button {
+          flex: 1;
+          padding: 8px 16px;
+          border: none;
+          border-radius: 6px;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s ease;
+
+          &.btn-edit {
+            background: var(--primary);
+            color: white;
+
+            &:hover {
+              background: var(--primary-dark);
+            }
+          }
         }
       }
     }
   }
 
-  .add-airdrop-btn {
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 10px 16px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.3s ease;
+  .modal-actions {
     display: flex;
-    align-items: center;
-    gap: 8px;
-
-    &:hover {
-      background: var(--primary-dark);
-    }
-
-    span {
-      font-size: 16px;
-      font-weight: bold;
-    }
-  }
-}
-
-.btn-clear {
-  background: var(--warning);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 10px 20px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    opacity: 0.8;
-  }
-}
-
-.btn-cancel {
-  background: none;
-  color: var(--text-muted);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 10px 20px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    opacity: 0.8;
-  }
-}
-
-.btn-save {
-  background: var(--primary);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 10px 20px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    opacity: 0.8;
-  }
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .fee-row {
-    grid-template-columns: 1fr;
     gap: 12px;
-  }
+    justify-content: flex-end;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
 
-  .airdrop-item {
-    grid-template-columns: 1fr;
-    gap: 8px;
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &.btn-cancel {
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-color);
+
+        &:hover {
+          background: var(--bg-tertiary);
+        }
+      }
+
+      &.btn-save {
+        background: var(--primary);
+        color: white;
+
+        &:hover:not(:disabled) {
+          background: var(--primary-dark);
+        }
+
+        &:disabled {
+          background: var(--bg-tertiary);
+          color: var(--text-disabled);
+          cursor: not-allowed;
+        }
+      }
+    }
+  }
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .accounts-modal {
+    .accounts-list {
+      grid-template-columns: 1fr;
+    }
+
+    .modal-actions {
+      flex-direction: column;
+
+      button {
+        width: 100%;
+      }
+    }
   }
 }
 </style>

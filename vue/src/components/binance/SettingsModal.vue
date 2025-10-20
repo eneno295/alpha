@@ -3,6 +3,8 @@
     :visible="isVisible"
     title="快捷配置"
     size="medium"
+    cancel-text="取消"
+    confirm-text="保存"
     @close="closeModal"
     @confirm="saveConfig"
   >
@@ -57,11 +59,6 @@
     <template #footer-left>
       <button type="button" class="btn-clear" @click="clearConfig">清空</button>
     </template>
-
-    <template #footer-right>
-      <button type="button" class="btn-cancel" @click="closeModal">取消</button>
-      <button type="button" class="btn-save" @click="saveConfig">保存</button>
-    </template>
   </BaseModal>
 </template>
 
@@ -69,7 +66,6 @@
 import { ref, computed, watch } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useLoading } from '@/composables/useLoading'
-import BaseModal from '@/components/common/BaseModal.vue'
 
 // 获取 store
 const appStore = useAppStore()
@@ -129,7 +125,34 @@ const saveConfig = async () => {
   try {
     await withLoading(async () => {
       // 更新配置并记录日志
-      await appStore.binance.updateUserConfigsAction(config.value)
+      if (!appStore.currentUser) throw new Error('用户不存在')
+
+      // 获取旧配置（深拷贝，避免引用被修改）
+      const oldConfig = JSON.parse(JSON.stringify(appStore.binance.config))
+
+      // 更新本地配置
+      appStore.binance.config = {
+        ...appStore.binance.config,
+        ...config.value,
+      }
+
+      // 准备日志详情
+      const logDetails = {
+        oldData: oldConfig,
+        newData: config.value,
+      }
+
+      // 准备日志信息
+      const logEntry = {
+        action: '批量修改配置',
+        type: 'editConfigs' as 'editConfigs',
+        details: JSON.stringify(logDetails),
+      }
+
+      // 更新日志
+      await appStore.log.createLogEntry(logEntry)
+      // 更新数据
+      await appStore.api.updateData()
     }, '保存配置中...')
 
     // 关闭弹窗
@@ -223,51 +246,6 @@ watch(isVisible, (newVisible) => {
     .checkmark {
       margin-left: 8px;
     }
-  }
-}
-
-.btn-clear {
-  background: var(--warning);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 16px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    opacity: 0.8;
-  }
-}
-
-.btn-cancel {
-  background: none;
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    opacity: 0.8;
-  }
-}
-
-.btn-save {
-  background: var(--primary);
-  border: none;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    opacity: 0.8;
   }
 }
 

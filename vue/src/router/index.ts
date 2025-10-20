@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Profit from '@/views/Binance.vue'
+import Binance from '@/views/Binance.vue'
 import Bot from '@/views/Bot.vue'
 import OKX from '@/views/OKX.vue'
 
@@ -8,8 +8,8 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: Profit,
+      name: 'binance',
+      component: Binance,
     },
     {
       path: '/bot',

@@ -1,7 +1,8 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import type { ProfitData, UserData, LogEntry } from '@/types'
+import type { ProfitData, UserData, LogEntry, AddLog, Platform, LogType } from '@/types'
 import { updateDataInAPI, getUserIP, fetchDataFromAPI } from '@/api'
+import router from '@/router'
 
 export const useAppStore = defineStore('app', () => {
   // ========== 全局状态 ==========
@@ -28,6 +29,11 @@ export const useAppStore = defineStore('app', () => {
     currentUser.value = profitData.value.data[userName]
   }
 
+  // 获取当前平台
+  const getPlatform = (): Platform => {
+    return (router.currentRoute.value.name as Platform) || 'binance'
+  }
+
   // ========== 平台数据模块 ==========
   const platformModules = {
     binance: {
@@ -50,11 +56,12 @@ export const useAppStore = defineStore('app', () => {
       config: computed(() => {
         const binanceData = currentUser.value?.binance
         if (binanceData?.config) {
-          document.documentElement.setAttribute('data-theme', binanceData.config.theme)
+          document.documentElement.setAttribute('data-theme', binanceData.config.theme || 'light')
         }
         return binanceData?.config || null
       }),
       profitData: computed(() => currentUser.value?.binance?.date || []),
+      logs: computed(() => currentUser.value?.binance?.log || []),
 
       // ========== 方法 ==========
       updateUserConfigAction: async ({ configKey, configValue, name, action }: { configKey: string, configValue: any, name: string, action: string }) => {
@@ -79,52 +86,38 @@ export const useAppStore = defineStore('app', () => {
             }),
           }
 
-          // 调用 API 更新
-          await apiModule.updateData(logEntry, 'binance')
+          // 更新日志
+          await logModule.createLogEntry(logEntry)
+          // 更新数据
+          await apiModule.updateData()
         } catch (error) {
           console.error('❌ Binance 配置更新失败:', error)
           throw error
         }
-      },
-
-      updateUserConfigsAction: async (configs: Record<string, any>) => {
-        try {
-          if (!currentUser.value) throw new Error('用户不存在')
-
-          // 获取旧配置（深拷贝，避免引用被修改）
-          const oldConfig = JSON.parse(JSON.stringify(currentUser.value.binance.config))
-
-          // 更新本地配置
-          currentUser.value.binance.config = { ...currentUser.value.binance.config, ...configs }
-
-          // 准备日志详情
-          const logDetails = {
-            oldData: oldConfig,
-            newData: configs,
-          }
-
-          // 准备日志信息
-          const logEntry = {
-            action: '批量修改配置',
-            type: 'editConfigs' as 'editConfigs',
-            details: JSON.stringify(logDetails),
-          }
-
-          // 调用 API 更新
-          await apiModule.updateData(logEntry, 'binance')
-
-        } catch (error) {
-          console.error('❌ Binance 批量配置更新失败:', error)
-          throw error
-        }
-      },
+      }
     },
 
     okx: {
       data: computed(() => currentUser.value?.okx || null),
       config: computed(() => currentUser.value?.okx?.config || null),
-      profitData: computed(() => currentUser.value?.okx?.date || []),
+      profitData: computed(() => {
+        // 聚合所有账号的数据，转换为原来的格式以保持兼容性
+        if (!currentUser.value?.okx?.accounts) return []
 
+        const allRecords: any[] = []
+        Object.entries(currentUser.value.okx.accounts).forEach(([account, accountData]) => {
+          accountData.date.forEach((record: any) => {
+            allRecords.push({
+              ...record,
+              account // 新增账号信息
+            })
+          })
+        })
+
+        // 按日期排序
+        return allRecords.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      }),
+      logs: computed(() => currentUser.value?.okx?.log || []),
 
       // ========== 方法 ==========
       updateUserConfigAction: async ({ configKey, configValue, name, action }: { configKey: string, configValue: any, name: string, action: string }) => {
@@ -142,15 +135,17 @@ export const useAppStore = defineStore('app', () => {
           // 准备日志信息
           const logEntry = {
             action: action,
-            type: 'editConfig' as 'editConfig',
+            type: 'editConfig' as LogType,
             details: JSON.stringify({
               oldData: { type: configKey, value: oldConfig, name: name },
               newData: { type: configKey, value: configValue, name: name },
             }),
           }
 
-          // 调用 API 更新
-          await apiModule.updateData(logEntry, 'okx')
+          // 更新日志
+          await logModule.createLogEntry(logEntry)
+          // 更新数据
+          await apiModule.updateData()
         } catch (error) {
           console.error('❌ OKX 配置更新失败:', error)
           throw error
@@ -183,10 +178,62 @@ export const useAppStore = defineStore('app', () => {
           }
 
           // 调用 API 更新
-          await apiModule.updateData(logEntry, 'okx')
-
+          await apiModule.updateData()
+          // 更新日志
+          await logModule.createLogEntry(logEntry)
         } catch (error) {
           console.error('❌ OKX 批量配置更新失败:', error)
+          throw error
+        }
+      },
+
+      // 更新记录数据（支持账号分组）
+      updateRecordData: async (account: string, date: string, recordData: any) => {
+        try {
+          if (!currentUser.value) throw new Error('用户不存在')
+
+          // 确保 accounts 结构存在
+          if (!currentUser.value.okx.accounts) {
+            currentUser.value.okx.accounts = {}
+          }
+
+          // 确保账号结构存在
+          if (!currentUser.value.okx.accounts[account]) {
+            currentUser.value.okx.accounts[account] = { date: [], order: 0 }
+          }
+
+          // 移除该日期的旧记录
+          currentUser.value.okx.accounts[account].date = currentUser.value.okx.accounts[account].date.filter(
+            (item: any) => item.date !== date
+          )
+
+          // 添加新记录
+          currentUser.value.okx.accounts[account].date.push(recordData)
+
+          // 排序
+          currentUser.value.okx.accounts[account].date.sort(
+            (a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime()
+          )
+
+        } catch (error) {
+          console.error('❌ OKX 记录更新失败:', error)
+          throw error
+        }
+      },
+
+      // 清空记录
+      clearRecord: async (account: string, date: string) => {
+        try {
+          if (!currentUser.value) throw new Error('用户不存在')
+
+          if (currentUser.value.okx.accounts?.[account]) {
+            currentUser.value.okx.accounts[account].date = currentUser.value.okx.accounts[account].date.filter(
+              (item: any) => item.date !== date
+            )
+          }
+
+        } catch (error) {
+          console.error('❌ OKX 记录清空失败:', error)
           throw error
         }
       }
@@ -196,22 +243,22 @@ export const useAppStore = defineStore('app', () => {
   // ========== 日志模块 ==========
   const logModule = {
     // 创建日志条目
-    createLogEntry: async (
-      platform: 'binance' | 'okx',
-      action: string,
-      type: 'addRecord' | 'editRecord' | 'clearRecord' | 'editConfigs' | 'editConfig',
-      details?: string,
-    ): Promise<void> => {
+    createLogEntry: async (addLog: AddLog): Promise<void> => {
       if (!currentUser.value) throw new Error('用户不存在')
 
+      const { action, type, details } = addLog
+
       const ip = await getUserIP()
-      const platformData = currentUser.value[platform]
+      const currentPlatform = getPlatform()
+      const platformData = currentUser.value![currentPlatform]
+
+      if (!platformData) throw new Error(`平台 ${currentPlatform} 数据不存在`)
 
       if (!platformData.log) {
         platformData.log = []
       }
 
-      const maxId = platformData.log.length > 0 ? Math.max(...platformData.log.map((log) => log.id)) : 0
+      const maxId = platformData.log.length > 0 ? Math.max(...platformData.log.map((log: any) => log.id)) : 0
 
       const logEntry: LogEntry = {
         id: maxId + 1,
@@ -226,7 +273,7 @@ export const useAppStore = defineStore('app', () => {
     },
 
     // 清空日志
-    clearLogs: async (platform: 'binance' | 'okx') => {
+    clearLogs: async (platform: Platform) => {
       if (!currentUser.value) return
 
       try {
@@ -255,12 +302,9 @@ export const useAppStore = defineStore('app', () => {
           return
         }
 
-        if (profitData.value) {
-          const availableUsers = Object.keys(profitData.value.data)
-          if (availableUsers.length > 0) {
-            const firstUserId = availableUsers[0]
-            toggleUser(firstUserId)
-          }
+        if (profitData.value && profitData.value.users.length > 0) {
+          const firstUserId = profitData.value.users[0]
+          toggleUser(firstUserId)
         }
       } catch (error) {
         console.error('❌ 数据更新失败:', error)
@@ -268,16 +312,7 @@ export const useAppStore = defineStore('app', () => {
     },
 
     // 更新数据
-    updateData: async (logEntry?: { action: string; type: 'addRecord' | 'editRecord' | 'clearRecord' | 'editConfigs' | 'editConfig'; details?: string }, platform: 'binance' | 'okx' = 'binance') => {
-      // 如果提供了日志信息，先在内存中添加日志
-      if (logEntry && currentUser.value) {
-        try {
-          await logModule.createLogEntry(platform, logEntry.action, logEntry.type, logEntry.details)
-        } catch (error) {
-          console.error('❌ 日志记录失败:', error)
-        }
-      }
-
+    updateData: async () => {
       // 调用 API 更新数据
       const res = await updateDataInAPI(profitData.value)
       return res
@@ -303,5 +338,6 @@ export const useAppStore = defineStore('app', () => {
 
     // 方法
     toggleUser,
+    getPlatform
   }
 })

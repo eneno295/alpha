@@ -1,19 +1,13 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, computed } from 'vue'
-import Header from '@/components/binance/Header.vue'
-import StatsCards from '@/components/binance/StatsCards.vue'
-import Calendar from '@/components/binance/Calendar.vue'
+import { computed } from 'vue'
 import { useAppStore } from '@/stores/app'
-import { useLoading } from '@/composables/useLoading'
+import { useAppInitialization } from '@/composables/useAppInitialization'
 
 // 获取 store
 const appStore = useAppStore()
 
-// 加载状态管理
-const { withLoading } = useLoading()
-
-// 定时器相关
-let refreshTimer: number | null = null
+// 使用公共初始化功能
+const { setupAppLifecycle } = useAppInitialization()
 
 // 模拟积分相关
 const showSimulationScore = computed(() => appStore.binance.config?.showSimulationScore)
@@ -32,50 +26,8 @@ const setScoreMode = (mode: 'current' | 'today' | 'add') => {
   appStore.binance.setScoreDisplayMode(mode)
 }
 
-const initializeApp = async () => {
-  try {
-    await withLoading(async () => {
-      await appStore.api.fetchData()
-    }, '加载数据中...')
-  } catch (error) {
-    console.error('数据加载失败:', error)
-  }
-}
-
-// 启动定时器
-const startRefreshTimer = () => {
-  // 清除现有定时器
-  if (refreshTimer) {
-    clearInterval(refreshTimer)
-  }
-
-  // 设置10分钟定时器 (10 * 60 * 1000 = 600000毫秒)
-  refreshTimer = setInterval(
-    () => {
-      console.log('🔄 定时器触发，开始更新数据...')
-      appStore.api.fetchData()
-    },
-    10 * 60 * 1000,
-  )
-
-  console.log('⏰ 定时器已启动，每10分钟更新一次数据')
-}
-
-// 页面逻辑
-onMounted(() => {
-  initializeApp()
-  // 启动定时器
-  startRefreshTimer()
-})
-
-// 页面卸载时清理定时器
-onUnmounted(() => {
-  if (refreshTimer) {
-    clearInterval(refreshTimer)
-    refreshTimer = null
-    console.log('⏹️ 定时器已停止')
-  }
-})
+// 设置应用生命周期（10分钟定时器）
+setupAppLifecycle(10)
 </script>
 
 <template>

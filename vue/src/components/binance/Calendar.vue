@@ -131,7 +131,6 @@
 import { ref, computed } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { calculatePrevious15DaysScore } from '@/composables/useScoreCalculation'
-import AddRecordModal from './AddRecordModal.vue'
 
 // 获取 store
 const appStore = useAppStore()

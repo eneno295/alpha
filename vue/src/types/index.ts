@@ -18,6 +18,14 @@ export interface UserData {
   }
   okx: {
     config: platformConfig // OKX 配置
+    accounts: Record<string, {
+      date: DateRecord[] // 每个账号的日期记录列表
+      order: number // 账号排序序号
+    }> // 按账号分组的数据
+    log?: LogEntry[] // 操作日志
+  }
+  gate?: {
+    config: platformConfig // Gate 配置
     date: DateRecord[] // 日期记录列表
     log?: LogEntry[] // 操作日志
   }
@@ -29,9 +37,8 @@ export interface Config {
 }
 
 export interface platformConfig {
-  theme: 'light' | 'dark' // 主题模式
-  todayFastScore: number // 今日快速积分
-  showMockScoreIcon: boolean // 是否显示模拟积分图标
+  theme?: 'light' | 'dark' // 主题模式
+  showMockScoreIcon?: boolean // 是否显示模拟积分图标
   showThemeIcon: boolean // 是否显示主题图标
   showImportExportIcon: boolean // 是否显示导入导出图标
   showSimulationScore?: boolean // 是否显示模拟积分功能
@@ -49,7 +56,7 @@ export interface DateRecord {
   coin?: {
     name: string // 币种名称
     amount: number // 收益金额
-    score: number // 积分
+    score?: number // 积分（可选，OKX 不需要）
   }[] // 币种名称
   fee?: number // 手续费
   curScore?: number // 当前积分
@@ -58,11 +65,31 @@ export interface DateRecord {
   remark?: string // 备注
 }
 
+export type LogType =
+  | 'addRecord'
+  | 'editRecord'
+  | 'clearRecord'
+  | 'editConfigs'
+  | 'editConfig'
+  | 'editAccounts'
+  | 'addAccounts'
+  | 'delAccounts'
+  | 'orderAccounts'
+  | 'renameAccounts'
+
 export interface LogEntry {
   id: number // 日志ID
   timestamp: number // 时间戳
   action: string // 操作类型
   details?: string // 操作详情
   ip: string // IP 地址
-  type: 'addRecord' | 'editRecord' | 'clearRecord' | 'editConfigs' | 'editConfig' // 操作类型
+  type: LogType // 操作类型
 }
+
+export interface AddLog {
+  action: string // 操作类型
+  type: LogType // 操作类型
+  details?: string // 操作详情
+}
+
+export type Platform = 'binance' | 'okx' | 'gate'

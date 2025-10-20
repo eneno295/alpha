@@ -26,29 +26,61 @@
       </div>
 
       <div class="header-right">
+        <button
+          v-if="showFastConfig"
+          class="icon-btn"
+          title="快捷配置"
+          @click="toggleSettingsModal"
+        >
+          <span class="config-icon">⚙️</span>
+        </button>
         <button class="icon-btn" title="操作日志" @click="toggleLogModal">
           <span class="log-icon">📋</span>
         </button>
       </div>
     </header>
 
+    <!-- 设置弹窗 -->
+    <OKXSettingsModal
+      :visible="showSettingsModal"
+      @close="toggleSettingsModal"
+      @success="handleSettingsSuccess"
+    />
+
     <!-- 日志弹窗 -->
-    <LogModal :visible="showLogModal" @close="toggleLogModal" />
+    <OKXLogModal :visible="showLogModal" @close="toggleLogModal" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import UserSelector from '@/components/binance/UserSelector.vue'
-import LogModal from '@/components/binance/LogModal.vue'
-import GradientText from '@/components/common/GradientText.vue'
+import { computed, ref } from 'vue'
+import { useAppStore } from '@/stores/app'
+
+const appStore = useAppStore()
+
+// 按钮显示控制
+const showFastConfig = computed(() => appStore.okx.config?.showFastConfig)
+
+// 设置弹窗状态
+const showSettingsModal = ref(false)
 
 // 日志弹窗状态
 const showLogModal = ref(false)
 
+// 切换设置弹窗打开状态
+const toggleSettingsModal = () => {
+  showSettingsModal.value = !showSettingsModal.value
+}
+
 // 切换日志弹窗打开状态
 const toggleLogModal = () => {
   showLogModal.value = !showLogModal.value
+}
+
+// 处理设置成功
+const handleSettingsSuccess = () => {
+  // 可以在这里添加成功后的处理逻辑
+  console.log('设置更新成功')
 }
 </script>
 

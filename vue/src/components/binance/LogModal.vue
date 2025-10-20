@@ -1,5 +1,5 @@
 <template>
-  <BaseModal :visible="visible" title="操作日志" size="large" @close="closeModal">
+  <BaseModal :visible="visible" title="Binance 操作日志" size="large" @close="closeModal">
     <div class="log-container">
       <div class="log-list" v-if="logs.length > 0">
         <div v-for="(log, index) in logs" :key="log.id" class="log-item">
@@ -29,7 +29,9 @@
     <template #footer-left>
       <div class="log-stats">
         <span class="log-count">共 {{ logs.length }} 条记录（显示最新500条）</span>
-        <div class="btn-clear-logs" @click="clearLogs" v-if="showClearLogs">清空日志</div>
+        <div class="btn-clear-logs" @click="clearLogs" v-if="showClearLogs && logs.length > 0">
+          清空日志
+        </div>
       </div>
     </template>
   </BaseModal>
@@ -314,8 +316,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useAppStore } from '@/stores/app'
-import BaseModal from '@/components/common/BaseModal.vue'
 import type { LogEntry } from '@/types'
+import { formatTime } from '@/utils/format'
 
 // 获取 store
 const appStore = useAppStore()
@@ -333,7 +335,7 @@ const emit = defineEmits<Emits>()
 
 // 获取日志列表（最多显示前500条）
 const logs = computed(() => {
-  const allLogs = appStore.binance.data?.log || []
+  const allLogs = appStore.binance.logs || []
   return allLogs.slice(0, 500)
 })
 
@@ -396,19 +398,6 @@ const formatLogDetails = (details: string, type: string) => {
     // 如果不是JSON格式，直接显示原文本
     return details
   }
-}
-
-// 格式化时间
-const formatTime = (timestamp: number) => {
-  const date = new Date(timestamp)
-  return date.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  })
 }
 
 // 清空日志

@@ -28,11 +28,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import OKXHeader from '@/components/okx/OKXHeader.vue'
-import OKXStatsCards from '@/components/okx/OKXStatsCards.vue'
-import OKXCalendar from '@/components/okx/OKXCalendar.vue'
-import OKXAddRecordModal from '@/components/okx/OKXAddRecordModal.vue'
-import GradientText from '@/components/common/GradientText.vue'
+import { useAppInitialization } from '@/composables/useAppInitialization'
+
+// 使用公共初始化功能
+const { setupAppLifecycle } = useAppInitialization()
 
 // 添加记录弹窗状态
 const showAddRecordModal = ref(false)
@@ -53,6 +52,9 @@ const closeAddRecordModal = () => {
   selectedDate.value = ''
   isEditing.value = false
 }
+
+// 设置应用生命周期（10分钟定时器）
+setupAppLifecycle(10)
 
 // 暴露方法给子组件使用
 defineExpose({

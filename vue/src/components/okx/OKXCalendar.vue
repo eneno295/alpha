@@ -37,39 +37,27 @@
             </div>
 
             <!-- 数据容器 -->
-            <div class="day-data-container">
-              <!-- 空投数据 -->
-              <template v-if="val.dayData?.coin?.length > 0">
-                <div
-                  v-for="coin in val.dayData.coin"
-                  :key="coin.name"
-                  class="day-data airdrop-data"
-                >
-                  {{ coin.name }}: {{ coin.amount }}
-                </div>
-              </template>
-
-              <!-- 手续费数据 -->
-              <div v-if="val.dayData?.fee" class="day-data fee-data">
-                fee: {{ val.dayData.fee }}
+            <div class="day-data-container" v-if="val.dayData">
+              <!-- 总收益 -->
+              <div class="day-data income-data" v-if="val.dayData.coin.length > 0">
+                ${{ getTotalIncome(val.dayData).toFixed(2) }}
               </div>
+
+              <!-- 手续费 -->
+              <div v-if="val.dayData.fee" class="day-data fee-data">fee: {{ val.dayData.fee }}</div>
             </div>
 
             <!-- 信息提示框 -->
             <div class="info-tooltip">
               <div class="tooltip-item">日期: {{ val.date }}</div>
-              <template v-if="val.dayData?.coin?.length > 0">
-                <div class="tooltip-item" v-for="coin in val.dayData.coin" :key="coin.name">
-                  {{ coin.name }}: {{ coin.amount }}
-                </div>
-              </template>
-              <div class="tooltip-item">手续费：{{ val.dayData?.fee || 0 }}</div>
+              <div class="tooltip-item">空投数目：{{ val.dayData?.coin?.length || 0 }}</div>
               <div class="tooltip-item">
                 总收入：{{
                   (val.dayData?.fee || 0) +
                   (val.dayData?.coin?.reduce((sum: number, coin: any) => sum + coin.amount, 0) || 0)
                 }}
               </div>
+              <div class="tooltip-item">手续费：{{ val.dayData?.fee || 0 }}</div>
             </div>
           </div>
         </div>
@@ -101,7 +89,7 @@ const currentMonthYear = computed(() => {
 // 计算月度统计数据
 const monthlyStats = computed(() => {
   const userData = store.currentUser
-  if (!userData?.okx?.date) return { projects: 0, income: 0, fees: 0, total: 0 }
+  if (!userData?.okx?.accounts) return { projects: 0, income: 0, fees: 0, total: 0 }
 
   const year = currentDate.value.getFullYear()
   const month = currentDate.value.getMonth() + 1
@@ -111,20 +99,22 @@ const monthlyStats = computed(() => {
   let monthlyProjects = 0
   let monthlyFees = 0
 
-  userData.okx.date.forEach((item: any) => {
-    if (item.date?.startsWith(monthStr)) {
-      // 统计 coin 数据
-      if (item.coin && item.coin.length > 0) {
-        ;(item.coin as unknown as any[]).forEach((coin: any) => {
-          if (coin.name && coin.amount > 0) {
-            monthlyIncome += coin.amount
-            monthlyProjects += 1
-          }
-        })
+  Object.values(userData.okx.accounts).forEach((accountData: any) => {
+    accountData.date.forEach((item: any) => {
+      if (item.date?.startsWith(monthStr)) {
+        // 统计 coin 数据
+        if (item.coin && item.coin.length > 0) {
+          ;(item.coin as unknown as any[]).forEach((coin: any) => {
+            if (coin.name && coin.amount > 0) {
+              monthlyIncome += coin.amount
+              monthlyProjects += 1
+            }
+          })
+        }
+        // 统计手续费
+        monthlyFees += item.fee || 0
       }
-      // 统计手续费
-      monthlyFees += item.fee || 0
-    }
+    })
   })
 
   return {
@@ -215,15 +205,45 @@ const calendarDays = computed(() => {
   return days
 })
 
-// 获取某天的数据
+// 获取某天的数据（聚合所有账号的数据）
 const getDayData = (dateStr: string) => {
   const userData = store.currentUser
-  if (!userData?.okx?.date) return null
+  if (!userData?.okx?.accounts) return null
 
-  const dayData = userData.okx.date.find((item: any) => item.date === dateStr)
+  // 聚合所有账号在该日期的数据
+  const aggregatedData = {
+    coin: [] as any[],
+    fee: 0,
+    remark: null,
+    accounts: [] as string[], // 记录哪些账号有数据
+  }
 
-  // 如果没有找到数据，返回一个默认对象，而不是 null
-  if (!dayData) {
+  Object.entries(userData.okx.accounts).forEach(([account, accountData]: [string, any]) => {
+    const dayData = accountData.date.find((item: any) => item.date === dateStr)
+    if (dayData) {
+      // 合并币种数据
+      if (dayData.coin && dayData.coin.length > 0) {
+        dayData.coin.forEach((coin: any) => {
+          // 检查是否已存在相同币种
+          const existingCoin = aggregatedData.coin.find((c) => c.name === coin.name)
+          if (existingCoin) {
+            existingCoin.amount += coin.amount
+          } else {
+            aggregatedData.coin.push({ ...coin })
+          }
+        })
+      }
+
+      // 累加手续费
+      aggregatedData.fee += dayData.fee || 0
+
+      // 记录账号
+      aggregatedData.accounts.push(account)
+    }
+  })
+
+  // 如果没有找到任何数据，返回默认对象
+  if (aggregatedData.accounts.length === 0) {
     return {
       coin: [],
       fee: 0,
@@ -231,7 +251,13 @@ const getDayData = (dateStr: string) => {
     }
   }
 
-  return dayData
+  return aggregatedData
+}
+
+// 计算总收益（币种收益总和）
+const getTotalIncome = (dayData: any) => {
+  if (!dayData?.coin || dayData.coin.length === 0) return 0
+  return dayData.coin.reduce((sum: number, coin: any) => sum + (coin.amount || 0), 0)
 }
 
 // 检查是否是今天
@@ -523,6 +549,13 @@ const handleDayClick = (day: any) => {
           text-align: right;
           backdrop-filter: blur(10px);
           border: 1px solid rgba(255, 255, 255, 0.1);
+
+          &.income-data {
+            color: #4ade80;
+            background: rgba(34, 197, 94, 0.2);
+            border-color: rgba(34, 197, 94, 0.3);
+            font-weight: 600;
+          }
 
           &.fee-data {
             color: #fbbf24;
