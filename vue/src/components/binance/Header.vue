@@ -22,6 +22,13 @@
         >
           OKX
         </router-link>
+        <router-link
+          :to="{ path: '/gate', query: $route.query }"
+          class="nav-link"
+          :class="{ active: $route.name === 'gate' }"
+        >
+          Gate
+        </router-link>
         <!-- <router-link to="/bot" class="nav-link" :class="{ active: $route.name === 'bot' }">
           Bot
         </router-link> -->

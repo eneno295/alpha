@@ -127,32 +127,8 @@ const saveConfig = async () => {
       // 更新配置并记录日志
       if (!appStore.currentUser) throw new Error('用户不存在')
 
-      // 获取旧配置（深拷贝，避免引用被修改）
-      const oldConfig = JSON.parse(JSON.stringify(appStore.binance.config))
-
-      // 更新本地配置
-      appStore.binance.config = {
-        ...appStore.binance.config,
-        ...config.value,
-      }
-
-      // 准备日志详情
-      const logDetails = {
-        oldData: oldConfig,
-        newData: config.value,
-      }
-
-      // 准备日志信息
-      const logEntry = {
-        action: '批量修改配置',
-        type: 'editConfigs' as 'editConfigs',
-        details: JSON.stringify(logDetails),
-      }
-
-      // 更新日志
-      await appStore.log.createLogEntry(logEntry)
-      // 更新数据
-      await appStore.api.updateData()
+      // 通过标准 action 批量更新（带日志与持久化；自动根据当前路由更新 gate/binance）
+      await appStore.binance.updateUserConfigsAction(config.value)
     }, '保存配置中...')
 
     // 关闭弹窗

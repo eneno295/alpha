@@ -22,6 +22,13 @@
           >
             <GradientText text="OKX" style="font-size: 18px" />
           </router-link>
+          <router-link
+            :to="{ path: '/gate', query: $route.query }"
+            class="nav-link"
+            :class="{ active: $route.name === 'gate' }"
+          >
+            <GradientText text="Gate" style="font-size: 18px" />
+          </router-link>
         </nav>
       </div>
 

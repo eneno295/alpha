@@ -166,7 +166,7 @@ const monthlyStats = computed(() => {
   let monthlyProjects = 0
   let monthlyFees = 0
 
-  userData.forEach((item) => {
+  userData.forEach((item: any) => {
     if (item.date?.startsWith(monthStr)) {
       // 统计 coin 数据
       if (item.coin && item.coin.length > 0) {
@@ -283,7 +283,7 @@ const getDayData = (dateStr: string) => {
   const userData = appStore.binance.profitData
   if (!userData) return null
 
-  const dayData = userData.find((item) => item.date === dateStr)
+  const dayData = userData.find((item: any) => item.date === dateStr)
 
   // 如果没有找到数据，返回一个默认对象，而不是 null
   if (!dayData) {
@@ -312,7 +312,7 @@ const shouldShowScoreGain = (dateStr: string, dayData: any) => {
   const fifteenDaysAgoStr = fifteenDaysAgo.toISOString().split('T')[0]
 
   // 查找15天前是否有抢过空投（有 coin 数据）
-  const fifteenDaysAgoData = userData.find((item) => item.date === fifteenDaysAgoStr)
+  const fifteenDaysAgoData = userData.find((item: any) => item.date === fifteenDaysAgoStr)
 
   if (fifteenDaysAgoData?.coin && fifteenDaysAgoData.coin.length > 0) {
     // 如果15天前抢过空投，返回那天的完整数据
@@ -378,10 +378,10 @@ const shouldShowSimulationScore = (dateStr: string | null, isTooltip: boolean = 
   // 检查该日期是否已有当前积分记录
   const hasCurScoreRecord = isTooltip
     ? userData.some(
-        (item) =>
+        (item: any) =>
           item.date === dateStr && (item.todayScore || item.consumptionScore || item.fee || 0) > 0,
       )
-    : userData.some((item) => item.date === dateStr && (item.curScore || 0) > 0)
+    : userData.some((item: any) => item.date === dateStr && (item.curScore || 0) > 0)
 
   // 如果没有当前积分记录，显示模拟积分
   return !hasCurScoreRecord

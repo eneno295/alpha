@@ -27,11 +27,11 @@ export const calculatePrevious15DaysScore = (targetDate: string): number => {
       const checkDateStr = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, '0')}-${String(checkDate.getDate()).padStart(2, '0')}`
 
       // 查找该日期的记录
-      const dayRecords = dateData.filter((item) => item.date === checkDateStr)
+      const dayRecords = dateData.filter((item: any) => item.date === checkDateStr)
 
       if (dayRecords.length > 0) {
         // 有记录，累加刷的积分和扣的积分
-        dayRecords.forEach((record) => {
+        dayRecords.forEach((record: any) => {
           const earnedScore = Number(record.todayScore) || 0
           const consumedScore = Number(record.consumptionScore) || 0
 

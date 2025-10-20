@@ -33,7 +33,7 @@ const totalProjects = computed(() => {
   if (!userData) return 0
 
   let count = 0
-  userData.forEach((item) => {
+  userData.forEach((item: any) => {
     if (item.coin && Array.isArray(item.coin)) {
       item.coin.forEach((coin: any) => {
         if (coin.name && coin.amount > 0) {
@@ -51,7 +51,7 @@ const totalIncome = computed(() => {
   if (!userData) return 0
 
   let total = 0
-  userData.forEach((item) => {
+  userData.forEach((item: any) => {
     if (item.coin && Array.isArray(item.coin)) {
       item.coin.forEach((coin: any) => {
         if (coin.name && coin.amount > 0) {
@@ -69,7 +69,7 @@ const totalFees = computed(() => {
   if (!userData) return 0
 
   let total = 0
-  userData.forEach((item) => {
+  userData.forEach((item: any) => {
     total += item.fee || 0
   })
   return total

@@ -34,46 +34,84 @@ export const useAppStore = defineStore('app', () => {
     return (router.currentRoute.value.name as Platform) || 'binance'
   }
 
+  // ===== 平台内存态（用于功能开关：binance 与 gate 复用组件） =====
+  const binanceOpenSimulation = ref(false)
+  const binanceScoreDisplayMode = ref<'current' | 'today' | 'add'>('current')
+  const gateOpenSimulation = ref(false)
+  const gateScoreDisplayMode = ref<'current' | 'today' | 'add'>('current')
+
   // ========== 平台数据模块 ==========
   const platformModules = {
     binance: {
       // ========== Binance 特有功能 ==========
-      // 模拟积分
-      openSimulation: ref(false),
-      // 积分显示模式
-      scoreDisplayMode: ref<'current' | 'today' | 'add'>('current'),
+      // 模拟积分（根据当前路由动态切换 binance/gate 的内存态）
+      openSimulation: computed(() =>
+        getPlatform() === 'gate' ? gateOpenSimulation.value : binanceOpenSimulation.value,
+      ),
+      // 积分显示模式（根据当前路由动态切换）
+      scoreDisplayMode: computed(() =>
+        getPlatform() === 'gate' ? gateScoreDisplayMode.value : binanceScoreDisplayMode.value,
+      ),
       // 切换模拟积分按钮显示状态
       toggleSimulation: () => {
-        platformModules.binance.openSimulation.value = !platformModules.binance.openSimulation.value
+        if (getPlatform() === 'gate') {
+          gateOpenSimulation.value = !gateOpenSimulation.value
+        } else {
+          binanceOpenSimulation.value = !binanceOpenSimulation.value
+        }
       },
       // 设置积分显示模式
       setScoreDisplayMode: (mode: 'current' | 'today' | 'add') => {
-        platformModules.binance.scoreDisplayMode.value = mode
+        if (getPlatform() === 'gate') {
+          gateScoreDisplayMode.value = mode
+        } else {
+          binanceScoreDisplayMode.value = mode
+        }
       },
 
       // ========== 数据访问 ==========
-      data: computed(() => currentUser.value?.binance || null),
-      config: computed(() => {
-        const binanceData = currentUser.value?.binance
-        if (binanceData?.config) {
-          document.documentElement.setAttribute('data-theme', binanceData.config.theme || 'light')
-        }
-        return binanceData?.config || null
+      // 当路由在 gate 时，复用 binance 组件，但数据来自 gate
+      data: computed(() => {
+        const platform = getPlatform()
+        const source = platform === 'gate' ? (currentUser.value as any)?.gate : currentUser.value?.binance
+        return source || null
       }),
-      profitData: computed(() => currentUser.value?.binance?.date || []),
-      logs: computed(() => currentUser.value?.binance?.log || []),
+      config: computed(() => {
+        const platform = getPlatform()
+        const source = platform === 'gate' ? (currentUser.value as any)?.gate : currentUser.value?.binance
+        const cfg = source?.config
+        if (cfg) {
+          document.documentElement.setAttribute('data-theme', cfg.theme || 'light')
+        }
+        return cfg || null
+      }),
+      profitData: computed(() => {
+        const platform = getPlatform()
+        const source = platform === 'gate' ? (currentUser.value as any)?.gate : currentUser.value?.binance
+        return source?.date || []
+      }),
+      logs: computed(() => {
+        const platform = getPlatform()
+        const source = platform === 'gate' ? (currentUser.value as any)?.gate : currentUser.value?.binance
+        return source?.log || []
+      }),
 
       // ========== 方法 ==========
       updateUserConfigAction: async ({ configKey, configValue, name, action }: { configKey: string, configValue: any, name: string, action: string }) => {
         try {
           if (!currentUser.value) throw new Error('用户不存在')
 
+          const platform = getPlatform()
+          const targetModule = platform === 'gate' ? 'gate' : 'binance'
+
           // 获取旧配置（深拷贝，避免引用被修改）
-          const oldConfig = JSON.parse(JSON.stringify((currentUser.value.binance.config as any)[configKey]))
+          const oldConfig = JSON.parse(
+            JSON.stringify(((currentUser.value as any)[targetModule].config as any)[configKey]),
+          )
 
           // 更新本地配置
-          if (currentUser.value?.binance) {
-            (currentUser.value.binance.config as any)[configKey] = configValue
+          if ((currentUser.value as any)?.[targetModule]) {
+            ((currentUser.value as any)[targetModule].config as any)[configKey] = configValue
           }
 
           // 准备日志信息
@@ -92,6 +130,38 @@ export const useAppStore = defineStore('app', () => {
           await apiModule.updateData()
         } catch (error) {
           console.error('❌ Binance 配置更新失败:', error)
+          throw error
+        }
+      },
+
+      // 批量更新配置（带日志与持久化），支持 gate 与 binance
+      updateUserConfigsAction: async (configs: Record<string, any>) => {
+        try {
+          if (!currentUser.value) throw new Error('用户不存在')
+
+          const platform = getPlatform()
+          const targetModule = platform === 'gate' ? 'gate' : 'binance'
+
+          // 旧配置
+          const oldConfig = JSON.parse(JSON.stringify((currentUser.value as any)[targetModule].config))
+
+            // 本地更新
+            ; (currentUser.value as any)[targetModule].config = {
+              ...(currentUser.value as any)[targetModule].config,
+              ...configs,
+            }
+
+          // 日志
+          await logModule.createLogEntry({
+            action: '批量修改配置',
+            type: 'editConfigs',
+            details: JSON.stringify({ oldData: oldConfig, newData: configs }),
+          })
+
+          // 持久化
+          await apiModule.updateData()
+        } catch (error) {
+          console.error('❌ Binance 批量配置更新失败:', error)
           throw error
         }
       }
