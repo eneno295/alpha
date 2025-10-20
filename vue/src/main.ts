@@ -17,3 +17,6 @@ app.use(router)
 GlobalPlugin.init()
 
 app.mount('#app')
+
+console.log(111);
+
