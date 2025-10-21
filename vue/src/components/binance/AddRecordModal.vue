@@ -385,10 +385,10 @@ watch(
       // 清空表单
       clearForm()
 
-      // 检查是否有现有数据
-      if (props.selectedDate && appStore.currentUser) {
-        const existingData = appStore.currentUser.binance.date.find(
-          (item) => item.date === props.selectedDate,
+      // 检查是否有现有数据（通过 store 映射，支持 gate/binance）
+      if (props.selectedDate) {
+        const existingData = (appStore.binance.profitData as any[]).find(
+          (item: any) => item.date === props.selectedDate,
         )
         if (existingData) {
           fillWithExistingData(existingData)

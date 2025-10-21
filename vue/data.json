@@ -1,6 +1,9 @@
 {
   "users": [
-    "lan"
+    "lan",
+    "lanGate合约",
+    "ssGateAlpha",
+    "ssGate合约"
   ],
   "data": {
     "lan": {
@@ -1352,27 +1355,177 @@
             "autoCalcCurScore": true
           }
         },
+        "date": [],
+        "log": []
+      }
+    },
+    "lanGate合约": {
+      "config": {
+        "userName": "lanGate合约",
+        "showOKXLink": true
+      },
+      "binance": {
+        "config": {
+          "theme": "light",
+          "showMockScoreIcon": true,
+          "showThemeIcon": true,
+          "showImportExportIcon": true,
+          "showSimulationScore": true,
+          "showFastConfig": true,
+          "showClearLogs": true,
+          "fastConfig": {
+            "fee": "",
+            "todayScore": "",
+            "autoCalcCurScore": true
+          }
+        },
+        "date": [],
+        "log": []
+      },
+      "okx": {
+        "config": {
+          "showClearLogs": true,
+          "showFastConfig": true
+        },
+        "accounts": {},
+        "log": []
+      },
+      "gate": {
+        "config": {
+          "theme": "light",
+          "showMockScoreIcon": true,
+          "showThemeIcon": true,
+          "showImportExportIcon": true,
+          "showSimulationScore": true,
+          "showFastConfig": true,
+          "showClearLogs": true,
+          "fastConfig": {
+            "fee": "",
+            "todayScore": "",
+            "autoCalcCurScore": true
+          }
+        },
+        "date": [],
+        "log": []
+      }
+    },
+    "ssGateAlpha": {
+      "config": {
+        "userName": "ssGateAlpha",
+        "showOKXLink": true
+      },
+      "binance": {
+        "config": {
+          "theme": "light",
+          "showMockScoreIcon": true,
+          "showThemeIcon": true,
+          "showImportExportIcon": true,
+          "showSimulationScore": true,
+          "showFastConfig": true,
+          "showClearLogs": true,
+          "fastConfig": {
+            "fee": "",
+            "todayScore": "",
+            "autoCalcCurScore": true
+          }
+        },
+        "date": [],
+        "log": []
+      },
+      "okx": {
+        "config": {
+          "showClearLogs": true,
+          "showFastConfig": true
+        },
+        "accounts": {},
+        "log": []
+      },
+      "gate": {
+        "config": {
+          "theme": "light",
+          "showMockScoreIcon": true,
+          "showThemeIcon": true,
+          "showImportExportIcon": true,
+          "showSimulationScore": true,
+          "showFastConfig": true,
+          "showClearLogs": true,
+          "fastConfig": {
+            "fee": "",
+            "todayScore": "",
+            "autoCalcCurScore": true
+          }
+        },
         "date": [
           {
-            "date": "2025-10-20",
+            "date": "2025-10-18",
             "curScore": 0,
             "todayScore": 0,
             "consumptionScore": 0,
-            "fee": 222,
+            "fee": -93,
+            "coin": [],
+            "remark": ""
+          },
+          {
+            "date": "2025-10-19",
+            "curScore": 0,
+            "todayScore": 0,
+            "consumptionScore": 0,
+            "fee": -103.4,
             "coin": [],
             "remark": ""
           }
         ],
-        "log": [
-          {
-            "id": 1,
-            "timestamp": 1760964511261,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"newData\":{\"date\":\"2025-10-20\",\"curScore\":0,\"todayScore\":0,\"consumptionScore\":0,\"fee\":222,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
+        "log": []
+      }
+    },
+    "ssGate合约": {
+      "config": {
+        "userName": "ssGate合约",
+        "showOKXLink": true
+      },
+      "binance": {
+        "config": {
+          "theme": "light",
+          "showMockScoreIcon": true,
+          "showThemeIcon": true,
+          "showImportExportIcon": true,
+          "showSimulationScore": true,
+          "showFastConfig": true,
+          "showClearLogs": true,
+          "fastConfig": {
+            "fee": "",
+            "todayScore": "",
+            "autoCalcCurScore": true
           }
-        ]
+        },
+        "date": [],
+        "log": []
+      },
+      "okx": {
+        "config": {
+          "showClearLogs": true,
+          "showFastConfig": true
+        },
+        "accounts": {},
+        "log": []
+      },
+      "gate": {
+        "config": {
+          "theme": "light",
+          "showMockScoreIcon": true,
+          "showThemeIcon": true,
+          "showImportExportIcon": true,
+          "showSimulationScore": true,
+          "showFastConfig": true,
+          "showClearLogs": true,
+          "fastConfig": {
+            "fee": "",
+            "todayScore": "",
+            "autoCalcCurScore": true
+          }
+        },
+        "date": [],
+        "log": []
       }
     }
   }
