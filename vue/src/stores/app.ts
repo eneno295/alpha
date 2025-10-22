@@ -364,6 +364,9 @@ export const useAppStore = defineStore('app', () => {
     // 获取数据
     fetchData: async (hasUser: string | null = null) => {
       try {
+        // 记录当前已选用户，刷新/切换路由时保持不变
+        const prevUser = currentUserName.value
+
         const data = await fetchDataFromAPI()
         profitData.value = data
 
@@ -372,7 +375,10 @@ export const useAppStore = defineStore('app', () => {
           return
         }
 
-        if (profitData.value && profitData.value.users.length > 0) {
+        // 优先保持之前选中的用户
+        if (prevUser && profitData.value.data[prevUser]) {
+          toggleUser(prevUser)
+        } else if (profitData.value && profitData.value.users.length > 0) {
           const firstUserId = profitData.value.users[0]
           toggleUser(firstUserId)
         }

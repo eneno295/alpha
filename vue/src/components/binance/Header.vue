@@ -12,7 +12,8 @@
           class="nav-link"
           :class="{ active: $route.name === 'binance' }"
         >
-          Binance
+          <span class="pc-text">Binance</span>
+          <span class="mobile-text">B</span>
         </router-link>
         <router-link
           :to="{ path: '/okx', query: $route.query }"
@@ -20,14 +21,16 @@
           :class="{ active: $route.name === 'okx' }"
           v-if="showOKXLink"
         >
-          OKX
+          <span class="pc-text">OKX</span>
+          <span class="mobile-text">O</span>
         </router-link>
         <router-link
           :to="{ path: '/gate', query: $route.query }"
           class="nav-link"
           :class="{ active: $route.name === 'gate' }"
         >
-          Gate
+          <span class="pc-text">Gate</span>
+          <span class="mobile-text">G</span>
         </router-link>
         <!-- <router-link to="/bot" class="nav-link" :class="{ active: $route.name === 'bot' }">
           Bot
@@ -128,6 +131,13 @@ const toggleTheme = async () => {
   &-center {
     text-align: center;
     flex: 1;
+  }
+
+  .pc-text {
+    display: block;
+  }
+  .mobile-text {
+    display: none;
   }
 }
 
@@ -269,6 +279,12 @@ const toggleTheme = async () => {
       align-items: center;
       gap: 0.5rem;
       width: auto;
+    }
+    .pc-text {
+      display: none;
+    }
+    .mobile-text {
+      display: block;
     }
   }
 }
