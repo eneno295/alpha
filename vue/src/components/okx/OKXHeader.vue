@@ -13,21 +13,30 @@
             class="nav-link"
             :class="{ active: $route.name === 'binance' }"
           >
-            <GradientText text="Binance" style="font-size: 18px" />
+            <div class="pc-text">
+              <GradientText text="Binance" style="font-size: 18px" />
+            </div>
+            <div class="mobile-text">B</div>
           </router-link>
           <router-link
             :to="{ path: '/okx', query: $route.query }"
             class="nav-link"
             :class="{ active: $route.name === 'okx' }"
           >
-            <GradientText text="OKX" style="font-size: 18px" />
+            <div class="pc-text">
+              <GradientText text="OKX" style="font-size: 18px" />
+            </div>
+            <div class="mobile-text">O</div>
           </router-link>
           <router-link
             :to="{ path: '/gate', query: $route.query }"
             class="nav-link"
             :class="{ active: $route.name === 'gate' }"
           >
-            <GradientText text="Gate" style="font-size: 18px" />
+            <div class="pc-text">
+              <GradientText text="Gate" style="font-size: 18px" />
+            </div>
+            <div class="mobile-text">G</div>
           </router-link>
         </nav>
       </div>
@@ -143,6 +152,13 @@ const handleSettingsSuccess = () => {
       }
     }
   }
+
+  .pc-text {
+    display: block;
+  }
+  .mobile-text {
+    display: none;
+  }
 }
 
 // 导航菜单
@@ -196,6 +212,13 @@ const handleSettingsSuccess = () => {
         height: 36px;
         font-size: 16px;
       }
+    }
+
+    .pc-text {
+      display: none;
+    }
+    .mobile-text {
+      display: block;
     }
   }
 }
