@@ -370,7 +370,8 @@ export const useAppStore = defineStore('app', () => {
         const data = await fetchDataFromAPI()
         profitData.value = data
 
-        if (hasUser) {
+        // 如果显式指定用户，且该用户在新数据中存在，则切换后返回
+        if (hasUser && profitData.value.data[hasUser]) {
           toggleUser(hasUser)
           return
         }
