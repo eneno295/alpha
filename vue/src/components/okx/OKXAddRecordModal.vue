@@ -40,11 +40,11 @@
             </div>
             <div class="summary-item">
               <span class="label">总收益:</span>
-              <span class="value income">${{ getTotalIncome(account).toFixed(6) }}</span>
+              <span class="value income">${{ formatDecimal(getTotalIncome(account)) }}</span>
             </div>
             <div class="summary-item">
               <span class="label">手续费:</span>
-              <span class="value">{{ getAccountData(account)?.fee || 0 }} USDT</span>
+              <span class="value">{{ formatDecimal(getAccountData(account)?.fee || 0) }} USDT</span>
             </div>
           </div>
 
@@ -90,6 +90,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useLoading } from '@/composables/useLoading'
+import { formatDecimal } from '@/utils/format'
 import type { LogType } from '@/types'
 
 // Props

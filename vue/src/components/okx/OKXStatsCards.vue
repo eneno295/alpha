@@ -7,15 +7,15 @@
           <div class="stat-label">项目总数</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value income">${{ totalIncome.toFixed(1) }}</div>
+          <div class="stat-value income">${{ formatDecimal(totalIncome) }}</div>
           <div class="stat-label">累计收入</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value fees">${{ totalFees.toFixed(1) }}</div>
+          <div class="stat-value fees">${{ formatDecimal(totalFees) }}</div>
           <div class="stat-label">手续费</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value profit">${{ totalProfit.toFixed(1) }}</div>
+          <div class="stat-value profit">${{ formatDecimal(totalProfit) }}</div>
           <div class="stat-label">利润</div>
         </div>
       </div>
@@ -26,6 +26,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useAppStore } from '@/stores/app'
+import { formatDecimal } from '@/utils/format'
 
 const appStore = useAppStore()
 
@@ -85,7 +86,6 @@ const totalFees = computed(() => {
 
 // 计算总收入：空投收入 + 手续费收入
 const totalProfit = computed(() => {
-  console.log(totalIncome.value, totalFees.value)
   return totalIncome.value - totalFees.value
 })
 </script>

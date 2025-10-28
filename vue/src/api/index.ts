@@ -28,9 +28,6 @@ export function updateBinIdFromLocation(): string {
     const mapped = binIdMap.get(param) || null
     const binId = localStorage.getItem('jsonbinId') || mapped || '6891ba4d7b4b8670d8ad8f65'
 
-
-    console.log(11, binId, param, mapped);
-
     return binId
   } catch (e) {
     // 忽略错误，保持原 BIN_ID
