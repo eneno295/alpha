@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import type { ProfitData, UserData, LogEntry, AddLog, Platform, LogType } from '@/types'
+import type { ProfitData, UserData, LogEntry, AddLog, Platform, LogType, TaskData, TaskTemplate, TaskDateRecord, DailyTaskItem } from '@/types'
 import { updateDataInAPI, getUserIP, fetchDataFromAPI } from '@/api'
 import router from '@/router'
 
@@ -307,6 +307,162 @@ export const useAppStore = defineStore('app', () => {
           throw error
         }
       }
+    },
+
+    // ========== 任务模块 ==========
+    tasks: {
+      // 获取任务数据
+      data: computed(() => {
+        if (!currentUser.value || !currentUser.value.tasks) {
+          return { tasks: [], date: [] }
+        }
+        return currentUser.value.tasks
+      }),
+
+      // 初始化任务数据
+      initTaskData: () => {
+        if (!currentUser.value) return
+        if (!currentUser.value.tasks) {
+          currentUser.value.tasks = {
+            tasks: [],
+            date: []
+          }
+        }
+      },
+
+      // 更新任务数据
+      updateTaskData: async (taskData: TaskData) => {
+        try {
+          if (!currentUser.value) throw new Error('用户不存在')
+
+          // 初始化任务数据结构（如果不存在）
+          if (!currentUser.value.tasks) {
+            currentUser.value.tasks = { tasks: [], date: [] }
+          }
+
+          // 更新任务数据
+          currentUser.value.tasks = taskData
+
+          // 保存到 API
+          await apiModule.updateData()
+        } catch (error) {
+          console.error('❌ 任务数据更新失败:', error)
+          throw error
+        }
+      },
+
+      // 添加任务模板
+      addTemplate: async (template: TaskTemplate) => {
+        try {
+          if (!currentUser.value) throw new Error('用户不存在')
+
+          platformModules.tasks.initTaskData()
+
+          currentUser.value.tasks!.tasks.push(template)
+          await apiModule.updateData()
+        } catch (error) {
+          console.error('❌ 添加任务模板失败:', error)
+          throw error
+        }
+      },
+
+      // 更新任务模板
+      updateTemplate: async (templateId: number, updates: Partial<TaskTemplate>) => {
+        try {
+          if (!currentUser.value || !currentUser.value.tasks) throw new Error('任务数据不存在')
+
+          const template = currentUser.value.tasks.tasks.find(t => t.id === templateId)
+          if (template) {
+            Object.assign(template, updates)
+
+            // 更新所有日期记录中的 detail 快照
+            currentUser.value.tasks.date.forEach(record => {
+              record.tasks.forEach(task => {
+                if (task.taskId === templateId) {
+                  task.detail = { ...template }
+                }
+              })
+            })
+
+            await apiModule.updateData()
+          }
+        } catch (error) {
+          console.error('❌ 更新任务模板失败:', error)
+          throw error
+        }
+      },
+
+      // 删除任务模板
+      deleteTemplate: async (templateId: number) => {
+        try {
+          if (!currentUser.value || !currentUser.value.tasks) throw new Error('任务数据不存在')
+
+          // 删除模板
+          currentUser.value.tasks.tasks = currentUser.value.tasks.tasks.filter(t => t.id !== templateId)
+
+          // 获取今天0点的时间戳
+          const today = new Date()
+          today.setHours(0, 0, 0, 0)
+          const todayTimestamp = today.getTime()
+
+          // 只删除今天及未来日期记录中的相关任务，保留历史记录
+          currentUser.value.tasks.date.forEach(record => {
+            if (record.date >= todayTimestamp) {
+              // 今天及未来的记录：删除该任务
+              record.tasks = record.tasks.filter(t => t.taskId !== templateId)
+            }
+            // 历史记录：保留
+          })
+
+          await apiModule.updateData()
+        } catch (error) {
+          console.error('❌ 删除任务模板失败:', error)
+          throw error
+        }
+      },
+
+      // 添加日期记录
+      addDateRecord: async (dateRecord: TaskDateRecord) => {
+        try {
+          if (!currentUser.value) throw new Error('用户不存在')
+
+          platformModules.tasks.initTaskData()
+
+          currentUser.value.tasks!.date.push(dateRecord)
+          await apiModule.updateData()
+        } catch (error) {
+          console.error('❌ 添加日期记录失败:', error)
+          throw error
+        }
+      },
+
+      // 更新任务完成状态
+      updateTaskCompletion: async (dateRecordId: number, taskId: number, completedAt?: number, remark?: string) => {
+        try {
+          if (!currentUser.value || !currentUser.value.tasks) throw new Error('任务数据不存在')
+
+          const record = currentUser.value.tasks.date.find(r => r.id === dateRecordId)
+          if (record) {
+            const task = record.tasks.find(t => t.taskId === taskId)
+            if (task) {
+              if (completedAt) {
+                task.completedAt = completedAt
+                if (remark) {
+                  task.remark = remark
+                }
+              } else {
+                delete task.completedAt
+                delete task.remark
+              }
+            }
+          }
+
+          await apiModule.updateData()
+        } catch (error) {
+          console.error('❌ 更新任务完成状态失败:', error)
+          throw error
+        }
+      },
     }
   }
 
@@ -406,6 +562,7 @@ export const useAppStore = defineStore('app', () => {
     // 平台模块
     binance: platformModules.binance,
     okx: platformModules.okx,
+    tasks: platformModules.tasks,
 
     // 日志模块
     log: logModule,

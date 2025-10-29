@@ -9,12 +9,10 @@ export function useAppInitialization() {
   // 定时器引用
   const refreshTimer = ref<number | null>(null)
 
-  // 初始化应用数据
+  // 初始化应用数据（静默加载，不显示弹窗）
   const initializeApp = async () => {
     try {
-      await withLoading(async () => {
-        await appStore.api.fetchData()
-      }, '加载数据中...')
+      await appStore.api.fetchData()
     } catch (error) {
       console.error('数据加载失败:', error)
     }

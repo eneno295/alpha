@@ -1,9 +1,6 @@
 {
   "users": [
-    "lan",
-    "lanGate合约",
-    "ssGateAlpha",
-    "ssGate合约"
+    "lan"
   ],
   "data": {
     "lan": {
@@ -1355,177 +1352,53 @@
             "autoCalcCurScore": true
           }
         },
-        "date": [],
-        "log": []
-      }
-    },
-    "lanGate合约": {
-      "config": {
-        "userName": "lanGate合约",
-        "showOKXLink": true
-      },
-      "binance": {
-        "config": {
-          "theme": "light",
-          "showMockScoreIcon": true,
-          "showThemeIcon": true,
-          "showImportExportIcon": true,
-          "showSimulationScore": true,
-          "showFastConfig": true,
-          "showClearLogs": true,
-          "fastConfig": {
-            "fee": "",
-            "todayScore": "",
-            "autoCalcCurScore": true
-          }
-        },
-        "date": [],
-        "log": []
-      },
-      "okx": {
-        "config": {
-          "showClearLogs": true,
-          "showFastConfig": true
-        },
-        "accounts": {},
-        "log": []
-      },
-      "gate": {
-        "config": {
-          "theme": "light",
-          "showMockScoreIcon": true,
-          "showThemeIcon": true,
-          "showImportExportIcon": true,
-          "showSimulationScore": true,
-          "showFastConfig": true,
-          "showClearLogs": true,
-          "fastConfig": {
-            "fee": "",
-            "todayScore": "",
-            "autoCalcCurScore": true
-          }
-        },
-        "date": [],
-        "log": []
-      }
-    },
-    "ssGateAlpha": {
-      "config": {
-        "userName": "ssGateAlpha",
-        "showOKXLink": true
-      },
-      "binance": {
-        "config": {
-          "theme": "light",
-          "showMockScoreIcon": true,
-          "showThemeIcon": true,
-          "showImportExportIcon": true,
-          "showSimulationScore": true,
-          "showFastConfig": true,
-          "showClearLogs": true,
-          "fastConfig": {
-            "fee": "",
-            "todayScore": "",
-            "autoCalcCurScore": true
-          }
-        },
-        "date": [],
-        "log": []
-      },
-      "okx": {
-        "config": {
-          "showClearLogs": true,
-          "showFastConfig": true
-        },
-        "accounts": {},
-        "log": []
-      },
-      "gate": {
-        "config": {
-          "theme": "light",
-          "showMockScoreIcon": true,
-          "showThemeIcon": true,
-          "showImportExportIcon": true,
-          "showSimulationScore": true,
-          "showFastConfig": true,
-          "showClearLogs": true,
-          "fastConfig": {
-            "fee": "",
-            "todayScore": "",
-            "autoCalcCurScore": true
-          }
-        },
         "date": [
           {
-            "date": "2025-10-18",
+            "date": "2025-10-20",
             "curScore": 0,
             "todayScore": 0,
             "consumptionScore": 0,
-            "fee": -93,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-19",
-            "curScore": 0,
-            "todayScore": 0,
-            "consumptionScore": 0,
-            "fee": -103.4,
+            "fee": 222,
             "coin": [],
             "remark": ""
           }
         ],
-        "log": []
-      }
-    },
-    "ssGate合约": {
-      "config": {
-        "userName": "ssGate合约",
-        "showOKXLink": true
-      },
-      "binance": {
-        "config": {
-          "theme": "light",
-          "showMockScoreIcon": true,
-          "showThemeIcon": true,
-          "showImportExportIcon": true,
-          "showSimulationScore": true,
-          "showFastConfig": true,
-          "showClearLogs": true,
-          "fastConfig": {
-            "fee": "",
-            "todayScore": "",
-            "autoCalcCurScore": true
+        "log": [
+          {
+            "id": 1,
+            "timestamp": 1760964511261,
+            "action": "新增记录",
+            "type": "addRecord",
+            "details": "{\"newData\":{\"date\":\"2025-10-20\",\"curScore\":0,\"todayScore\":0,\"consumptionScore\":0,\"fee\":222,\"coin\":[],\"remark\":\"\"}}",
+            "ip": "102.163.61.89"
           }
-        },
-        "date": [],
-        "log": []
+        ]
       },
-      "okx": {
-        "config": {
-          "showClearLogs": true,
-          "showFastConfig": true
-        },
-        "accounts": {},
-        "log": []
-      },
-      "gate": {
-        "config": {
-          "theme": "light",
-          "showMockScoreIcon": true,
-          "showThemeIcon": true,
-          "showImportExportIcon": true,
-          "showSimulationScore": true,
-          "showFastConfig": true,
-          "showClearLogs": true,
-          "fastConfig": {
-            "fee": "",
-            "todayScore": "",
-            "autoCalcCurScore": true
+      "tasks": {
+        "tasks": [
+          {
+            "id": 1,
+            "title": "ces1",
+            "description": "测试1",
+            "category": "daily",
+            "sort": 3
+          },
+          {
+            "id": 3,
+            "title": "测试1",
+            "description": "111",
+            "category": "weekly",
+            "sort": 1
+          },
+          {
+            "id": 4,
+            "title": "111",
+            "description": "11",
+            "category": "daily",
+            "sort": 4
           }
-        },
-        "date": [],
-        "log": []
+        ],
+        "date": []
       }
     }
   }
