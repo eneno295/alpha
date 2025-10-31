@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import type { ProfitData, UserData, LogEntry, AddLog, Platform, LogType, TaskData, TaskTemplate, TaskDateRecord, DailyTaskItem } from '@/types'
+import type { ProfitData, UserData, LogEntry, AddLog, Platform, LogType } from '@/types'
 import { updateDataInAPI, getUserIP, fetchDataFromAPI } from '@/api'
 import router from '@/router'
 
@@ -324,129 +324,14 @@ export const useAppStore = defineStore('app', () => {
         if (!currentUser.value) return
         if (!currentUser.value.tasks) {
           currentUser.value.tasks = {
+            config: {},
             tasks: [],
             date: []
           }
         }
-      },
-
-      // 更新任务数据
-      updateTaskData: async (taskData: TaskData) => {
-        try {
-          if (!currentUser.value) throw new Error('用户不存在')
-
-          // 初始化任务数据结构（如果不存在）
-          if (!currentUser.value.tasks) {
-            currentUser.value.tasks = { tasks: [], date: [] }
-          }
-
-          // 更新任务数据
-          currentUser.value.tasks = taskData
-
-          // 保存到 API
-          await apiModule.updateData()
-        } catch (error) {
-          console.error('❌ 任务数据更新失败:', error)
-          throw error
-        }
-      },
-
-      // 添加任务模板
-      addTemplate: async (template: TaskTemplate) => {
-        try {
-          if (!currentUser.value) throw new Error('用户不存在')
-
-          platformModules.tasks.initTaskData()
-
-          currentUser.value.tasks!.tasks.push(template)
-          await apiModule.updateData()
-        } catch (error) {
-          console.error('❌ 添加任务模板失败:', error)
-          throw error
-        }
-      },
-
-      // 更新任务模板
-      updateTemplate: async (templateId: number, updates: Partial<TaskTemplate>) => {
-        try {
-          if (!currentUser.value || !currentUser.value.tasks) throw new Error('任务数据不存在')
-
-          const template = currentUser.value.tasks.tasks.find(t => t.id === templateId)
-          if (template) {
-            Object.assign(template, updates)
-
-            // 更新所有日期记录中的 detail 快照
-            currentUser.value.tasks.date.forEach(record => {
-              record.tasks.forEach(task => {
-                if (task.taskId === templateId) {
-                  task.detail = { ...template }
-                }
-              })
-            })
-
-            await apiModule.updateData()
-          }
-        } catch (error) {
-          console.error('❌ 更新任务模板失败:', error)
-          throw error
-        }
-      },
-
-      // 删除任务模板
-      deleteTemplate: async (templateId: number) => {
-        try {
-          if (!currentUser.value || !currentUser.value.tasks) throw new Error('任务数据不存在')
-
-          // 删除模板
-          currentUser.value.tasks.tasks = currentUser.value.tasks.tasks.filter(t => t.id !== templateId)
-
-          // 获取今天0点的时间戳
-          const today = new Date()
-          today.setHours(0, 0, 0, 0)
-          const todayTimestamp = today.getTime()
-
-          // 只删除今天及未来日期记录中的相关任务，保留历史记录
-          currentUser.value.tasks.date.forEach(record => {
-            if (record.date >= todayTimestamp) {
-              // 今天及未来的记录：删除该任务
-              record.tasks = record.tasks.filter(t => t.taskId !== templateId)
-            }
-            // 历史记录：保留
-          })
-
-          await apiModule.updateData()
-        } catch (error) {
-          console.error('❌ 删除任务模板失败:', error)
-          throw error
-        }
-      },
-
-      // 添加日期记录
-      addDateRecord: async (dateRecord: TaskDateRecord) => {
-        try {
-          if (!currentUser.value) throw new Error('用户不存在')
-
-          platformModules.tasks.initTaskData()
-
-          currentUser.value.tasks!.date.push(dateRecord)
-          await apiModule.updateData()
-        } catch (error) {
-          console.error('❌ 添加日期记录失败:', error)
-          throw error
-        }
-      },
-
-      // 删除整天记录
-      deleteDateRecord: async (dateRecordId: number) => {
-        try {
-          if (!currentUser.value || !currentUser.value.tasks) throw new Error('任务数据不存在')
-
-          currentUser.value.tasks.date = currentUser.value.tasks.date.filter(r => r.id !== dateRecordId)
-
-          await apiModule.updateData()
-        } catch (error) {
-          console.error('❌ 删除日期记录失败:', error)
-          throw error
+        // 确保 config 存在
+        if (!currentUser.value.tasks.config) {
+          currentUser.value.tasks.config = {}
         }
       },
 

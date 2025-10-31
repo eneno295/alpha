@@ -25,6 +25,7 @@
             </div>
             <div class="day-actions" @click.stop>
               <button
+                v-if="showDeleteTask"
                 class="btn-day-delete"
                 title="删除当天记录"
                 @click="handleDeleteDateRecord(record.id)"
@@ -76,9 +77,43 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useTaskManagement } from '@/composables/useTaskManagement'
+import { useAppStore } from '@/stores/app'
+import { useLoading } from '@/composables/useLoading'
 import BaseModal from '@/components/common/BaseModal.vue'
 
-const { showHistoryModal, taskData, handleDeleteDateRecord } = useTaskManagement()
+const { showHistoryModal, taskData } = useTaskManagement()
+const appStore = useAppStore()
+const { withLoading } = useLoading()
+
+// 是否显示删除按钮（直接从 taskData 中读取配置）
+const showDeleteTask = computed(() => taskData.value?.config?.showDeleteTask ?? false)
+
+// 删除整天记录（直接在组件中实现）
+const deleteDateRecord = async (dateRecordId: number) => {
+  if (!appStore.currentUser || !appStore.currentUser.tasks) throw new Error('任务数据不存在')
+
+  appStore.currentUser.tasks.date = appStore.currentUser.tasks.date.filter(
+    (r) => r.id !== dateRecordId,
+  )
+
+  await appStore.api.updateData()
+}
+
+// 删除整天记录（直接在组件中实现）
+const handleDeleteDateRecord = async (recordId: number) => {
+  if (!confirm('确定要删除这一天的全部记录吗？\n\n此操作不会影响任务模板，仅删除该天的完成情况。'))
+    return
+  try {
+    await withLoading(async () => {
+      await deleteDateRecord(recordId)
+    }, '删除当天记录中...')
+
+    window.GlobalPlugin.toast.success('当天记录已删除')
+  } catch (error) {
+    console.error('删除当天记录失败:', error)
+    window.GlobalPlugin.toast.error('删除当天记录失败')
+  }
+}
 
 const filter = ref<string>('all')
 const expandedIds = ref<number[]>([])

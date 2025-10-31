@@ -1,5 +1,7 @@
 // 应用数据类型定义
 
+import type { TaskData } from './task'
+
 export interface ProfitData {
   users: string[] // 用户列表
   data: Record<string, UserData> // 用户数据映射
@@ -94,31 +96,3 @@ export interface AddLog {
 }
 
 export type Platform = 'binance' | 'okx' | 'gate'
-
-// 任务相关类型
-export interface TaskTemplate {
-  id: number
-  title: string
-  description?: string
-  category: 'daily' | 'weekly' | 'monthly' | 'custom'
-  sort: number
-  bgColor?: string // 卡片背景颜色
-}
-
-export interface DailyTaskItem {
-  taskId: number
-  completedAt?: number  // 时间戳
-  remark?: string
-  detail: TaskTemplate  // 任务详情快照
-}
-
-export interface TaskDateRecord {
-  id: number
-  date: number  // 时间戳（当天0点）
-  tasks: DailyTaskItem[]
-}
-
-export interface TaskData {
-  tasks: TaskTemplate[]
-  date: TaskDateRecord[]
-}

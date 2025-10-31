@@ -7,22 +7,13 @@
     @confirm="handleConfirm"
   >
     <div class="manage-content">
-      <p class="manage-hint">拖拽任务可以调整排序</p>
       <div class="template-list">
         <div
           v-for="(template, index) in sortedTemplates"
           :key="template.id"
           class="template-item"
           :style="getItemStyle(template)"
-          draggable="true"
-          @dragstart="handleDragStart(index)"
-          @dragover.prevent="handleDragOver(index)"
-          @drop="handleDrop(index)"
-          @dragend="handleDragEnd"
         >
-          <div class="drag-handle">
-            <span class="icon">☰</span>
-          </div>
           <div class="template-info" @click="handleEdit(template)">
             <div class="title-group">
               <div class="texts">
@@ -46,19 +37,79 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useTaskManagement } from '@/composables/useTaskManagement'
-import type { TaskTemplate } from '@/types'
+import { useAppStore } from '@/stores/app'
+import { useLoading } from '@/composables/useLoading'
+import type { TaskTemplate } from '@/types/task'
 
-const {
-  showManageModal,
-  taskData,
-  handleUpdateOrder,
-  handleDeleteTask,
-  editingTask,
-  showAddTaskModal,
-} = useTaskManagement()
+const { showManageModal, taskData, editingTask, showAddTaskModal } = useTaskManagement()
+const appStore = useAppStore()
+const { withLoading } = useLoading()
 
-const dragIndex = ref<number | null>(null)
-const dropIndex = ref<number | null>(null)
+// 更新排序（直接在组件中实现）
+const handleUpdateOrder = async (templates: TaskTemplate[]) => {
+  try {
+    if (taskData.value && taskData.value.date) {
+      taskData.value.date.forEach((record) => {
+        record.tasks.forEach((task) => {
+          const template = templates.find((t) => t.id === task.taskId)
+          if (template) {
+            task.detail = { ...template }
+          }
+        })
+      })
+    }
+
+    await appStore.api.updateData()
+    // 不显示成功提示，静默更新
+  } catch (error) {
+    console.error('更新排序失败:', error)
+    window.GlobalPlugin.toast.error('更新排序失败')
+  }
+}
+
+// 删除任务模板（直接在组件中实现）
+const deleteTemplate = async (templateId: number) => {
+  if (!appStore.currentUser || !appStore.currentUser.tasks) throw new Error('任务数据不存在')
+
+  // 删除模板
+  appStore.currentUser.tasks.tasks = appStore.currentUser.tasks.tasks.filter(
+    (t) => t.id !== templateId,
+  )
+
+  // 获取今天0点的时间戳
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const todayTimestamp = today.getTime()
+
+  // 只删除今天及未来日期记录中的相关任务，保留历史记录
+  appStore.currentUser.tasks.date.forEach((record) => {
+    if (record.date >= todayTimestamp) {
+      // 今天及未来的记录：删除该任务
+      record.tasks = record.tasks.filter((t) => t.taskId !== templateId)
+    }
+    // 历史记录：保留
+  })
+
+  await appStore.api.updateData()
+}
+
+// 删除任务（直接在组件中实现）
+const handleDeleteTask = async (taskId: number) => {
+  if (!confirm('确定要删除这个任务模板吗？\n\n将删除模板及今天和未来的任务，历史记录会保留。'))
+    return
+
+  try {
+    await withLoading(async () => {
+      await deleteTemplate(taskId)
+    }, '删除任务中...')
+
+    window.GlobalPlugin.toast.success('任务模板已删除')
+  } catch (error) {
+    console.error('删除任务失败:', error)
+    window.GlobalPlugin.toast.error('删除任务失败')
+  }
+}
+
 const localTemplates = ref<TaskTemplate[]>([])
 
 // 监听弹窗打开时，复制一份数据到本地
@@ -106,38 +157,6 @@ const getItemStyle = (template: TaskTemplate) => {
   }
 }
 
-const handleDragStart = (index: number) => {
-  dragIndex.value = index
-}
-
-const handleDragOver = (index: number) => {
-  dropIndex.value = index
-}
-
-const handleDrop = (index: number) => {
-  if (dragIndex.value === null || dragIndex.value === index) return
-
-  const templates = [...localTemplates.value]
-  const [draggedItem] = templates.splice(dragIndex.value, 1)
-  templates.splice(index, 0, draggedItem)
-
-  // 更新所有模板的 sort 值
-  templates.forEach((template, idx) => {
-    template.sort = idx + 1
-  })
-
-  // 只更新本地数据，不发送请求
-  localTemplates.value = templates
-
-  dragIndex.value = null
-  dropIndex.value = null
-}
-
-const handleDragEnd = () => {
-  dragIndex.value = null
-  dropIndex.value = null
-}
-
 const handleEdit = (template: any) => {
   editingTask.value = template
   showAddTaskModal.value = true
@@ -169,13 +188,6 @@ const handleDelete = async (taskId: number) => {
 
 <style lang="scss" scoped>
 .manage-content {
-  .manage-hint {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    margin-bottom: 16px;
-    text-align: center;
-  }
-
   .template-list {
     max-height: 500px;
     overflow-y: auto;
@@ -188,22 +200,11 @@ const handleDelete = async (taskId: number) => {
       margin-bottom: 12px;
       background: var(--bg-secondary); // 将被内联样式覆盖为渐变
       border-radius: 8px;
-      cursor: move;
       transition: all 0.2s ease;
 
       &:hover {
         border-color: #667eea;
         box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
-      }
-
-      .drag-handle {
-        font-size: 1.2rem;
-        color: var(--text-secondary);
-        cursor: grab;
-
-        &:active {
-          cursor: grabbing;
-        }
       }
 
       .template-info {

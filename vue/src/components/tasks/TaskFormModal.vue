@@ -53,8 +53,142 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useTaskManagement } from '@/composables/useTaskManagement'
+import { useAppStore } from '@/stores/app'
+import { useLoading } from '@/composables/useLoading'
+import type { TaskTemplate } from '@/types/task'
 
-const { showAddTaskModal, editingTask, closeAddTaskModal, handleSaveTask } = useTaskManagement()
+const { showAddTaskModal, editingTask, taskData } = useTaskManagement()
+const appStore = useAppStore()
+const { withLoading } = useLoading()
+
+// 获取今天的记录（辅助函数）
+const getTodayRecord = () => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const todayTimestamp = today.getTime()
+  const todayKey = Math.floor(todayTimestamp / (24 * 60 * 60 * 1000))
+  if (!taskData.value || !taskData.value.date) return undefined
+  return taskData.value.date.find(
+    (record) => Math.floor(record.date / (24 * 60 * 60 * 1000)) === todayKey,
+  )
+}
+
+// 关闭弹窗（直接在组件中实现）
+const closeAddTaskModal = () => {
+  showAddTaskModal.value = false
+  editingTask.value = null
+}
+
+// 初始化任务数据（辅助函数）
+const initTaskData = () => {
+  if (!appStore.currentUser) return
+  if (!appStore.currentUser.tasks) {
+    appStore.currentUser.tasks = {
+      config: {},
+      tasks: [],
+      date: [],
+    }
+  }
+  if (!appStore.currentUser.tasks.config) {
+    appStore.currentUser.tasks.config = {}
+  }
+}
+
+// 添加任务模板（直接在组件中实现）
+const addTemplate = async (template: TaskTemplate) => {
+  if (!appStore.currentUser) throw new Error('用户不存在')
+
+  initTaskData()
+
+  appStore.currentUser.tasks!.tasks.push(template)
+  await appStore.api.updateData()
+}
+
+// 更新任务模板（直接在组件中实现）
+const updateTemplate = async (templateId: number, updates: Partial<TaskTemplate>) => {
+  if (!appStore.currentUser || !appStore.currentUser.tasks) throw new Error('任务数据不存在')
+
+  const template = appStore.currentUser.tasks.tasks.find((t) => t.id === templateId)
+  if (template) {
+    Object.assign(template, updates)
+
+    // 更新所有日期记录中的 detail 快照
+    appStore.currentUser.tasks.date.forEach((record) => {
+      record.tasks.forEach((task) => {
+        if (task.taskId === templateId) {
+          task.detail = { ...template }
+        }
+      })
+    })
+
+    await appStore.api.updateData()
+  }
+}
+
+// 保存任务（直接在组件中实现）
+const handleSaveTask = async (formData: {
+  title: string
+  description: string
+  category: string
+  bgColor: string
+}) => {
+  if (!taskData.value) return
+
+  const isEditing = !!editingTask.value
+
+  try {
+    await withLoading(
+      async () => {
+        if (editingTask.value) {
+          await updateTemplate(editingTask.value.id, {
+            title: formData.title,
+            description: formData.description,
+            category: formData.category as any,
+            bgColor: formData.bgColor,
+          })
+        } else {
+          initTaskData()
+
+          const maxId =
+            taskData.value.tasks && taskData.value.tasks.length > 0
+              ? Math.max(...taskData.value.tasks.map((t) => t.id))
+              : 0
+          const maxSort =
+            taskData.value.tasks && taskData.value.tasks.length > 0
+              ? Math.max(...taskData.value.tasks.map((t) => t.sort))
+              : 0
+
+          const newTemplate = {
+            id: maxId + 1,
+            title: formData.title,
+            description: formData.description,
+            category: formData.category as any,
+            sort: maxSort + 1,
+            bgColor: formData.bgColor,
+          }
+
+          await addTemplate(newTemplate)
+
+          const todayRecord = getTodayRecord()
+          if (todayRecord && appStore.currentUser?.tasks) {
+            todayRecord.tasks.push({
+              taskId: newTemplate.id,
+              detail: { ...newTemplate },
+            })
+            await appStore.api.updateData()
+          }
+        }
+      },
+      isEditing ? '更新任务中...' : '添加任务中...',
+    )
+
+    closeAddTaskModal()
+    window.GlobalPlugin.toast.success(isEditing ? '任务已更新' : '任务已添加')
+  } catch (error) {
+    console.error('保存任务失败:', error)
+    window.GlobalPlugin.toast.error('保存任务失败')
+  }
+}
 
 // 颜色选项
 const colorOptions = [
