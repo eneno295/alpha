@@ -21,9 +21,9 @@
     </div>
 
     <!-- 弹窗 -->
-    <TaskFormModal />
     <TaskManageModal />
     <TaskHistoryModal />
+    <TaskFormModal />
     <TaskRemarkModal />
   </div>
 </template>

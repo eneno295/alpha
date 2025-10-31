@@ -7,6 +7,10 @@ export interface TaskTemplate {
   category: 'daily' | 'weekly' | 'monthly' | 'custom'
   sort: number
   bgColor?: string // 卡片背景颜色
+  // 自定义任务的时间配置
+  taskDurationType?: 'deadline' | 'duration' // 到期天数 或 持续天数
+  taskDays?: number // 天数
+  startDate?: number // 开始日期（时间戳，用于计算到期日）
 }
 
 export interface DailyTaskItem {

@@ -11,7 +11,10 @@
         <div
           v-for="(template, index) in sortedTemplates"
           :key="template.id"
-          class="template-item"
+          :class="[
+            'template-item',
+            { 'pending-delete-item': pendingDeleteIds.includes(template.id) },
+          ]"
           :style="getItemStyle(template)"
         >
           <div class="template-info" @click="handleEdit(template)">
@@ -25,8 +28,13 @@
               getCategoryLabel(template.category)
             }}</span>
           </div>
-          <button class="btn-delete" @click.stop="handleDelete(template.id)" title="删除任务">
-            🗑️
+          <button
+            class="btn-delete"
+            :class="{ 'pending-delete': pendingDeleteIds.includes(template.id) }"
+            @click.stop="handleMarkDelete(template.id)"
+            :title="pendingDeleteIds.includes(template.id) ? '取消删除' : '删除任务'"
+          >
+            {{ pendingDeleteIds.includes(template.id) ? '↩️' : '🗑️' }}
           </button>
         </div>
       </div>
@@ -93,24 +101,8 @@ const deleteTemplate = async (templateId: number) => {
   await appStore.api.updateData()
 }
 
-// 删除任务（直接在组件中实现）
-const handleDeleteTask = async (taskId: number) => {
-  if (!confirm('确定要删除这个任务模板吗？\n\n将删除模板及今天和未来的任务，历史记录会保留。'))
-    return
-
-  try {
-    await withLoading(async () => {
-      await deleteTemplate(taskId)
-    }, '删除任务中...')
-
-    window.GlobalPlugin.toast.success('任务模板已删除')
-  } catch (error) {
-    console.error('删除任务失败:', error)
-    window.GlobalPlugin.toast.error('删除任务失败')
-  }
-}
-
 const localTemplates = ref<TaskTemplate[]>([])
+const pendingDeleteIds = ref<number[]>([]) // 待删除的任务ID列表
 
 // 监听弹窗打开时，复制一份数据到本地
 watch(
@@ -118,6 +110,7 @@ watch(
   (visible) => {
     if (visible && taskData.value?.tasks) {
       localTemplates.value = [...taskData.value.tasks].sort((a, b) => a.sort - b.sort)
+      pendingDeleteIds.value = [] // 重置待删除列表
     }
   },
   { immediate: true },
@@ -160,7 +153,6 @@ const getItemStyle = (template: TaskTemplate) => {
 const handleEdit = (template: any) => {
   editingTask.value = template
   showAddTaskModal.value = true
-  showManageModal.value = false // 关闭管理弹窗，让编辑弹窗显示在前面
 }
 
 const handleClose = () => {
@@ -168,20 +160,44 @@ const handleClose = () => {
   // 取消时恢复原始数据
   if (taskData.value?.tasks) {
     localTemplates.value = [...taskData.value.tasks].sort((a, b) => a.sort - b.sort)
+    pendingDeleteIds.value = [] // 清除待删除标记
   }
 }
 
 const handleConfirm = async () => {
-  // 确认时才发送请求
-  await handleUpdateOrder(localTemplates.value)
-  showManageModal.value = false
+  try {
+    await withLoading(async () => {
+      // 先过滤掉待删除的任务，更新排序（只更新保留的任务）
+      const templatesToKeep = localTemplates.value.filter(
+        (t) => !pendingDeleteIds.value.includes(t.id),
+      )
+      await handleUpdateOrder(templatesToKeep)
+
+      // 然后执行所有待删除的任务
+      if (pendingDeleteIds.value.length > 0) {
+        for (const taskId of pendingDeleteIds.value) {
+          await deleteTemplate(taskId)
+        }
+      }
+    }, '保存中...')
+
+    window.GlobalPlugin.toast.success('操作成功')
+    showManageModal.value = false
+  } catch (error) {
+    console.error('保存失败:', error)
+    window.GlobalPlugin.toast.error('保存失败')
+  }
 }
 
-const handleDelete = async (taskId: number) => {
-  await handleDeleteTask(taskId)
-  // 删除成功后更新本地列表
-  if (taskData.value?.tasks) {
-    localTemplates.value = [...taskData.value.tasks].sort((a, b) => a.sort - b.sort)
+// 标记/取消标记删除
+const handleMarkDelete = (taskId: number) => {
+  const index = pendingDeleteIds.value.indexOf(taskId)
+  if (index > -1) {
+    // 取消删除标记
+    pendingDeleteIds.value.splice(index, 1)
+  } else {
+    // 添加删除标记
+    pendingDeleteIds.value.push(taskId)
   }
 }
 </script>
@@ -205,6 +221,13 @@ const handleDelete = async (taskId: number) => {
       &:hover {
         border-color: #667eea;
         box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+      }
+
+      &.pending-delete-item {
+        opacity: 0.5;
+        filter: grayscale(70%);
+        background: rgba(239, 68, 68, 0.05) !important;
+        border: 1px dashed #ef4444;
       }
 
       .template-info {
@@ -290,6 +313,15 @@ const handleDelete = async (taskId: number) => {
 
         &:active {
           transform: scale(0.95);
+        }
+
+        &.pending-delete {
+          color: #10b981;
+          background: rgba(16, 185, 129, 0.1);
+
+          &:hover {
+            background: rgba(16, 185, 129, 0.2);
+          }
         }
       }
     }

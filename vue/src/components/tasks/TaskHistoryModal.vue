@@ -41,6 +41,8 @@
               v-for="task in record.tasks"
               :key="task.taskId"
               :class="['task-item', { completed: task.completedAt, 'has-remark': task.remark }]"
+              style="cursor: pointer"
+              @click.stop="handleViewTask(task)"
               @mouseenter="(e) => showTooltip(task.taskId, task.remark, e)"
               @mouseleave="hideTooltip"
             >
@@ -81,7 +83,8 @@ import { useAppStore } from '@/stores/app'
 import { useLoading } from '@/composables/useLoading'
 import BaseModal from '@/components/common/BaseModal.vue'
 
-const { showHistoryModal, taskData } = useTaskManagement()
+const { showHistoryModal, taskData, editingTask, showAddTaskModal, isReadonly } =
+  useTaskManagement()
 const appStore = useAppStore()
 const { withLoading } = useLoading()
 
@@ -198,6 +201,14 @@ const showTooltip = (taskId: number, remark: string | undefined, event: MouseEve
 const hideTooltip = () => {
   tooltipVisible.value = false
   tooltipTaskId.value = null
+}
+
+// 查看任务详情
+const handleViewTask = (task: any) => {
+  // 使用任务快照中的详情
+  editingTask.value = task.detail
+  isReadonly.value = true
+  showAddTaskModal.value = true
 }
 </script>
 

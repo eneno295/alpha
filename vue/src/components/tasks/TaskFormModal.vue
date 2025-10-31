@@ -1,15 +1,16 @@
 <template>
   <BaseModal
     :visible="showAddTaskModal"
-    :title="editingTask ? '编辑任务' : '添加任务'"
+    :title="isReadonly ? '任务详情' : editingTask ? '编辑任务' : '添加任务'"
     size="medium"
+    :show-footer="!isReadonly"
     @close="closeAddTaskModal"
     @confirm="handleSave"
   >
     <form @submit.prevent="handleSave" class="task-form">
       <div class="form-group">
         <label>分类 *</label>
-        <select v-model="formData.category" required>
+        <select v-model="formData.category" :disabled="isReadonly" required>
           <option value="daily">每日任务</option>
           <option value="weekly">每周任务</option>
           <option value="monthly">每月任务</option>
@@ -19,7 +20,13 @@
 
       <div class="form-group">
         <label>任务标题 *</label>
-        <input v-model="formData.title" type="text" placeholder="输入任务标题" required />
+        <input
+          v-model="formData.title"
+          type="text"
+          placeholder="输入任务标题"
+          :disabled="isReadonly"
+          required
+        />
       </div>
 
       <div class="form-group">
@@ -27,9 +34,33 @@
         <textarea
           v-model="formData.description"
           placeholder="输入任务描述（可选）"
+          :disabled="isReadonly"
           rows="3"
         ></textarea>
       </div>
+
+      <!-- 自定义任务的时间配置 -->
+      <template v-if="formData.category === 'custom'">
+        <div class="form-group">
+          <label>任务时间类型</label>
+          <select v-model="formData.taskDurationType" :disabled="isReadonly">
+            <option value="deadline">到期天数（几天后完成）</option>
+            <option value="duration">持续天数（连续几天需要完成）</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>天数 *</label>
+          <input
+            v-model.number="formData.taskDays"
+            type="number"
+            min="1"
+            placeholder="输入天数"
+            :disabled="isReadonly"
+            required
+          />
+        </div>
+      </template>
 
       <div class="form-group">
         <label>卡片颜色</label>
@@ -37,9 +68,12 @@
           <div
             v-for="color in colorOptions"
             :key="color.value"
-            :class="['color-option', { selected: formData.bgColor === color.value }]"
+            :class="[
+              'color-option',
+              { selected: formData.bgColor === color.value, disabled: isReadonly },
+            ]"
             :style="{ background: color.gradient }"
-            @click="formData.bgColor = color.value"
+            @click="!isReadonly && (formData.bgColor = color.value)"
             :title="color.name"
           >
             <span v-if="formData.bgColor === color.value" class="check-icon">✓</span>
@@ -57,7 +91,7 @@ import { useAppStore } from '@/stores/app'
 import { useLoading } from '@/composables/useLoading'
 import type { TaskTemplate } from '@/types/task'
 
-const { showAddTaskModal, editingTask, taskData } = useTaskManagement()
+const { showAddTaskModal, editingTask, taskData, isReadonly } = useTaskManagement()
 const appStore = useAppStore()
 const { withLoading } = useLoading()
 
@@ -77,6 +111,7 @@ const getTodayRecord = () => {
 const closeAddTaskModal = () => {
   showAddTaskModal.value = false
   editingTask.value = null
+  isReadonly.value = false
 }
 
 // 初始化任务数据（辅助函数）
@@ -131,6 +166,8 @@ const handleSaveTask = async (formData: {
   description: string
   category: string
   bgColor: string
+  taskDurationType?: 'deadline' | 'duration'
+  taskDays?: number
 }) => {
   if (!taskData.value) return
 
@@ -140,12 +177,29 @@ const handleSaveTask = async (formData: {
     await withLoading(
       async () => {
         if (editingTask.value) {
-          await updateTemplate(editingTask.value.id, {
+          const updates: any = {
             title: formData.title,
             description: formData.description,
             category: formData.category as any,
             bgColor: formData.bgColor,
-          })
+          }
+          // 只有自定义任务才保存时间配置
+          if (formData.category === 'custom') {
+            updates.taskDurationType = formData.taskDurationType
+            updates.taskDays = formData.taskDays
+            // 如果是新任务或开始日期未设置，设置开始日期为今天
+            if (!editingTask.value.startDate) {
+              const today = new Date()
+              today.setHours(0, 0, 0, 0)
+              updates.startDate = today.getTime()
+            }
+          } else {
+            // 非自定义任务，清除时间配置
+            updates.taskDurationType = undefined
+            updates.taskDays = undefined
+            updates.startDate = undefined
+          }
+          await updateTemplate(editingTask.value.id, updates)
         } else {
           initTaskData()
 
@@ -158,13 +212,22 @@ const handleSaveTask = async (formData: {
               ? Math.max(...taskData.value.tasks.map((t) => t.sort))
               : 0
 
-          const newTemplate = {
+          const today = new Date()
+          today.setHours(0, 0, 0, 0)
+
+          const newTemplate: any = {
             id: maxId + 1,
             title: formData.title,
             description: formData.description,
             category: formData.category as any,
             sort: maxSort + 1,
             bgColor: formData.bgColor,
+          }
+          // 只有自定义任务才添加时间配置
+          if (formData.category === 'custom') {
+            newTemplate.taskDurationType = formData.taskDurationType
+            newTemplate.taskDays = formData.taskDays
+            newTemplate.startDate = today.getTime()
           }
 
           await addTemplate(newTemplate)
@@ -223,6 +286,8 @@ const formData = ref({
   description: '',
   category: 'daily' as 'daily' | 'weekly' | 'monthly' | 'custom',
   bgColor: 'default',
+  taskDurationType: 'deadline' as 'deadline' | 'duration' | undefined,
+  taskDays: undefined as number | undefined,
 })
 
 // 监听编辑任务变化
@@ -235,6 +300,8 @@ watch(
         description: task.description || '',
         category: task.category,
         bgColor: task.bgColor || 'default',
+        taskDurationType: task.taskDurationType || 'deadline',
+        taskDays: task.taskDays,
       }
     } else {
       formData.value = {
@@ -242,22 +309,38 @@ watch(
         description: '',
         category: 'daily',
         bgColor: 'default',
+        taskDurationType: 'deadline',
+        taskDays: undefined,
       }
     }
   },
   { immediate: true },
 )
 
+// 监听分类变化，如果不是自定义任务，清空时间配置
+watch(
+  () => formData.value.category,
+  (newCategory) => {
+    if (newCategory !== 'custom') {
+      formData.value.taskDurationType = 'deadline'
+      formData.value.taskDays = undefined
+    }
+  },
+)
+
 // 监听弹窗关闭，确保清空表单
 watch(showAddTaskModal, (isVisible) => {
   if (!isVisible) {
-    // 弹窗关闭时清空表单
+    // 弹窗关闭时清空表单和只读状态
     formData.value = {
       title: '',
       description: '',
       category: 'daily',
       bgColor: 'default',
+      taskDurationType: 'deadline',
+      taskDays: undefined,
     }
+    isReadonly.value = false
   }
 })
 
@@ -265,6 +348,13 @@ const handleSave = () => {
   if (!formData.value.title.trim()) {
     window.GlobalPlugin.toast.warning('请输入任务标题')
     return
+  }
+  // 自定义任务必须填写天数
+  if (formData.value.category === 'custom') {
+    if (!formData.value.taskDays || formData.value.taskDays < 1) {
+      window.GlobalPlugin.toast.warning('请输入天数（必须大于0）')
+      return
+    }
   }
   handleSaveTask(formData.value)
 }
@@ -321,7 +411,7 @@ const handleSave = () => {
         justify-content: center;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 
-        &:hover {
+        &:hover:not(.disabled) {
           transform: translateY(-2px);
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
@@ -330,6 +420,11 @@ const handleSave = () => {
           border-color: #667eea;
           box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
           transform: scale(1.05);
+        }
+
+        &.disabled {
+          cursor: not-allowed;
+          opacity: 0.6;
         }
 
         .check-icon {
