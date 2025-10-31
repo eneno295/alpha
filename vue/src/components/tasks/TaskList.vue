@@ -1,11 +1,16 @@
 <template>
   <div class="task-list">
     <div
-      v-for="task in tasks"
+      v-for="(task, index) in localTasks"
       :key="task.taskId"
       :class="['task-card', { completed: isCompleted(task) }]"
       :style="getCardStyle(task)"
       @click="handleCardClick(task)"
+      draggable="true"
+      @dragstart="onDragStart(index)"
+      @dragover.prevent="onDragOver(index)"
+      @drop="onDrop(localTasks, index)"
+      @dragend="onDragEnd"
     >
       <div class="task-content">
         <div class="task-header">
@@ -35,7 +40,7 @@
       </div>
     </div>
 
-    <div v-if="tasks.length === 0" class="empty-state">
+    <div v-if="localTasks.length === 0" class="empty-state">
       <div class="empty-icon">📝</div>
       <h3>暂无任务</h3>
       <p>点击"添加任务"开始创建你的第一个任务吧！</p>
@@ -53,7 +58,21 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const { handleCompleteTask, handleUncompleteTask, handleAddRemark } = useTaskManagement()
+// 拖拽排序：本地任务副本
+import { ref, watch } from 'vue'
+import { useDragSort } from '@/composables/useDragSort'
+const localTasks = ref<Props['tasks']>([])
+
+watch(
+  () => props.tasks,
+  (val) => {
+    localTasks.value = Array.isArray(val) ? [...val] : []
+  },
+  { immediate: true, deep: true },
+)
+
+const { handleCompleteTask, handleUncompleteTask, handleAddRemark, handleUpdateOrder, taskData } =
+  useTaskManagement()
 
 const isCompleted = (task: DailyTaskItem) => {
   return !!task.completedAt
@@ -83,6 +102,32 @@ const handleRemark = (task: any) => {
   handleAddRemark(task)
 }
 
+// 使用通用拖拽排序
+const persistOrder = async () => {
+  if (!taskData.value?.tasks) return
+  const orderIds = localTasks.value.map((t) => t.detail.id)
+
+  // 计算每个模板的排名，未出现在当前列表的放到后面，保持相对顺序
+  const orderRank = new Map<number, number>()
+  orderIds.forEach((id, idx) => orderRank.set(id, idx))
+
+  const allTemplates = [...taskData.value.tasks]
+  allTemplates.sort((a, b) => {
+    const ra = orderRank.has(a.id) ? (orderRank.get(a.id) as number) : 10000 + a.sort
+    const rb = orderRank.has(b.id) ? (orderRank.get(b.id) as number) : 10000 + b.sort
+    return ra - rb
+  })
+
+  // 重写 sort 并提交
+  allTemplates.forEach((t, i) => (t.sort = i + 1))
+  await handleUpdateOrder(allTemplates)
+}
+
+const { onDragStart, onDragOver, onDragEnd, onDrop } = useDragSort((items: any[]) => {
+  localTasks.value = items as any
+  persistOrder()
+})
+
 // 颜色映射
 const colorGradients: Record<string, string> = {
   default: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
@@ -107,7 +152,7 @@ const getCardStyle = (task: any) => {
 <style lang="scss" scoped>
 .task-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   padding: 10px;
 
@@ -317,11 +362,23 @@ const getCardStyle = (task: any) => {
   }
 }
 
+@media (max-width: 1200px) {
+  .task-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .task-list {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 16px;
     padding: 0;
+  }
+}
+
+@media (max-width: 400px) {
+  .task-list {
+    grid-template-columns: repeat(1, 1fr);
   }
 }
 </style>

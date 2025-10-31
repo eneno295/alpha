@@ -18,6 +18,9 @@ export function useTaskManagement() {
 
   const taskData = computed(() => appStore.tasks.data)
 
+  // 以天为单位的归一化（避免时区/小时差导致的同日不等）
+  const toDayKey = (timestamp: number): number => Math.floor(timestamp / (24 * 60 * 60 * 1000))
+
   // 获取今天0点的时间戳
   const getTodayTimestamp = () => {
     const today = new Date()
@@ -34,7 +37,8 @@ export function useTaskManagement() {
 
     if (!taskData.value.date) return
 
-    let todayRecord = taskData.value.date.find((record) => record.date === todayTimestamp)
+    const todayKey = toDayKey(todayTimestamp)
+    let todayRecord = taskData.value.date.find((record) => toDayKey(record.date) === todayKey)
 
     if (!todayRecord) {
       const maxId =
@@ -62,7 +66,8 @@ export function useTaskManagement() {
   const getTodayRecord = () => {
     const todayTimestamp = getTodayTimestamp()
     if (!taskData.value || !taskData.value.date) return undefined
-    return taskData.value.date.find((record) => record.date === todayTimestamp)
+    const todayKey = toDayKey(todayTimestamp)
+    return taskData.value.date.find((record) => toDayKey(record.date) === todayKey)
   }
 
   // 计算属性
@@ -287,25 +292,22 @@ export function useTaskManagement() {
     }
   }
 
-  // 更新排序
+  // 更新排序（静默更新，不显示加载弹窗）
   const handleUpdateOrder = async (templates: TaskTemplate[]) => {
     try {
-      await withLoading(async () => {
-        if (taskData.value && taskData.value.date) {
-          taskData.value.date.forEach((record) => {
-            record.tasks.forEach((task) => {
-              const template = templates.find((t) => t.id === task.taskId)
-              if (template) {
-                task.detail = { ...template }
-              }
-            })
+      if (taskData.value && taskData.value.date) {
+        taskData.value.date.forEach((record) => {
+          record.tasks.forEach((task) => {
+            const template = templates.find((t) => t.id === task.taskId)
+            if (template) {
+              task.detail = { ...template }
+            }
           })
-        }
+        })
+      }
 
-        await appStore.api.updateData()
-      }, '更新排序中...')
-
-      window.GlobalPlugin.toast.success('排序已更新')
+      await appStore.api.updateData()
+      // 不显示成功提示，静默更新
     } catch (error) {
       console.error('更新排序失败:', error)
       window.GlobalPlugin.toast.error('更新排序失败')
@@ -329,6 +331,21 @@ export function useTaskManagement() {
     } catch (error) {
       console.error('删除记录失败:', error)
       window.GlobalPlugin.toast.error('删除记录失败')
+    }
+  }
+
+  // 删除整天记录
+  const handleDeleteDateRecord = async (recordId: number) => {
+    if (!confirm('确定要删除这一天的全部记录吗？\n\n此操作不会影响任务模板，仅删除该天的完成情况。')) return
+    try {
+      await withLoading(async () => {
+        await appStore.tasks.deleteDateRecord(recordId)
+      }, '删除当天记录中...')
+
+      window.GlobalPlugin.toast.success('当天记录已删除')
+    } catch (error) {
+      console.error('删除当天记录失败:', error)
+      window.GlobalPlugin.toast.error('删除当天记录失败')
     }
   }
 
@@ -367,6 +384,7 @@ export function useTaskManagement() {
     handleSaveTask,
     handleUpdateOrder,
     handleDeleteCompletion,
+    handleDeleteDateRecord,
     initialize,
   }
 }

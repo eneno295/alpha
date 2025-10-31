@@ -23,7 +23,16 @@
                 {{ getCompletedCount(record) }}/{{ record.tasks.length }} 已完成
               </span>
             </div>
-            <span class="expand-icon">{{ expandedIds.includes(record.id) ? '▼' : '▶' }}</span>
+            <div class="day-actions" @click.stop>
+              <button
+                class="btn-day-delete"
+                title="删除当天记录"
+                @click="handleDeleteDateRecord(record.id)"
+              >
+                🗑️
+              </button>
+              <span class="expand-icon">{{ expandedIds.includes(record.id) ? '▼' : '▶' }}</span>
+            </div>
           </div>
 
           <div v-if="expandedIds.includes(record.id)" class="day-tasks">
@@ -69,7 +78,7 @@ import { ref, computed } from 'vue'
 import { useTaskManagement } from '@/composables/useTaskManagement'
 import BaseModal from '@/components/common/BaseModal.vue'
 
-const { showHistoryModal, taskData } = useTaskManagement()
+const { showHistoryModal, taskData, handleDeleteDateRecord } = useTaskManagement()
 
 const filter = ref<string>('all')
 const expandedIds = ref<number[]>([])
@@ -229,10 +238,32 @@ const hideTooltip = () => {
           }
         }
 
-        .expand-icon {
-          font-size: 0.9rem;
-          color: var(--text-secondary);
-          transition: transform 0.2s ease;
+        .day-actions {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          .btn-day-delete {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 1rem;
+            opacity: 0.6;
+            transition:
+              opacity 0.2s ease,
+              transform 0.1s ease;
+
+            &:hover {
+              opacity: 1;
+              transform: scale(1.08);
+            }
+          }
+
+          .expand-icon {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            transition: transform 0.2s ease;
+          }
         }
       }
 

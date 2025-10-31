@@ -67,7 +67,6 @@ onUnmounted(() => {
     radial-gradient(ellipse at bottom right, rgba(168, 85, 247, 0.08) 0%, transparent 50%), #ffffff;
   color: var(--text-primary);
   padding: 40px 60px;
-  max-width: 1400px;
   margin: 0 auto;
 }
 

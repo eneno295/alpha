@@ -1,5 +1,10 @@
 <template>
-  <BaseModal :visible="visible" title="Binance 操作日志" size="large" @close="closeModal">
+  <BaseModal
+    :visible="visible"
+    :title="`${platformLabel} 操作日志`"
+    size="large"
+    @close="closeModal"
+  >
     <div class="log-container">
       <div class="log-list" v-if="logs.length > 0">
         <div v-for="(log, index) in logs" :key="log.id" class="log-item">
@@ -334,6 +339,12 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 // 获取日志列表（最多显示前500条）
+const platform = computed(() => appStore.getPlatform())
+const platformLabel = computed(() =>
+  platform.value === 'gate' ? 'Gate' : platform.value === 'okx' ? 'OKX' : 'Binance',
+)
+
+// 使用 binance 模块的映射获取日志（在 gate 路由时会自动映射到 gate 数据）
 const logs = computed(() => {
   const allLogs = appStore.binance.logs || []
   return allLogs.slice(0, 500)
@@ -402,7 +413,7 @@ const formatLogDetails = (details: string, type: string) => {
 
 // 清空日志
 const clearLogs = () => {
-  appStore.log.clearLogs('binance')
+  appStore.log.clearLogs(platform.value)
   window.GlobalPlugin.toast.success('日志已清空')
 }
 </script>

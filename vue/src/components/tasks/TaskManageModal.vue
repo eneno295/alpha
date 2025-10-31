@@ -13,6 +13,7 @@
           v-for="(template, index) in sortedTemplates"
           :key="template.id"
           class="template-item"
+          :style="getItemStyle(template)"
           draggable="true"
           @dragstart="handleDragStart(index)"
           @dragover.prevent="handleDragOver(index)"
@@ -23,7 +24,12 @@
             <span class="icon">☰</span>
           </div>
           <div class="template-info" @click="handleEdit(template)">
-            <h4>{{ template.title }}</h4>
+            <div class="title-group">
+              <div class="texts">
+                <h4>{{ template.title }}</h4>
+                <p v-if="template.description" class="desc">{{ template.description }}</p>
+              </div>
+            </div>
             <span :class="['category-badge', template.category]">{{
               getCategoryLabel(template.category)
             }}</span>
@@ -78,6 +84,26 @@ const getCategoryLabel = (category: string) => {
     custom: '自定义',
   }
   return labels[category as keyof typeof labels] || category
+}
+
+// 颜色映射（与 TaskList 保持一致）
+const colorGradients: Record<string, string> = {
+  default: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+  blue: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)',
+  purple: 'linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%)',
+  pink: 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)',
+  green: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)',
+  yellow: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+  orange: 'linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%)',
+  gray: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+}
+
+const getGradient = (bgColor?: string) => colorGradients[bgColor || 'default']
+
+const getItemStyle = (template: TaskTemplate) => {
+  return {
+    background: getGradient(template.bgColor),
+  }
 }
 
 const handleDragStart = (index: number) => {
@@ -160,8 +186,7 @@ const handleDelete = async (taskId: number) => {
       gap: 12px;
       padding: 16px;
       margin-bottom: 12px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
+      background: var(--bg-secondary); // 将被内联样式覆盖为渐变
       border-radius: 8px;
       cursor: move;
       transition: all 0.2s ease;
@@ -189,10 +214,33 @@ const handleDelete = async (taskId: number) => {
         gap: 12px;
         cursor: pointer;
 
-        h4 {
-          margin: 0;
-          font-size: 1rem;
-          color: var(--text-primary);
+        .title-group {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+
+          .texts {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+
+            h4 {
+              margin: 0;
+              font-size: 1rem;
+              color: var(--text-primary);
+            }
+
+            .desc {
+              margin: 0;
+              font-size: 0.85rem;
+              color: var(--text-secondary);
+              line-height: 1.3;
+              max-width: 420px;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+            }
+          }
         }
 
         .category-badge {

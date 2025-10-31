@@ -436,6 +436,20 @@ export const useAppStore = defineStore('app', () => {
         }
       },
 
+      // 删除整天记录
+      deleteDateRecord: async (dateRecordId: number) => {
+        try {
+          if (!currentUser.value || !currentUser.value.tasks) throw new Error('任务数据不存在')
+
+          currentUser.value.tasks.date = currentUser.value.tasks.date.filter(r => r.id !== dateRecordId)
+
+          await apiModule.updateData()
+        } catch (error) {
+          console.error('❌ 删除日期记录失败:', error)
+          throw error
+        }
+      },
+
       // 更新任务完成状态
       updateTaskCompletion: async (dateRecordId: number, taskId: number, completedAt?: number, remark?: string) => {
         try {
