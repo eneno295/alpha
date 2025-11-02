@@ -13,7 +13,7 @@
       @dragend="onDragEnd"
       @touchstart="(e) => onTouchStart(index, task, e)"
       @touchmove.prevent="(e) => isTaskDue(task) && onTouchMove(e, getCardIndex)"
-      @touchend="() => isTaskDue(task) && onTouchEnd(localTasks)"
+      @touchend="(e) => isTaskDue(task) && onTouchEnd(localTasks, task, index, e)"
     >
       <div class="task-content">
         <div class="task-header">
@@ -94,6 +94,7 @@ const props = defineProps<Props>()
 // 拖拽排序：本地任务副本
 const localTasks = ref<Props['tasks']>([])
 const isDragging = ref(false) // 标记是否正在拖拽
+const touchStartPosition = ref<{ x: number; y: number } | null>(null) // 记录触摸起始位置
 
 watch(
   () => props.tasks,
@@ -333,6 +334,7 @@ const {
   onTouchMove: baseTouchMove,
   onTouchEnd: baseTouchEnd,
   dropIndex,
+  dragIndex,
 } = useDragSort((items: any[]) => {
   localTasks.value = items as any
   persistOrder()
@@ -390,6 +392,11 @@ const onTouchStart = (index: number, task: DailyTaskItem, event: TouchEvent) => 
     return
   }
   isDragging.value = false
+  // 记录触摸起始位置，用于判断是否发生了拖拽
+  touchStartPosition.value = {
+    x: event.touches[0].clientX,
+    y: event.touches[0].clientY,
+  }
   baseTouchStart(index, event)
 }
 
@@ -412,7 +419,7 @@ const onTouchMove = (event: TouchEvent, getElementIndex: (element: Element) => n
   }
 }
 
-const onTouchEnd = (items: any[]) => {
+const onTouchEnd = (items: any[], task: DailyTaskItem, index: number, event: TouchEvent) => {
   // 检查 dropIndex 是否指向未到期任务
   if (
     dropIndex.value !== null &&
@@ -423,12 +430,33 @@ const onTouchEnd = (items: any[]) => {
       // 如果目标是未到期任务，阻止 drop，只重置状态
       dropIndex.value = null
       isDragging.value = false
+      touchStartPosition.value = null
+      // 触发点击事件
+      setTimeout(() => {
+        handleCardClick(task)
+      }, 50)
       return
     }
   }
 
-  const hadMovement = isDragging.value && dropIndex.value !== null
+  // 判断是否发生了拖拽：检查是否有移动或者 dragIndex 和 dropIndex 不同
+  const hadMovement =
+    isDragging.value && dropIndex.value !== null && dragIndex.value !== dropIndex.value
+
+  // 如果没有发生拖拽，触发点击事件
+  if (!hadMovement && !isDragging.value) {
+    baseTouchEnd(items)
+    touchStartPosition.value = null
+    // 延迟触发点击，确保拖拽状态已清除
+    setTimeout(() => {
+      handleCardClick(task)
+    }, 50)
+    return
+  }
+
+  // 发生了拖拽，执行拖拽逻辑
   baseTouchEnd(items)
+  touchStartPosition.value = null
   // 延迟清除标记，避免触发点击事件
   setTimeout(() => {
     isDragging.value = false
