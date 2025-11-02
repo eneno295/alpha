@@ -49,34 +49,34 @@ import { useAppStore } from '@/stores/app'
 import { useLoading } from '@/composables/useLoading'
 import type { TaskTemplate } from '@/types/task'
 
-const { showManageModal, taskData, editingTask, showAddTaskModal } = useTaskManagement()
+const { showManageModal, taskData, editingTask, showAddTaskModal, updateTodayRecordDetails } =
+  useTaskManagement()
 const appStore = useAppStore()
 const { withLoading } = useLoading()
 
-// 更新排序（直接在组件中实现）
-const handleUpdateOrder = async (templates: TaskTemplate[]) => {
-  try {
-    if (taskData.value && taskData.value.date) {
-      taskData.value.date.forEach((record) => {
-        record.tasks.forEach((task) => {
-          const template = templates.find((t) => t.id === task.taskId)
-          if (template) {
-            task.detail = { ...template }
-          }
-        })
-      })
-    }
+// 更新排序（只更新数据，不调用接口）
+const handleUpdateOrder = (templates: TaskTemplate[]) => {
+  if (!appStore.currentUser || !appStore.currentUser.tasks) return
 
-    await appStore.api.updateData()
-    // 不显示成功提示，静默更新
-  } catch (error) {
-    console.error('更新排序失败:', error)
-    window.GlobalPlugin.toast.error('更新排序失败')
-  }
+  // 更新每个模板的 sort 属性
+  templates.forEach((template, index) => {
+    const originalTemplate = appStore.currentUser!.tasks!.tasks.find((t) => t.id === template.id)
+    if (originalTemplate) {
+      originalTemplate.sort = index + 1
+    }
+  })
+
+  // 只更新今天记录的 detail 快照，旧数据保持不变
+  updateTodayRecordDetails((task, taskTemplate) => {
+    const template = templates.find((t) => t.id === task.taskId)
+    if (template) {
+      task.detail = { ...template }
+    }
+  })
 }
 
-// 删除任务模板（直接在组件中实现）
-const deleteTemplate = async (templateId: number) => {
+// 删除任务模板（仅执行删除操作，不调用接口）
+const deleteTemplate = (templateId: number) => {
   if (!appStore.currentUser || !appStore.currentUser.tasks) throw new Error('任务数据不存在')
 
   // 删除模板
@@ -97,8 +97,6 @@ const deleteTemplate = async (templateId: number) => {
     }
     // 历史记录：保留
   })
-
-  await appStore.api.updateData()
 }
 
 const localTemplates = ref<TaskTemplate[]>([])
@@ -123,9 +121,8 @@ const sortedTemplates = computed(() => {
 const getCategoryLabel = (category: string) => {
   const labels = {
     daily: '每日',
-    weekly: '每周',
-    monthly: '每月',
-    custom: '自定义',
+    duration: '连续完成',
+    deadline: '到期完成',
   }
   return labels[category as keyof typeof labels] || category
 }
@@ -167,18 +164,21 @@ const handleClose = () => {
 const handleConfirm = async () => {
   try {
     await withLoading(async () => {
-      // 先过滤掉待删除的任务，更新排序（只更新保留的任务）
+      // 先执行所有待删除的任务（只删除数据，不调用接口）
+      if (pendingDeleteIds.value.length > 0) {
+        for (const taskId of pendingDeleteIds.value) {
+          deleteTemplate(taskId)
+        }
+      }
+
+      // 然后更新排序（只更新保留的任务）
       const templatesToKeep = localTemplates.value.filter(
         (t) => !pendingDeleteIds.value.includes(t.id),
       )
-      await handleUpdateOrder(templatesToKeep)
+      handleUpdateOrder(templatesToKeep)
 
-      // 然后执行所有待删除的任务
-      if (pendingDeleteIds.value.length > 0) {
-        for (const taskId of pendingDeleteIds.value) {
-          await deleteTemplate(taskId)
-        }
-      }
+      // 统一调用一次接口保存所有更改（删除和排序）
+      await appStore.api.updateData()
     }, '保存中...')
 
     window.GlobalPlugin.toast.success('操作成功')
@@ -278,17 +278,12 @@ const handleMarkDelete = (taskId: number) => {
             color: #667eea;
           }
 
-          &.weekly {
-            background: rgba(249, 115, 22, 0.1);
-            color: #f97316;
-          }
-
-          &.monthly {
+          &.duration {
             background: rgba(16, 185, 129, 0.1);
             color: #10b981;
           }
 
-          &.custom {
+          &.deadline {
             background: rgba(139, 92, 246, 0.1);
             color: #8b5cf6;
           }

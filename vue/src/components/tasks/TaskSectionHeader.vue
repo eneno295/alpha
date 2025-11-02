@@ -27,11 +27,11 @@ defineProps<{
 defineEmits(['update:modelValue'])
 
 const categories = [
+  { label: '全部待完成', value: 'pending' },
   { label: '全部', value: 'all' },
   { label: '每日', value: 'daily' },
-  { label: '每周', value: 'weekly' },
-  { label: '每月', value: 'monthly' },
-  { label: '自定义', value: 'custom' },
+  { label: '连续完成', value: 'duration' },
+  { label: '到期完成', value: 'deadline' },
 ]
 </script>
 

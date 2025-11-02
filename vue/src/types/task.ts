@@ -4,13 +4,13 @@ export interface TaskTemplate {
   id: number
   title: string
   description?: string
-  category: 'daily' | 'weekly' | 'monthly' | 'custom'
+  category: 'daily' | 'duration' | 'deadline' // 每日、连续完成、到期完成
   sort: number
   bgColor?: string // 卡片背景颜色
-  // 自定义任务的时间配置
-  taskDurationType?: 'deadline' | 'duration' // 到期天数 或 持续天数
-  taskDays?: number // 天数
-  startDate?: number // 开始日期（时间戳，用于计算到期日）
+  // 时间配置（仅限 duration 和 deadline 类型）
+  startDate?: number // 开始日期（时间戳，当天0点）
+  endDate?: number // 结束日期（时间戳，当天0点，仅限 duration 类型）
+  deadlineDate?: number // 到期日期（时间戳，当天0点，仅限 deadline 类型）
 }
 
 export interface DailyTaskItem {

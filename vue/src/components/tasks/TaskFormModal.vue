@@ -11,10 +11,9 @@
       <div class="form-group">
         <label>分类 *</label>
         <select v-model="formData.category" :disabled="isReadonly" required>
-          <option value="daily">每日任务</option>
-          <option value="weekly">每周任务</option>
-          <option value="monthly">每月任务</option>
-          <option value="custom">自定义</option>
+          <option value="daily">每日</option>
+          <option value="duration">连续完成</option>
+          <option value="deadline">到期完成</option>
         </select>
       </div>
 
@@ -39,25 +38,35 @@
         ></textarea>
       </div>
 
-      <!-- 自定义任务的时间配置 -->
-      <template v-if="formData.category === 'custom'">
+      <!-- 时间配置（仅限连续完成和到期完成） -->
+      <template v-if="formData.category === 'duration'">
         <div class="form-group">
-          <label>任务时间类型</label>
-          <select v-model="formData.taskDurationType" :disabled="isReadonly">
-            <option value="deadline">到期天数（几天后完成）</option>
-            <option value="duration">持续天数（连续几天需要完成）</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>天数 *</label>
-          <input
-            v-model.number="formData.taskDays"
-            type="number"
-            min="1"
-            placeholder="输入天数"
+          <label>任务时间 *</label>
+          <Datepicker
+            :model-value="formData.dateRange as any"
+            @update:model-value="handleDateRangeChange"
             :disabled="isReadonly"
-            required
+            :enable-time-picker="false"
+            format="yyyy/MM/dd"
+            range
+            auto-apply
+            :teleport="true"
+            placeholder="选择开始日期 - 结束日期"
+          />
+        </div>
+      </template>
+      <template v-if="formData.category === 'deadline'">
+        <div class="form-group">
+          <label>到期日期 *</label>
+          <Datepicker
+            :model-value="formData.deadlineDate"
+            @update:model-value="formData.deadlineDate = $event as Date | null"
+            :disabled="isReadonly"
+            :enable-time-picker="false"
+            format="yyyy/MM/dd"
+            auto-apply
+            :teleport="true"
+            placeholder="选择到期日期"
           />
         </div>
       </template>
@@ -90,8 +99,11 @@ import { useTaskManagement } from '@/composables/useTaskManagement'
 import { useAppStore } from '@/stores/app'
 import { useLoading } from '@/composables/useLoading'
 import type { TaskTemplate } from '@/types/task'
+import Datepicker from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
 
-const { showAddTaskModal, editingTask, taskData, isReadonly } = useTaskManagement()
+const { showAddTaskModal, editingTask, taskData, isReadonly, updateTodayRecordDetails } =
+  useTaskManagement()
 const appStore = useAppStore()
 const { withLoading } = useLoading()
 
@@ -147,13 +159,11 @@ const updateTemplate = async (templateId: number, updates: Partial<TaskTemplate>
   if (template) {
     Object.assign(template, updates)
 
-    // 更新所有日期记录中的 detail 快照
-    appStore.currentUser.tasks.date.forEach((record) => {
-      record.tasks.forEach((task) => {
-        if (task.taskId === templateId) {
-          task.detail = { ...template }
-        }
-      })
+    // 只更新今天记录的 detail 快照，旧数据保持不变
+    updateTodayRecordDetails((task, taskTemplate) => {
+      if (task.taskId === templateId) {
+        task.detail = { ...taskTemplate }
+      }
     })
 
     await appStore.api.updateData()
@@ -166,8 +176,9 @@ const handleSaveTask = async (formData: {
   description: string
   category: string
   bgColor: string
-  taskDurationType?: 'deadline' | 'duration'
-  taskDays?: number
+  startDate?: Date | null
+  endDate?: Date | null
+  deadlineDate?: Date | null
 }) => {
   if (!taskData.value) return
 
@@ -183,21 +194,22 @@ const handleSaveTask = async (formData: {
             category: formData.category as any,
             bgColor: formData.bgColor,
           }
-          // 只有自定义任务才保存时间配置
-          if (formData.category === 'custom') {
-            updates.taskDurationType = formData.taskDurationType
-            updates.taskDays = formData.taskDays
-            // 如果是新任务或开始日期未设置，设置开始日期为今天
-            if (!editingTask.value.startDate) {
-              const today = new Date()
-              today.setHours(0, 0, 0, 0)
-              updates.startDate = today.getTime()
-            }
+          // 只有连续完成和到期完成才保存时间配置
+          if (formData.category === 'duration') {
+            updates.startDate = dateToTimestamp(formData.startDate ?? null)
+            updates.endDate = dateToTimestamp(formData.endDate ?? null)
+            updates.deadlineDate = undefined
+          } else if (formData.category === 'deadline') {
+            // deadline 类型，使用 deadlineDate，startDate 设置为到期日期（用于兼容逻辑）
+            const deadlineTimestamp = dateToTimestamp(formData.deadlineDate ?? null)
+            updates.deadlineDate = deadlineTimestamp
+            updates.startDate = deadlineTimestamp // 兼容逻辑：deadline 的 startDate 就是到期日期
+            updates.endDate = undefined
           } else {
-            // 非自定义任务，清除时间配置
-            updates.taskDurationType = undefined
-            updates.taskDays = undefined
+            // 每日任务，清除时间配置
             updates.startDate = undefined
+            updates.endDate = undefined
+            updates.deadlineDate = undefined
           }
           await updateTemplate(editingTask.value.id, updates)
         } else {
@@ -223,11 +235,15 @@ const handleSaveTask = async (formData: {
             sort: maxSort + 1,
             bgColor: formData.bgColor,
           }
-          // 只有自定义任务才添加时间配置
-          if (formData.category === 'custom') {
-            newTemplate.taskDurationType = formData.taskDurationType
-            newTemplate.taskDays = formData.taskDays
-            newTemplate.startDate = today.getTime()
+          // 只有连续完成和到期完成才添加时间配置
+          if (formData.category === 'duration') {
+            newTemplate.startDate = dateToTimestamp(formData.startDate ?? null)
+            newTemplate.endDate = dateToTimestamp(formData.endDate ?? null)
+          } else if (formData.category === 'deadline') {
+            // deadline 类型，使用 deadlineDate，startDate 设置为到期日期（用于兼容逻辑）
+            const deadlineTimestamp = dateToTimestamp(formData.deadlineDate ?? null)
+            newTemplate.deadlineDate = deadlineTimestamp
+            newTemplate.startDate = deadlineTimestamp // 兼容逻辑：deadline 的 startDate 就是到期日期
           }
 
           await addTemplate(newTemplate)
@@ -281,27 +297,86 @@ const colorOptions = [
   { value: 'gray', name: '简约灰', gradient: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)' },
 ]
 
+// 将时间戳转换为 Date 对象
+const timestampToDate = (timestamp?: number): Date | null => {
+  if (!timestamp) return null
+  const date = new Date(timestamp)
+  date.setHours(0, 0, 0, 0)
+  return date
+}
+
+// 将 Date 对象转换为时间戳（当天0点）
+const dateToTimestamp = (date: Date | null): number => {
+  if (!date) return 0
+  const d = new Date(date)
+  d.setHours(0, 0, 0, 0)
+  return d.getTime()
+}
+
+// 获取今天的 Date 对象
+const getTodayDate = (): Date => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return today
+}
+
 const formData = ref({
   title: '',
   description: '',
-  category: 'daily' as 'daily' | 'weekly' | 'monthly' | 'custom',
+  category: 'daily' as 'daily' | 'duration' | 'deadline',
   bgColor: 'default',
-  taskDurationType: 'deadline' as 'deadline' | 'duration' | undefined,
-  taskDays: undefined as number | undefined,
+  dateRange: null as [Date | null, Date | null] | null, // 日期范围（开始日期 - 结束日期，仅限 duration）
+  startDate: null as Date | null, // 开始日期（兼容字段）
+  endDate: null as Date | null, // 结束日期（兼容字段）
+  deadlineDate: null as Date | null, // 到期日期（仅限 deadline）
 })
+
+// 处理日期范围变化
+const handleDateRangeChange = (value: any) => {
+  if (Array.isArray(value) && value.length === 2) {
+    formData.value.startDate = value[0] as Date | null
+    formData.value.endDate = value[1] as Date | null
+    formData.value.dateRange = [value[0] as Date | null, value[1] as Date | null]
+  } else {
+    formData.value.startDate = null
+    formData.value.endDate = null
+    formData.value.dateRange = null
+  }
+}
+
+// 初始化日期默认值
+const initDateDefaults = () => {
+  const today = getTodayDate()
+  if (formData.value.category === 'duration') {
+    if (!formData.value.dateRange) {
+      const todayDate = new Date(today)
+      formData.value.dateRange = [todayDate, todayDate]
+      formData.value.startDate = todayDate
+      formData.value.endDate = todayDate
+    }
+  } else if (formData.value.category === 'deadline') {
+    if (!formData.value.deadlineDate) {
+      formData.value.deadlineDate = new Date(today)
+    }
+  }
+}
 
 // 监听编辑任务变化
 watch(
   editingTask,
   (task) => {
     if (task) {
+      const startDate = timestampToDate(task.startDate)
+      const endDate = timestampToDate(task.endDate)
       formData.value = {
         title: task.title,
         description: task.description || '',
         category: task.category,
         bgColor: task.bgColor || 'default',
-        taskDurationType: task.taskDurationType || 'deadline',
-        taskDays: task.taskDays,
+        dateRange: startDate && endDate ? [startDate, endDate] : null,
+        startDate: startDate,
+        endDate: endDate,
+        deadlineDate: timestampToDate(task.deadlineDate),
       }
     } else {
       formData.value = {
@@ -309,21 +384,30 @@ watch(
         description: '',
         category: 'daily',
         bgColor: 'default',
-        taskDurationType: 'deadline',
-        taskDays: undefined,
+        dateRange: null,
+        startDate: null,
+        endDate: null,
+        deadlineDate: null,
       }
+      // 如果是新建任务，初始化日期默认值
+      initDateDefaults()
     }
   },
   { immediate: true },
 )
 
-// 监听分类变化，如果不是自定义任务，清空时间配置
+// 监听分类变化，设置或清空时间配置
 watch(
   () => formData.value.category,
   (newCategory) => {
-    if (newCategory !== 'custom') {
-      formData.value.taskDurationType = 'deadline'
-      formData.value.taskDays = undefined
+    if (newCategory === 'daily') {
+      formData.value.dateRange = null
+      formData.value.startDate = null
+      formData.value.endDate = null
+      formData.value.deadlineDate = null
+    } else {
+      // 切换到连续完成或到期完成时，如果没有日期则默认今天
+      initDateDefaults()
     }
   },
 )
@@ -337,10 +421,17 @@ watch(showAddTaskModal, (isVisible) => {
       description: '',
       category: 'daily',
       bgColor: 'default',
-      taskDurationType: 'deadline',
-      taskDays: undefined,
+      dateRange: null,
+      startDate: null,
+      endDate: null,
+      deadlineDate: null,
     }
     isReadonly.value = false
+  } else {
+    // 弹窗打开时，如果是新建任务（没有编辑任务），初始化日期默认值
+    if (!editingTask.value) {
+      initDateDefaults()
+    }
   }
 })
 
@@ -349,10 +440,21 @@ const handleSave = () => {
     window.GlobalPlugin.toast.warning('请输入任务标题')
     return
   }
-  // 自定义任务必须填写天数
-  if (formData.value.category === 'custom') {
-    if (!formData.value.taskDays || formData.value.taskDays < 1) {
-      window.GlobalPlugin.toast.warning('请输入天数（必须大于0）')
+  // 连续完成必须填写日期范围
+  if (formData.value.category === 'duration') {
+    if (!formData.value.dateRange || !formData.value.dateRange[0] || !formData.value.dateRange[1]) {
+      window.GlobalPlugin.toast.warning('请选择日期范围')
+      return
+    }
+    if (formData.value.dateRange[1]! < formData.value.dateRange[0]!) {
+      window.GlobalPlugin.toast.warning('结束日期不能早于开始日期')
+      return
+    }
+  }
+  // 到期完成必须填写到期日期
+  if (formData.value.category === 'deadline') {
+    if (!formData.value.deadlineDate) {
+      window.GlobalPlugin.toast.warning('请选择到期日期')
       return
     }
   }
@@ -363,7 +465,7 @@ const handleSave = () => {
 <style lang="scss" scoped>
 .task-form {
   .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 
     label {
       display: block;
@@ -382,12 +484,57 @@ const handleSave = () => {
       background: var(--bg-secondary);
       color: var(--text-primary);
       font-size: 1rem;
+      cursor: pointer;
 
       &:focus {
         outline: none;
         border-color: #667eea;
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
       }
+    }
+
+    // 日期选择器样式
+    :deep(.dp__input_wrap) {
+      width: 100%;
+    }
+
+    :deep(.dp__input) {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: 1rem;
+
+      &:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      &:hover {
+        border-color: #667eea;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+      }
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+    }
+
+    // 隐藏日期选择器的 SVG 图标
+    :deep(.dp__input_icon) {
+      display: none !important;
+    }
+
+    :deep(.dp__input_icons) {
+      display: none !important;
+    }
+
+    :deep(svg.dp__input_icon) {
+      display: none !important;
     }
 
     textarea {

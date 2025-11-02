@@ -1,9 +1,6 @@
 {
   "users": [
-    "lan",
-    "lanGate合约",
-    "ssGateAlpha",
-    "ssGate合约"
+    "lan"
   ],
   "data": {
     "lan": {
@@ -26,1096 +23,8 @@
             "autoCalcCurScore": true
           }
         },
-        "date": [
-          {
-            "date": "2025-07-27",
-            "coin": [
-              {
-                "name": "vra",
-                "amount": 37,
-                "score": 15
-              }
-            ],
-            "fee": 0,
-            "curScore": 0,
-            "todayScore": 19,
-            "consumptionScore": 15,
-            "remark": null
-          },
-          {
-            "date": "2025-07-28",
-            "coin": [],
-            "fee": 0,
-            "curScore": 0,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-07-29",
-            "coin": [
-              {
-                "name": "tree",
-                "amount": 110,
-                "score": 15
-              }
-            ],
-            "fee": 3,
-            "curScore": 0,
-            "todayScore": 19,
-            "consumptionScore": 15,
-            "remark": null
-          },
-          {
-            "date": "2025-07-30",
-            "coin": [],
-            "fee": 0,
-            "curScore": 0,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-07-31",
-            "coin": [
-              {
-                "name": "naoris",
-                "amount": 21,
-                "score": 15
-              }
-            ],
-            "fee": 0,
-            "curScore": 0,
-            "todayScore": 19,
-            "consumptionScore": 15,
-            "remark": null
-          },
-          {
-            "date": "2025-08-01",
-            "coin": [],
-            "fee": 0,
-            "curScore": 0,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-02",
-            "coin": [],
-            "fee": 0,
-            "curScore": 0,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-03",
-            "coin": [
-              {
-                "name": "mm",
-                "amount": 28,
-                "score": 15
-              }
-            ],
-            "fee": 0.6,
-            "curScore": 0,
-            "todayScore": 19,
-            "consumptionScore": 15,
-            "remark": null
-          },
-          {
-            "date": "2025-08-04",
-            "coin": [
-              {
-                "name": "cyc",
-                "amount": 41,
-                "score": 15
-              }
-            ],
-            "fee": 3,
-            "curScore": 0,
-            "todayScore": 19,
-            "consumptionScore": 15,
-            "remark": null
-          },
-          {
-            "date": "2025-08-05",
-            "coin": [],
-            "fee": 1.25,
-            "curScore": 0,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-06",
-            "coin": [
-              {
-                "name": "prove",
-                "amount": 119,
-                "score": 15
-              },
-              {
-                "name": "fir",
-                "amount": 54,
-                "score": 15
-              }
-            ],
-            "fee": 2.74,
-            "curScore": 203,
-            "todayScore": 19,
-            "consumptionScore": 30,
-            "remark": null
-          },
-          {
-            "date": "2025-08-07",
-            "coin": [],
-            "fee": 0.27,
-            "curScore": 175,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-08",
-            "coin": [],
-            "fee": 0,
-            "curScore": 175,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-09",
-            "coin": [],
-            "fee": 3.3,
-            "curScore": 175,
-            "todayScore": 10,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-10",
-            "coin": [],
-            "fee": 3.3,
-            "curScore": 168,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-11",
-            "coin": [],
-            "fee": -16.8,
-            "curScore": 170,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-12",
-            "coin": [],
-            "fee": -10,
-            "curScore": 186,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-13",
-            "coin": [],
-            "fee": 0.15,
-            "curScore": 186,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-14",
-            "coin": [],
-            "fee": 3.15,
-            "curScore": 201,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-15",
-            "coin": [],
-            "fee": 3.2,
-            "curScore": 201,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-16",
-            "coin": [],
-            "fee": 3.35,
-            "curScore": 216,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-17",
-            "coin": [
-              {
-                "name": "wild",
-                "amount": 46.43,
-                "score": 15
-              }
-            ],
-            "fee": 3.89,
-            "curScore": 216,
-            "todayScore": 19,
-            "consumptionScore": 15,
-            "remark": null
-          },
-          {
-            "date": "2025-08-18",
-            "coin": [
-              {
-                "name": "dam",
-                "amount": 23.45,
-                "score": 15
-              }
-            ],
-            "fee": 3.39,
-            "curScore": 201,
-            "todayScore": 19,
-            "consumptionScore": 15,
-            "remark": null
-          },
-          {
-            "date": "2025-08-19",
-            "coin": [],
-            "fee": -1.9,
-            "curScore": 201,
-            "todayScore": 20,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-20",
-            "coin": [
-              {
-                "name": "sapien",
-                "amount": 47.3,
-                "score": 15
-              }
-            ],
-            "fee": -0.58,
-            "curScore": 217,
-            "todayScore": 20,
-            "consumptionScore": 15,
-            "remark": null
-          },
-          {
-            "date": "2025-08-21",
-            "coin": [],
-            "fee": -11.4,
-            "curScore": 203,
-            "todayScore": 20,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-22",
-            "coin": [],
-            "fee": -25.4,
-            "curScore": 234,
-            "todayScore": 20,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-23",
-            "coin": [],
-            "fee": 3.3,
-            "curScore": 235,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-24",
-            "coin": [],
-            "fee": 6.6,
-            "curScore": 235,
-            "todayScore": 20,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-25",
-            "coin": [
-              {
-                "name": "take",
-                "amount": 156,
-                "score": 15
-              }
-            ],
-            "fee": 3,
-            "curScore": 245,
-            "todayScore": 19,
-            "consumptionScore": 15,
-            "remark": null
-          },
-          {
-            "date": "2025-08-26",
-            "coin": [
-              {
-                "name": "town",
-                "amount": 17,
-                "score": 15
-              }
-            ],
-            "fee": 3.2,
-            "curScore": 230,
-            "todayScore": 19,
-            "consumptionScore": 15,
-            "remark": null
-          },
-          {
-            "date": "2025-08-27",
-            "coin": [],
-            "fee": 3.27,
-            "curScore": 215,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-28",
-            "coin": [],
-            "fee": 2,
-            "curScore": 215,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-29",
-            "coin": [],
-            "fee": 0.41,
-            "curScore": 215,
-            "todayScore": 16,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-30",
-            "coin": [],
-            "fee": 0,
-            "curScore": 212,
-            "todayScore": 3,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-08-31",
-            "coin": [],
-            "fee": 0.78,
-            "curScore": 196,
-            "todayScore": 17,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-01",
-            "coin": [],
-            "fee": 0.81,
-            "curScore": 194,
-            "todayScore": 17,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-02",
-            "coin": [],
-            "fee": 0.81,
-            "curScore": 207,
-            "todayScore": 17,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-03",
-            "coin": [],
-            "fee": 0.81,
-            "curScore": 220,
-            "todayScore": 17,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-04",
-            "coin": [],
-            "fee": 4.72,
-            "curScore": 217,
-            "todayScore": 17,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-05",
-            "coin": [],
-            "fee": 0.81,
-            "curScore": 229,
-            "todayScore": 17,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-06",
-            "coin": [
-              {
-                "name": "star",
-                "amount": 100.3,
-                "score": 15
-              }
-            ],
-            "fee": 1.2,
-            "curScore": 226,
-            "todayScore": 17,
-            "consumptionScore": 15,
-            "remark": null
-          },
-          {
-            "date": "2025-09-07",
-            "coin": [],
-            "fee": 0.83,
-            "curScore": 208,
-            "todayScore": 17,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-08",
-            "coin": [],
-            "fee": 0.81,
-            "curScore": 206,
-            "todayScore": 17,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-09",
-            "coin": [],
-            "fee": 0.81,
-            "curScore": 203,
-            "todayScore": 17,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-10",
-            "coin": [],
-            "fee": 3.24,
-            "curScore": 216,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-11",
-            "coin": [
-              {
-                "name": "linea",
-                "amount": 183.76,
-                "score": 0
-              }
-            ],
-            "fee": 3.3,
-            "curScore": 231,
-            "todayScore": 19,
-            "consumptionScore": 15,
-            "remark": null
-          },
-          {
-            "date": "2025-09-12",
-            "coin": [
-              {
-                "name": "AA",
-                "amount": 62.7,
-                "score": 0
-              }
-            ],
-            "fee": 3.5,
-            "curScore": 216,
-            "todayScore": 19,
-            "consumptionScore": 15,
-            "remark": null
-          },
-          {
-            "date": "2025-09-13",
-            "coin": [
-              {
-                "name": "zeus",
-                "amount": 23.6,
-                "score": 15
-              }
-            ],
-            "fee": 3.24,
-            "curScore": 201,
-            "todayScore": 19,
-            "consumptionScore": 15,
-            "remark": null
-          },
-          {
-            "date": "2025-09-14",
-            "coin": [],
-            "fee": 3.16,
-            "curScore": 189,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-15",
-            "coin": [],
-            "fee": 1.5,
-            "curScore": 205,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-16",
-            "coin": [
-              {
-                "name": "zkc",
-                "amount": 78,
-                "score": 15
-              },
-              {
-                "name": "stbl",
-                "amount": 86,
-                "score": 15
-              }
-            ],
-            "fee": 2.1,
-            "curScore": 207,
-            "todayScore": 19,
-            "consumptionScore": 30,
-            "remark": null
-          },
-          {
-            "date": "2025-09-17",
-            "coin": [],
-            "fee": 21.2,
-            "curScore": 179,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-18",
-            "coin": [],
-            "fee": 6.2,
-            "curScore": 181,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-19",
-            "coin": [],
-            "fee": 3.8,
-            "curScore": 183,
-            "todayScore": 24,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-20",
-            "coin": [],
-            "fee": -0.4,
-            "curScore": 190,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-21",
-            "coin": [],
-            "fee": 2.4,
-            "curScore": 192,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-22",
-            "coin": [],
-            "fee": 5,
-            "curScore": 209,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-23",
-            "coin": [],
-            "fee": 3,
-            "curScore": 211,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-24",
-            "coin": [],
-            "fee": 1.6,
-            "curScore": 213,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-25",
-            "coin": [
-              {
-                "name": "coai",
-                "amount": 73.2,
-                "score": 15
-              }
-            ],
-            "fee": 3.3,
-            "curScore": 215,
-            "todayScore": 19,
-            "consumptionScore": 15,
-            "remark": null
-          },
-          {
-            "date": "2025-09-26",
-            "coin": [
-              {
-                "name": "xpl",
-                "amount": 250,
-                "score": 15
-              },
-              {
-                "name": "mira",
-                "amount": 180,
-                "score": 15
-              }
-            ],
-            "fee": 20,
-            "curScore": 200,
-            "todayScore": 19,
-            "consumptionScore": 30,
-            "remark": null
-          },
-          {
-            "date": "2025-09-27",
-            "coin": [],
-            "fee": 3.24,
-            "curScore": 185,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-28",
-            "coin": [],
-            "fee": 3.24,
-            "curScore": 200,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "remark": null
-          },
-          {
-            "date": "2025-09-29",
-            "coin": [
-              {
-                "name": "xan",
-                "amount": 140,
-                "score": 15
-              }
-            ],
-            "fee": 3.24,
-            "curScore": 215,
-            "todayScore": 19,
-            "consumptionScore": 15,
-            "remark": null
-          },
-          {
-            "date": "2025-09-30",
-            "curScore": 200,
-            "todayScore": 19,
-            "consumptionScore": 30,
-            "fee": 4.4,
-            "coin": [
-              {
-                "name": "FF",
-                "amount": 108.4,
-                "score": 15
-              },
-              {
-                "name": "Eden",
-                "amount": 74.5,
-                "score": 15
-              }
-            ],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-01",
-            "curScore": 170,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 6,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-02",
-            "curScore": 200,
-            "todayScore": 19,
-            "consumptionScore": 15,
-            "fee": 3.5,
-            "coin": [
-              {
-                "name": "2Z",
-                "amount": 191.7,
-                "score": 15
-              }
-            ],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-03",
-            "curScore": 185,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 16.9,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-04",
-            "curScore": 185,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 3.4,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-05",
-            "curScore": 180,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 2,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-06",
-            "curScore": 180,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 3.6,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-07",
-            "curScore": 180,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 3.2,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-08",
-            "curScore": 180,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 3.3,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-09",
-            "curScore": 180,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 6.3,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-10",
-            "curScore": 180,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 3.4,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-11",
-            "curScore": 195,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 3.3,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-12",
-            "curScore": 225,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 3.3,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-13",
-            "curScore": 225,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 3.3,
-            "coin": [
-              {
-                "name": "yb",
-                "amount": 65,
-                "score": 0
-              }
-            ],
-            "remark": "pre-tge"
-          },
-          {
-            "date": "2025-10-14",
-            "curScore": 225,
-            "todayScore": 18,
-            "consumptionScore": 0,
-            "fee": 2.9,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-15",
-            "curScore": 240,
-            "todayScore": 19,
-            "consumptionScore": 15,
-            "fee": 3.3,
-            "coin": [
-              {
-                "name": "recall",
-                "amount": 70,
-                "score": 15
-              }
-            ],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-16",
-            "curScore": 254,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 3.3,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-17",
-            "curScore": 254,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 3.3,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-18",
-            "curScore": 269,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 3.3,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-19",
-            "curScore": 269,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 11.1,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-20",
-            "curScore": 269,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 3.3,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-21",
-            "curScore": 269,
-            "todayScore": 19,
-            "consumptionScore": 15,
-            "fee": 3.3,
-            "coin": [
-              {
-                "name": "sigma",
-                "amount": 35.2,
-                "score": 15
-              },
-              {
-                "name": "bas",
-                "amount": 28.2,
-                "score": 0
-              }
-            ],
-            "remark": "bas 是钱包任务领的空投"
-          },
-          {
-            "date": "2025-10-22",
-            "curScore": 254,
-            "todayScore": 19,
-            "consumptionScore": 15,
-            "fee": 5.3,
-            "coin": [
-              {
-                "name": "turtle",
-                "amount": 44.34,
-                "score": 15
-              },
-              {
-                "name": "turtle",
-                "amount": 5,
-                "score": 0
-              }
-            ],
-            "remark": "5u的是钱包任务奖励"
-          },
-          {
-            "date": "2025-10-23",
-            "curScore": 239,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 3.3,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-24",
-            "curScore": 239,
-            "todayScore": 18,
-            "consumptionScore": 15,
-            "fee": 5,
-            "coin": [
-              {
-                "name": "AT",
-                "amount": 140,
-                "score": 15
-              }
-            ],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-25",
-            "curScore": 223,
-            "todayScore": 20,
-            "consumptionScore": 0,
-            "fee": 5.8,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-26",
-            "curScore": 224,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 3.3,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-27",
-            "curScore": 224,
-            "todayScore": 19,
-            "consumptionScore": 15,
-            "fee": 1.5,
-            "coin": [
-              {
-                "name": "zbt ",
-                "amount": 6.1,
-                "score": 0
-              },
-              {
-                "name": "24",
-                "amount": 0,
-                "score": 15
-              }
-            ],
-            "remark": "zbt是钱包任务奖励"
-          },
-          {
-            "date": "2025-10-28",
-            "curScore": 209,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 17.47,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-29",
-            "curScore": 209,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 3.3,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-30",
-            "curScore": 210,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 6.1,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-31",
-            "curScore": 225,
-            "todayScore": 19,
-            "consumptionScore": 0,
-            "fee": 4,
-            "coin": [],
-            "remark": ""
-          }
-        ],
-        "log": [
-          {
-            "id": 2,
-            "timestamp": 1761898737506,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"newData\":{\"date\":\"2025-10-31\",\"curScore\":225,\"todayScore\":19,\"consumptionScore\":0,\"fee\":4,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 1,
-            "timestamp": 1761829714273,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"newData\":{\"date\":\"2025-10-30\",\"curScore\":210,\"todayScore\":19,\"consumptionScore\":0,\"fee\":6.1,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          }
-        ]
+        "date": [],
+        "log": []
       },
       "okx": {
         "config": {
@@ -1234,11 +143,6 @@
                   }
                 ],
                 "fee": 5.76
-              },
-              {
-                "date": "2025-10-31",
-                "coin": [],
-                "fee": 5.65
               }
             ],
             "order": 0
@@ -1354,11 +258,6 @@
                   }
                 ],
                 "fee": 5.55
-              },
-              {
-                "date": "2025-10-31",
-                "coin": [],
-                "fee": 5.4
               }
             ],
             "order": 1
@@ -1448,42 +347,12 @@
                   }
                 ],
                 "fee": 5.2
-              },
-              {
-                "date": "2025-10-31",
-                "coin": [],
-                "fee": -79.41
               }
             ],
             "order": 2
           }
         },
-        "log": [
-          {
-            "id": 3,
-            "timestamp": 1761900519142,
-            "action": "账号记录(新增1个、修改1个)",
-            "type": "editRecord",
-            "details": "{\"date\":\"2025-10-31\",\"accounts\":[{\"account\":\"baba\",\"type\":\"add\",\"newData\":{\"date\":\"2025-10-31\",\"coin\":[],\"fee\":5.4}},{\"account\":\"旧手机\",\"type\":\"edit\",\"oldData\":{\"date\":\"2025-10-31\",\"coin\":[],\"fee\":-84.47},\"newData\":{\"date\":\"2025-10-31\",\"coin\":[],\"fee\":-79.41}}]}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 2,
-            "timestamp": 1761896341898,
-            "action": "账号记录(新增1个)",
-            "type": "addRecord",
-            "details": "{\"date\":\"2025-10-31\",\"accounts\":[{\"account\":\"我\",\"type\":\"add\",\"newData\":{\"date\":\"2025-10-31\",\"coin\":[],\"fee\":5.65}}]}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 1,
-            "timestamp": 1761863605015,
-            "action": "账号记录(新增1个)",
-            "type": "addRecord",
-            "details": "{\"date\":\"2025-10-31\",\"accounts\":[{\"account\":\"旧手机\",\"type\":\"add\",\"newData\":{\"date\":\"2025-10-31\",\"coin\":[],\"fee\":-84.47}}]}",
-            "ip": "102.117.54.57"
-          }
-        ]
+        "log": []
       },
       "gate": {
         "config": {
@@ -1550,87 +419,60 @@
         "log": []
       },
       "tasks": {
-        "config": {
-          "showDeleteTask": true
-        },
         "tasks": [
           {
-            "id": 1,
-            "title": "Okx",
-            "description": "我",
-            "category": "daily",
-            "sort": 5,
-            "bgColor": "purple"
-          },
-          {
-            "id": 2,
-            "title": "Okx",
-            "description": "Baba",
-            "category": "daily",
-            "sort": 6,
-            "bgColor": "purple"
-          },
-          {
-            "id": 3,
-            "title": "Okx",
-            "description": "旧手机",
-            "category": "daily",
-            "sort": 7,
-            "bgColor": "purple"
-          },
-          {
-            "id": 4,
+            "id": 6,
             "title": "Binance",
-            "description": "我",
+            "description": "Kayla",
             "category": "daily",
             "sort": 1,
             "bgColor": "blue"
           },
           {
-            "id": 5,
-            "title": "Binance",
-            "description": "Mama",
-            "category": "daily",
-            "sort": 2,
-            "bgColor": "blue"
-          },
-          {
-            "id": 6,
-            "title": "Binance",
-            "description": "Kayla",
-            "category": "daily",
-            "sort": 3,
-            "bgColor": "blue"
-          },
-          {
             "id": 7,
-            "title": "Binance",
-            "description": "Knine",
-            "category": "daily",
-            "sort": 4,
-            "bgColor": "blue"
+            "title": "c1",
+            "description": "11",
+            "category": "duration",
+            "sort": 2,
+            "bgColor": "purple",
+            "taskDays": 1,
+            "startDate": 1761992225000
           },
           {
             "id": 8,
-            "title": "币安钱包",
-            "description": "我的",
-            "category": "daily",
-            "sort": 8,
-            "bgColor": "green"
+            "title": "c2",
+            "description": "22",
+            "category": "duration",
+            "sort": 3,
+            "bgColor": "purple",
+            "taskDays": 3,
+            "startDate": 1762012800000
           },
           {
             "id": 9,
-            "title": "币安钱包",
-            "description": "Kayla",
-            "category": "daily",
-            "sort": 9,
-            "bgColor": "green"
+            "title": "e1",
+            "description": "11",
+            "category": "deadline",
+            "sort": 4,
+            "bgColor": "green",
+            "taskDays": 1,
+            "startDate": 1761819425000
+          },
+          {
+            "id": 10,
+            "title": "e2",
+            "description": "22",
+            "category": "deadline",
+            "sort": 5,
+            "bgColor": "green",
+            "taskDays": 3,
+            "startDate": 1762012800000
           }
         ],
         "date": [
           {
-            "id": 2,
-            "date": 1761681600000,
+            "id": 1,
+            "date": 1761753600000,
             "tasks": [
               {
                 "taskId": 1,
@@ -1639,10 +481,9 @@
                   "title": "Okx",
                   "description": "我",
                   "category": "daily",
-                  "sort": 5,
+                  "sort": 1,
                   "bgColor": "purple"
-                },
-                "completedAt": 1761760121812
+                }
               },
               {
                 "taskId": 2,
@@ -1651,10 +492,10 @@
                   "title": "Okx",
                   "description": "Baba",
                   "category": "daily",
-                  "sort": 6,
+                  "sort": 2,
                   "bgColor": "purple"
                 },
-                "completedAt": 1761760122240
+                "completedAt": 1761805312506
               },
               {
                 "taskId": 3,
@@ -1663,10 +504,10 @@
                   "title": "Okx",
                   "description": "旧手机",
                   "category": "daily",
-                  "sort": 7,
+                  "sort": 3,
                   "bgColor": "purple"
                 },
-                "completedAt": 1761760122758
+                "completedAt": 1761805312980
               },
               {
                 "taskId": 4,
@@ -1675,10 +516,9 @@
                   "title": "Binance",
                   "description": "我",
                   "category": "daily",
-                  "sort": 1,
+                  "sort": 4,
                   "bgColor": "blue"
-                },
-                "completedAt": 1761760274548
+                }
               },
               {
                 "taskId": 5,
@@ -1686,149 +526,34 @@
                   "id": 5,
                   "title": "Binance",
                   "description": "Mama",
-                  "category": "daily",
-                  "sort": 2,
-                  "bgColor": "blue"
-                },
-                "completedAt": 1761760247804
-              },
-              {
-                "taskId": 6,
-                "detail": {
-                  "id": 6,
-                  "title": "Binance",
-                  "description": "Kayla",
-                  "category": "daily",
-                  "sort": 3,
-                  "bgColor": "blue"
-                },
-                "completedAt": 1761760248271
-              },
-              {
-                "taskId": 7,
-                "detail": {
-                  "id": 7,
-                  "title": "Binance",
-                  "description": "Knine",
-                  "category": "daily",
-                  "sort": 4,
-                  "bgColor": "blue"
-                },
-                "completedAt": 1761760248621
-              },
-              {
-                "taskId": 8,
-                "detail": {
-                  "id": 8,
-                  "title": "币安钱包",
-                  "description": "我的",
-                  "category": "daily",
-                  "sort": 8,
-                  "bgColor": "green"
-                },
-                "completedAt": 1761760249392
-              },
-              {
-                "taskId": 9,
-                "detail": {
-                  "id": 9,
-                  "title": "币安钱包",
-                  "description": "Kayla",
-                  "category": "daily",
-                  "sort": 9,
-                  "bgColor": "green"
-                },
-                "completedAt": 1761760307993
-              }
-            ]
-          },
-          {
-            "id": 3,
-            "date": 1761768000000,
-            "tasks": [
-              {
-                "taskId": 4,
-                "detail": {
-                  "id": 4,
-                  "title": "Binance",
-                  "description": "我",
-                  "category": "daily",
-                  "sort": 1,
-                  "bgColor": "blue"
-                },
-                "completedAt": 1761839645191
-              },
-              {
-                "taskId": 5,
-                "detail": {
-                  "id": 5,
-                  "title": "Binance",
-                  "description": "Mama",
-                  "category": "daily",
-                  "sort": 2,
-                  "bgColor": "blue"
-                },
-                "completedAt": 1761839645570
-              },
-              {
-                "taskId": 6,
-                "detail": {
-                  "id": 6,
-                  "title": "Binance",
-                  "description": "Kayla",
-                  "category": "daily",
-                  "sort": 3,
-                  "bgColor": "blue"
-                },
-                "completedAt": 1761839645936
-              },
-              {
-                "taskId": 7,
-                "detail": {
-                  "id": 7,
-                  "title": "Binance",
-                  "description": "Knine",
-                  "category": "daily",
-                  "sort": 4,
-                  "bgColor": "blue"
-                },
-                "completedAt": 1761839646420
-              },
-              {
-                "taskId": 1,
-                "detail": {
-                  "id": 1,
-                  "title": "Okx",
-                  "description": "我",
                   "category": "daily",
                   "sort": 5,
-                  "bgColor": "purple"
+                  "bgColor": "blue"
                 },
-                "completedAt": 1761790122858
+                "completedAt": 1761805313946
               },
               {
-                "taskId": 2,
+                "taskId": 6,
                 "detail": {
-                  "id": 2,
-                  "title": "Okx",
-                  "description": "Baba",
+                  "id": 6,
+                  "title": "Binance",
+                  "description": "Kayla",
                   "category": "daily",
-                  "sort": 6,
-                  "bgColor": "purple"
+                  "sort": 1,
+                  "bgColor": "blue"
                 },
-                "completedAt": 1761790123283
+                "completedAt": 1761805313489
               },
               {
-                "taskId": 3,
+                "taskId": 7,
                 "detail": {
-                  "id": 3,
-                  "title": "Okx",
-                  "description": "旧手机",
+                  "id": 7,
+                  "title": "Binance",
+                  "description": "Knine",
                   "category": "daily",
-                  "sort": 7,
-                  "bgColor": "purple"
-                },
-                "completedAt": 1761790123683
+                  "sort": 3,
+                  "bgColor": "blue"
+                }
               },
               {
                 "taskId": 8,
@@ -1837,99 +562,41 @@
                   "title": "币安钱包",
                   "description": "我的",
                   "category": "daily",
-                  "sort": 8,
+                  "sort": 2,
                   "bgColor": "green"
-                },
-                "completedAt": 1761790126224
+                }
               },
               {
                 "taskId": 9,
                 "detail": {
                   "id": 9,
-                  "title": "币安钱包",
-                  "description": "Kayla",
-                  "category": "daily",
-                  "sort": 9,
-                  "bgColor": "green"
+                  "title": "e1",
+                  "description": "11",
+                  "category": "deadline",
+                  "sort": 4,
+                  "bgColor": "green",
+                  "taskDays": 1,
+                  "startDate": 1762012800000
                 }
               }
             ]
           },
           {
-            "id": 4,
+            "id": 2,
             "date": 1761840000000,
             "tasks": [
               {
-                "taskId": 4,
+                "taskId": 9,
                 "detail": {
-                  "id": 4,
-                  "title": "Binance",
-                  "description": "我",
-                  "category": "daily",
-                  "sort": 1,
-                  "bgColor": "blue"
-                },
-                "completedAt": 1761899470962
-              },
-              {
-                "taskId": 6,
-                "detail": {
-                  "id": 6,
-                  "title": "Binance",
-                  "description": "Kayla",
-                  "category": "daily",
-                  "sort": 3,
-                  "bgColor": "blue"
-                },
-                "completedAt": 1761914056577
-              },
-              {
-                "taskId": 7,
-                "detail": {
-                  "id": 7,
-                  "title": "Binance",
-                  "description": "Knine",
-                  "category": "daily",
+                  "id": 9,
+                  "title": "e1",
+                  "description": "11",
+                  "category": "deadline",
                   "sort": 4,
-                  "bgColor": "blue"
-                },
-                "completedAt": 1761899472194
-              },
-              {
-                "taskId": 1,
-                "detail": {
-                  "id": 1,
-                  "title": "Okx",
-                  "description": "我",
-                  "category": "daily",
-                  "sort": 5,
-                  "bgColor": "purple"
-                },
-                "completedAt": 1761899482843
-              },
-              {
-                "taskId": 2,
-                "detail": {
-                  "id": 2,
-                  "title": "Okx",
-                  "description": "Baba",
-                  "category": "daily",
-                  "sort": 6,
-                  "bgColor": "purple"
-                },
-                "completedAt": 1761900763861
-              },
-              {
-                "taskId": 3,
-                "detail": {
-                  "id": 3,
-                  "title": "Okx",
-                  "description": "旧手机",
-                  "category": "daily",
-                  "sort": 7,
-                  "bgColor": "purple"
-                },
-                "completedAt": 1761900348715
+                  "bgColor": "green",
+                  "taskDays": 1,
+                  "startDate": 1762012800000
+                }
               },
               {
                 "taskId": 8,
@@ -1938,1040 +605,135 @@
                   "title": "币安钱包",
                   "description": "我的",
                   "category": "daily",
-                  "sort": 8,
+                  "sort": 2,
                   "bgColor": "green"
                 },
-                "completedAt": 1761900166526
+                "completedAt": 1761922801372
+              },
+              {
+                "taskId": 7,
+                "detail": {
+                  "id": 7,
+                  "title": "Binance",
+                  "description": "Knine",
+                  "category": "daily",
+                  "sort": 3,
+                  "bgColor": "blue"
+                }
+              },
+              {
+                "taskId": 6,
+                "detail": {
+                  "id": 6,
+                  "title": "Binance",
+                  "description": "Kayla",
+                  "category": "daily",
+                  "sort": 1,
+                  "bgColor": "blue"
+                }
+              },
+              {
+                "taskId": 10,
+                "detail": {
+                  "id": 10,
+                  "title": "e2",
+                  "description": "22",
+                  "category": "deadline",
+                  "sort": 5,
+                  "bgColor": "green",
+                  "taskDays": 3,
+                  "startDate": 1762012800000
+                }
+              },
+              {
+                "taskId": 11,
+                "detail": {
+                  "id": 11,
+                  "title": "收拾收拾",
+                  "description": "",
+                  "category": "custom",
+                  "sort": 5,
+                  "bgColor": "default",
+                  "taskDurationType": "deadline",
+                  "taskDays": 1,
+                  "startDate": 1761840000000
+                }
+              }
+            ]
+          },
+          {
+            "id": 3,
+            "date": 1762012800000,
+            "tasks": [
+              {
+                "taskId": 6,
+                "detail": {
+                  "id": 6,
+                  "title": "Binance",
+                  "description": "Kayla",
+                  "category": "daily",
+                  "sort": 1,
+                  "bgColor": "blue"
+                }
+              },
+              {
+                "taskId": 7,
+                "detail": {
+                  "id": 7,
+                  "title": "c1",
+                  "description": "11",
+                  "category": "duration",
+                  "sort": 2,
+                  "bgColor": "purple",
+                  "taskDays": 1,
+                  "startDate": 1762012800000
+                }
+              },
+              {
+                "taskId": 8,
+                "detail": {
+                  "id": 8,
+                  "title": "c2",
+                  "description": "22",
+                  "category": "duration",
+                  "sort": 3,
+                  "bgColor": "purple",
+                  "taskDays": 3,
+                  "startDate": 1762012800000
+                }
               },
               {
                 "taskId": 9,
                 "detail": {
                   "id": 9,
-                  "title": "币安钱包",
-                  "description": "Kayla",
-                  "category": "daily",
-                  "sort": 9,
-                  "bgColor": "green"
-                },
-                "completedAt": 1761914049082
+                  "title": "e1",
+                  "description": "11",
+                  "category": "deadline",
+                  "sort": 4,
+                  "bgColor": "green",
+                  "taskDays": 1,
+                  "startDate": 1762012800000
+                }
               },
               {
-                "taskId": 5,
+                "taskId": 10,
                 "detail": {
-                  "id": 5,
-                  "title": "Binance",
-                  "description": "Mama",
-                  "category": "daily",
-                  "sort": 2,
-                  "bgColor": "blue"
+                  "id": 10,
+                  "title": "e2",
+                  "description": "22",
+                  "category": "deadline",
+                  "sort": 5,
+                  "bgColor": "green",
+                  "taskDays": 3,
+                  "startDate": 1762012800000
                 }
               }
             ]
           }
-        ]
-      }
-    },
-    "lanGate合约": {
-      "config": {
-        "userName": "lanGate合约",
-        "showOKXLink": true
-      },
-      "binance": {
-        "config": {
-          "theme": "light",
-          "showMockScoreIcon": true,
-          "showThemeIcon": true,
-          "showImportExportIcon": true,
-          "showSimulationScore": true,
-          "showFastConfig": true,
-          "showClearLogs": true,
-          "fastConfig": {
-            "fee": "",
-            "todayScore": "",
-            "autoCalcCurScore": true
-          }
-        },
-        "date": [],
-        "log": []
-      },
-      "okx": {
-        "config": {
-          "showClearLogs": true,
-          "showFastConfig": true
-        },
-        "accounts": {},
-        "log": []
-      },
-      "gate": {
-        "config": {
-          "theme": "light",
-          "showMockScoreIcon": true,
-          "showThemeIcon": true,
-          "showImportExportIcon": true,
-          "showSimulationScore": true,
-          "showFastConfig": true,
-          "showClearLogs": true,
-          "fastConfig": {
-            "fee": "",
-            "todayScore": "",
-            "autoCalcCurScore": true
-          }
-        },
-        "date": [
-          {
-            "date": "2025-10-18",
-            "curScore": 0,
-            "todayScore": 8,
-            "consumptionScore": 0,
-            "fee": -48.85,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-19",
-            "curScore": 8,
-            "todayScore": 8,
-            "consumptionScore": 0,
-            "fee": -122.55,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-20",
-            "curScore": 16,
-            "todayScore": 5,
-            "consumptionScore": 0,
-            "fee": 290,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-21",
-            "curScore": 16,
-            "todayScore": 8,
-            "consumptionScore": 0,
-            "fee": -20.18,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-22",
-            "curScore": 29,
-            "todayScore": 5,
-            "consumptionScore": 0,
-            "fee": 0,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-23",
-            "curScore": 34,
-            "todayScore": 7,
-            "consumptionScore": 0,
-            "fee": -26.11,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-24",
-            "curScore": 41,
-            "todayScore": 7,
-            "consumptionScore": 0,
-            "fee": -3.45,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-25",
-            "curScore": 48,
-            "todayScore": 6,
-            "consumptionScore": 0,
-            "fee": -57.91,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-26",
-            "curScore": 54,
-            "todayScore": 2,
-            "consumptionScore": 0,
-            "fee": 0,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-27",
-            "curScore": 56,
-            "todayScore": 9,
-            "consumptionScore": 0,
-            "fee": 6.6,
-            "coin": [],
-            "remark": ""
-          }
         ],
-        "log": [
-          {
-            "id": 26,
-            "timestamp": 1761648939817,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-27\",\"curScore\":56,\"todayScore\":0,\"consumptionScore\":0,\"fee\":6.6,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-27\",\"curScore\":56,\"todayScore\":9,\"consumptionScore\":0,\"fee\":6.6,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 25,
-            "timestamp": 1761585812682,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"newData\":{\"date\":\"2025-10-27\",\"curScore\":56,\"todayScore\":0,\"consumptionScore\":0,\"fee\":6.6,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "196.20.216.90"
-          },
-          {
-            "id": 24,
-            "timestamp": 1761585799677,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-26\",\"curScore\":54,\"todayScore\":2,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-26\",\"curScore\":54,\"todayScore\":2,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "196.20.216.90"
-          },
-          {
-            "id": 23,
-            "timestamp": 1761556737348,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-25\",\"curScore\":48,\"todayScore\":6,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-25\",\"curScore\":48,\"todayScore\":6,\"consumptionScore\":0,\"fee\":-57.91,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 22,
-            "timestamp": 1761556666760,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"newData\":{\"date\":\"2025-10-26\",\"curScore\":54,\"todayScore\":2,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 21,
-            "timestamp": 1761556654880,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"newData\":{\"date\":\"2025-10-25\",\"curScore\":48,\"todayScore\":6,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 20,
-            "timestamp": 1761365515131,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-24\",\"curScore\":41,\"todayScore\":0,\"consumptionScore\":0,\"fee\":-3.45,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-24\",\"curScore\":41,\"todayScore\":7,\"consumptionScore\":0,\"fee\":-3.45,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.117.36.3"
-          },
-          {
-            "id": 19,
-            "timestamp": 1761323625098,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"newData\":{\"date\":\"2025-10-24\",\"curScore\":41,\"todayScore\":0,\"consumptionScore\":0,\"fee\":-3.45,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.117.36.3"
-          },
-          {
-            "id": 18,
-            "timestamp": 1761323615266,
-            "action": "清空记录",
-            "type": "clearRecord",
-            "details": "2025-10-24 的数据已清空",
-            "ip": "102.117.36.3"
-          },
-          {
-            "id": 17,
-            "timestamp": 1761323606664,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-23\",\"curScore\":34,\"todayScore\":0,\"consumptionScore\":0,\"fee\":-26.11,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-23\",\"curScore\":34,\"todayScore\":7,\"consumptionScore\":0,\"fee\":-26.11,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.117.36.3"
-          },
-          {
-            "id": 16,
-            "timestamp": 1761323578918,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"newData\":{\"date\":\"2025-10-24\",\"curScore\":34,\"todayScore\":0,\"consumptionScore\":0,\"fee\":-3.45,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.117.36.3"
-          },
-          {
-            "id": 15,
-            "timestamp": 1761217919588,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-23\",\"curScore\":34,\"todayScore\":0,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-23\",\"curScore\":34,\"todayScore\":0,\"consumptionScore\":0,\"fee\":-26.11,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 14,
-            "timestamp": 1761212960510,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"newData\":{\"date\":\"2025-10-23\",\"curScore\":34,\"todayScore\":0,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 13,
-            "timestamp": 1761212943159,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"newData\":{\"date\":\"2025-10-22\",\"curScore\":29,\"todayScore\":5,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 12,
-            "timestamp": 1761212930928,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-21\",\"curScore\":16,\"todayScore\":0,\"consumptionScore\":0,\"fee\":-20.18,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-21\",\"curScore\":16,\"todayScore\":8,\"consumptionScore\":0,\"fee\":-20.18,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 11,
-            "timestamp": 1761212913886,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-20\",\"curScore\":16,\"todayScore\":0,\"consumptionScore\":0,\"fee\":290,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-20\",\"curScore\":16,\"todayScore\":5,\"consumptionScore\":0,\"fee\":290,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 10,
-            "timestamp": 1761101935959,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-21\",\"curScore\":16,\"todayScore\":0,\"consumptionScore\":0,\"fee\":6.7,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-21\",\"curScore\":16,\"todayScore\":0,\"consumptionScore\":0,\"fee\":-20.18,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.117.10.92"
-          },
-          {
-            "id": 9,
-            "timestamp": 1761055439349,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"newData\":{\"date\":\"2025-10-21\",\"curScore\":16,\"todayScore\":0,\"consumptionScore\":0,\"fee\":6.7,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 8,
-            "timestamp": 1761016959644,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-20\",\"curScore\":16,\"todayScore\":8,\"consumptionScore\":0,\"fee\":290,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-20\",\"curScore\":16,\"todayScore\":0,\"consumptionScore\":0,\"fee\":290,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.117.23.233"
-          },
-          {
-            "id": 7,
-            "timestamp": 1761016937002,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-20\",\"curScore\":16,\"todayScore\":0,\"consumptionScore\":0,\"fee\":290,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-20\",\"curScore\":16,\"todayScore\":8,\"consumptionScore\":0,\"fee\":290,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.117.23.233"
-          },
-          {
-            "id": 6,
-            "timestamp": 1760980659791,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-20\",\"curScore\":16,\"todayScore\":0,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-20\",\"curScore\":16,\"todayScore\":0,\"consumptionScore\":0,\"fee\":290,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.117.23.233"
-          },
-          {
-            "id": 5,
-            "timestamp": 1760966936738,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-19\",\"curScore\":8,\"todayScore\":8,\"consumptionScore\":0,\"fee\":-103.4,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-19\",\"curScore\":8,\"todayScore\":8,\"consumptionScore\":0,\"fee\":-122.55,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 4,
-            "timestamp": 1760966928439,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-18\",\"curScore\":0,\"todayScore\":8,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-18\",\"curScore\":0,\"todayScore\":8,\"consumptionScore\":0,\"fee\":-48.85,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 3,
-            "timestamp": 1760966277785,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"newData\":{\"date\":\"2025-10-20\",\"curScore\":16,\"todayScore\":0,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 2,
-            "timestamp": 1760966247013,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"newData\":{\"date\":\"2025-10-18\",\"curScore\":0,\"todayScore\":8,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 1,
-            "timestamp": 1760966237152,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"newData\":{\"date\":\"2025-10-19\",\"curScore\":8,\"todayScore\":8,\"consumptionScore\":0,\"fee\":-103.4,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          }
-        ]
-      }
-    },
-    "ssGateAlpha": {
-      "config": {
-        "userName": "ssGateAlpha",
-        "showOKXLink": true
-      },
-      "binance": {
         "config": {
-          "theme": "light",
-          "showMockScoreIcon": true,
-          "showThemeIcon": true,
-          "showImportExportIcon": true,
-          "showSimulationScore": true,
-          "showFastConfig": true,
-          "showClearLogs": true,
-          "fastConfig": {
-            "fee": "",
-            "todayScore": "",
-            "autoCalcCurScore": true
-          }
-        },
-        "date": [],
-        "log": []
-      },
-      "okx": {
-        "config": {
-          "showClearLogs": true,
-          "showFastConfig": true
-        },
-        "accounts": {},
-        "log": []
-      },
-      "gate": {
-        "config": {
-          "theme": "light",
-          "showMockScoreIcon": true,
-          "showThemeIcon": true,
-          "showImportExportIcon": true,
-          "showSimulationScore": true,
-          "showFastConfig": true,
-          "showClearLogs": true,
-          "fastConfig": {
-            "fee": "",
-            "todayScore": "",
-            "autoCalcCurScore": true
-          }
-        },
-        "date": [
-          {
-            "date": "2025-10-05",
-            "curScore": 0,
-            "todayScore": 2,
-            "consumptionScore": 0,
-            "fee": 0,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-06",
-            "curScore": 2,
-            "todayScore": 2,
-            "consumptionScore": 0,
-            "fee": 0,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-07",
-            "curScore": 4,
-            "todayScore": 2,
-            "consumptionScore": 0,
-            "fee": 0,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-08",
-            "curScore": 6,
-            "todayScore": 2,
-            "consumptionScore": 0,
-            "fee": 0,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-09",
-            "curScore": 8,
-            "todayScore": 2,
-            "consumptionScore": 0,
-            "fee": 0,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-10",
-            "curScore": 10,
-            "todayScore": 2,
-            "consumptionScore": 0,
-            "fee": 0,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-11",
-            "curScore": 12,
-            "todayScore": 2,
-            "consumptionScore": 0,
-            "fee": 0,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-12",
-            "curScore": 14,
-            "todayScore": 2,
-            "consumptionScore": 0,
-            "fee": 0,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-13",
-            "curScore": 16,
-            "todayScore": 2,
-            "consumptionScore": 0,
-            "fee": 0,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-14",
-            "curScore": 18,
-            "todayScore": 2,
-            "consumptionScore": 0,
-            "fee": 0,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-15",
-            "curScore": 20,
-            "todayScore": 2,
-            "consumptionScore": 0,
-            "fee": 0,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-16",
-            "curScore": 22,
-            "todayScore": 3,
-            "consumptionScore": 0,
-            "fee": 0,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-17",
-            "curScore": 25,
-            "todayScore": 12,
-            "consumptionScore": 0,
-            "fee": 0,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-18",
-            "curScore": 37,
-            "todayScore": 12,
-            "consumptionScore": 0,
-            "fee": -11,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-19",
-            "curScore": 49,
-            "todayScore": 3,
-            "consumptionScore": 0,
-            "fee": -11,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-20",
-            "curScore": 52,
-            "todayScore": 12,
-            "consumptionScore": 0,
-            "fee": -100,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-21",
-            "curScore": 62,
-            "todayScore": 3,
-            "consumptionScore": 0,
-            "fee": 0,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-22",
-            "curScore": 63,
-            "todayScore": 3,
-            "consumptionScore": 0,
-            "fee": 0,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-23",
-            "curScore": 64,
-            "todayScore": 3,
-            "consumptionScore": 0,
-            "fee": -7.02,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-24",
-            "curScore": 65,
-            "todayScore": 3,
-            "consumptionScore": 0,
-            "fee": 0,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-25",
-            "curScore": 66,
-            "todayScore": 3,
-            "consumptionScore": 0,
-            "fee": 0,
-            "coin": [],
-            "remark": ""
-          }
-        ],
-        "log": [
-          {
-            "id": 20,
-            "timestamp": 1761363516187,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"newData\":{\"date\":\"2025-10-25\",\"curScore\":66,\"todayScore\":3,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.117.36.3"
-          },
-          {
-            "id": 19,
-            "timestamp": 1761363510813,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"newData\":{\"date\":\"2025-10-24\",\"curScore\":65,\"todayScore\":3,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.117.36.3"
-          },
-          {
-            "id": 18,
-            "timestamp": 1761363503541,
-            "action": "清空记录",
-            "type": "clearRecord",
-            "details": "2025-10-25 的数据已清空",
-            "ip": "102.117.36.3"
-          },
-          {
-            "id": 17,
-            "timestamp": 1761363501186,
-            "action": "清空记录",
-            "type": "clearRecord",
-            "details": "2025-10-24 的数据已清空",
-            "ip": "102.117.36.3"
-          },
-          {
-            "id": 16,
-            "timestamp": 1761363493406,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-23\",\"curScore\":64,\"todayScore\":2,\"consumptionScore\":0,\"fee\":-7.02,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-23\",\"curScore\":64,\"todayScore\":3,\"consumptionScore\":0,\"fee\":-7.02,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.117.36.3"
-          },
-          {
-            "id": 15,
-            "timestamp": 1761363435569,
-            "action": "清空记录",
-            "type": "clearRecord",
-            "details": "2025-10-25 的数据已清空",
-            "ip": "102.117.36.3"
-          },
-          {
-            "id": 14,
-            "timestamp": 1761363429357,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"newData\":{\"date\":\"2025-10-24\",\"curScore\":64,\"todayScore\":2,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.117.36.3"
-          },
-          {
-            "id": 13,
-            "timestamp": 1761363422599,
-            "action": "清空记录",
-            "type": "clearRecord",
-            "details": "2025-10-24 的数据已清空",
-            "ip": "102.117.36.3"
-          },
-          {
-            "id": 12,
-            "timestamp": 1761363417195,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-23\",\"curScore\":64,\"todayScore\":0,\"consumptionScore\":0,\"fee\":-7.02,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-23\",\"curScore\":64,\"todayScore\":2,\"consumptionScore\":0,\"fee\":-7.02,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.117.36.3"
-          },
-          {
-            "id": 11,
-            "timestamp": 1761363389458,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"newData\":{\"date\":\"2025-10-24\",\"curScore\":62,\"todayScore\":2,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.117.36.3"
-          },
-          {
-            "id": 10,
-            "timestamp": 1761214258206,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-23\",\"curScore\":64,\"todayScore\":0,\"consumptionScore\":0,\"fee\":-2.9,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-23\",\"curScore\":64,\"todayScore\":0,\"consumptionScore\":0,\"fee\":-7.02,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 9,
-            "timestamp": 1761213196622,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"newData\":{\"date\":\"2025-10-23\",\"curScore\":64,\"todayScore\":0,\"consumptionScore\":0,\"fee\":-2.9,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 8,
-            "timestamp": 1761123589373,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"newData\":{\"date\":\"2025-10-22\",\"curScore\":63,\"todayScore\":3,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 7,
-            "timestamp": 1761123569751,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"newData\":{\"date\":\"2025-10-21\",\"curScore\":62,\"todayScore\":3,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 6,
-            "timestamp": 1760966540916,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-20\",\"curScore\":52,\"todayScore\":12,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-20\",\"curScore\":52,\"todayScore\":12,\"consumptionScore\":0,\"fee\":-100,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 5,
-            "timestamp": 1760966513888,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-20\",\"curScore\":52,\"todayScore\":0,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-20\",\"curScore\":52,\"todayScore\":12,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 4,
-            "timestamp": 1760966499898,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-19\",\"curScore\":49,\"todayScore\":3,\"consumptionScore\":0,\"fee\":-79.69,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-19\",\"curScore\":49,\"todayScore\":3,\"consumptionScore\":0,\"fee\":-11,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 3,
-            "timestamp": 1760966466275,
-            "action": "新增记录",
-            "type": "addRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-20\",\"curScore\":0,\"todayScore\":0,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-20\",\"curScore\":52,\"todayScore\":0,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 2,
-            "timestamp": 1760966414522,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-19\",\"curScore\":49,\"todayScore\":3,\"consumptionScore\":0,\"fee\":0,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-19\",\"curScore\":49,\"todayScore\":3,\"consumptionScore\":0,\"fee\":-79.69,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          },
-          {
-            "id": 1,
-            "timestamp": 1760966313527,
-            "action": "修改记录",
-            "type": "editRecord",
-            "details": "{\"oldData\":{\"date\":\"2025-10-18\",\"curScore\":0,\"todayScore\":0,\"consumptionScore\":0,\"fee\":-93,\"coin\":[],\"remark\":\"\"},\"newData\":{\"date\":\"2025-10-18\",\"curScore\":0,\"todayScore\":0,\"consumptionScore\":0,\"fee\":-11,\"coin\":[],\"remark\":\"\"}}",
-            "ip": "102.163.61.89"
-          }
-        ]
-      }
-    },
-    "ssGate合约": {
-      "config": {
-        "userName": "ssGate合约",
-        "showOKXLink": true
-      },
-      "binance": {
-        "config": {
-          "theme": "light",
-          "showMockScoreIcon": true,
-          "showThemeIcon": true,
-          "showImportExportIcon": true,
-          "showSimulationScore": true,
-          "showFastConfig": true,
-          "showClearLogs": true,
-          "fastConfig": {
-            "fee": "",
-            "todayScore": "",
-            "autoCalcCurScore": true
-          }
-        },
-        "date": [],
-        "log": []
-      },
-      "okx": {
-        "config": {
-          "showClearLogs": true,
-          "showFastConfig": true
-        },
-        "accounts": {},
-        "log": []
-      },
-      "gate": {
-        "config": {
-          "theme": "light",
-          "showMockScoreIcon": true,
-          "showThemeIcon": true,
-          "showImportExportIcon": true,
-          "showSimulationScore": true,
-          "showFastConfig": true,
-          "showClearLogs": true,
-          "fastConfig": {
-            "fee": "",
-            "todayScore": "",
-            "autoCalcCurScore": true
-          }
-        },
-        "date": [
-          {
-            "date": "2025-10-14",
-            "curScore": 0,
-            "todayScore": 8,
-            "consumptionScore": 1,
-            "fee": 0,
-            "coin": [
-              {
-                "name": "GT",
-                "amount": 0,
-                "score": 1
-              }
-            ],
-            "remark": "0.12个GT，没卖"
-          },
-          {
-            "date": "2025-10-15",
-            "curScore": 0,
-            "todayScore": 6,
-            "consumptionScore": 6,
-            "fee": 0,
-            "coin": [
-              {
-                "name": "doge",
-                "amount": 0,
-                "score": 6
-              }
-            ],
-            "remark": "152个doge，没卖"
-          },
-          {
-            "date": "2025-10-16",
-            "curScore": 3,
-            "todayScore": 7,
-            "consumptionScore": 7,
-            "fee": 0,
-            "coin": [
-              {
-                "name": "扣分",
-                "amount": 0,
-                "score": 7
-              }
-            ],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-17",
-            "curScore": 10,
-            "todayScore": 7,
-            "consumptionScore": 7,
-            "fee": 0,
-            "coin": [
-              {
-                "name": "扣分",
-                "amount": 0,
-                "score": 7
-              }
-            ],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-18",
-            "curScore": 17,
-            "todayScore": 10,
-            "consumptionScore": 10,
-            "fee": -93,
-            "coin": [
-              {
-                "name": "扣分",
-                "amount": 0,
-                "score": 10
-              }
-            ],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-19",
-            "curScore": 27,
-            "todayScore": 8,
-            "consumptionScore": 3,
-            "fee": -79.69,
-            "coin": [
-              {
-                "name": "扣分",
-                "amount": 0,
-                "score": 3
-              }
-            ],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-20",
-            "curScore": 35,
-            "todayScore": 8,
-            "consumptionScore": 0,
-            "fee": 737,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-21",
-            "curScore": 43,
-            "todayScore": 9,
-            "consumptionScore": 0,
-            "fee": 3.9,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-22",
-            "curScore": 52,
-            "todayScore": 2,
-            "consumptionScore": 0,
-            "fee": 0,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-23",
-            "curScore": 54,
-            "todayScore": 10,
-            "consumptionScore": 0,
-            "fee": -115.5,
-            "coin": [
-              {
-                "name": "pepe",
-                "amount": 0,
-                "score": 0
-              }
-            ],
-            "remark": "450w个pepe，没卖"
-          },
-          {
-            "date": "2025-10-24",
-            "curScore": 49,
-            "todayScore": 10,
-            "consumptionScore": 0,
-            "fee": -126.9,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-25",
-            "curScore": 59,
-            "todayScore": 11,
-            "consumptionScore": 0,
-            "fee": -258.17,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-26",
-            "curScore": 70,
-            "todayScore": 11,
-            "consumptionScore": 0,
-            "fee": -81.74,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-27",
-            "curScore": 81,
-            "todayScore": 11,
-            "consumptionScore": 0,
-            "fee": -32.73,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-28",
-            "curScore": 92,
-            "todayScore": 9,
-            "consumptionScore": 0,
-            "fee": -110.66,
-            "coin": [
-              {
-                "name": "wifi",
-                "amount": 0,
-                "score": 0
-              }
-            ],
-            "remark": "200个wifi，还没卖"
-          },
-          {
-            "date": "2025-10-29",
-            "curScore": 86,
-            "todayScore": 11,
-            "consumptionScore": 0,
-            "fee": 53.17,
-            "coin": [],
-            "remark": ""
-          },
-          {
-            "date": "2025-10-30",
-            "curScore": 97,
-            "todayScore": 11,
-            "consumptionScore": 0,
-            "fee": -314.49,
-            "coin": [],
-            "remark": ""
-          }
-        ],
-        "log": []
+          "showDeleteTask": true
+        }
       }
     }
   }

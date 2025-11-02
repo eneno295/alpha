@@ -20,7 +20,7 @@
             <div class="day-info">
               <h3>{{ formatDate(record.date) }}</h3>
               <span class="task-stats">
-                {{ getCompletedCount(record) }}/{{ record.tasks.length }} 已完成
+                {{ getCompletedCount(record) }}/{{ getTotalCount(record) }} 已完成
               </span>
             </div>
             <div class="day-actions" @click.stop>
@@ -40,19 +40,53 @@
             <div
               v-for="task in record.tasks"
               :key="task.taskId"
-              :class="['task-item', { completed: task.completedAt, 'has-remark': task.remark }]"
+              :class="[
+                'task-item',
+                {
+                  completed: task.completedAt,
+                  'has-remark': task.remark,
+                  'not-countable': !isTaskCountable(task, record.date),
+                },
+              ]"
               style="cursor: pointer"
-              @click.stop="handleViewTask(task)"
+              @click.stop="handleViewTask(task, record.date)"
               @mouseenter="(e) => showTooltip(task.taskId, task.remark, e)"
               @mouseleave="hideTooltip"
             >
-              <span class="task-status">{{ task.completedAt ? '✅' : '❌' }}</span>
+              <span class="task-status">{{
+                task.completedAt ? '✅' : !isTaskCountable(task, record.date) ? '' : '❌'
+              }}</span>
               <div class="task-content">
-                <span class="task-title">{{ task.detail.title }}</span>
-                <span v-if="task.completedAt" class="task-time">{{
-                  formatTime(task.completedAt)
-                }}</span>
-                <span v-if="task.remark" class="task-remark">📝</span>
+                <div class="task-main">
+                  <div class="task-header-row">
+                    <span class="task-title">{{
+                      getTaskDisplayData(task, record.date).title
+                    }}</span>
+                    <span
+                      :class="['category-badge', getTaskDisplayData(task, record.date).category]"
+                    >
+                      {{ getCategoryLabel(getTaskDisplayData(task, record.date).category) }}
+                    </span>
+                  </div>
+                  <p
+                    v-if="getTaskDisplayData(task, record.date).description"
+                    class="task-description"
+                  >
+                    {{ getTaskDisplayData(task, record.date).description }}
+                  </p>
+                  <div class="task-meta">
+                    <span
+                      v-if="getTaskDateInfo(task)"
+                      :class="['task-date', `task-date--${getTaskDateInfo(task)?.status}`]"
+                    >
+                      {{ getTaskDateInfo(task)?.text }}
+                    </span>
+                    <span v-if="task.completedAt" class="task-time">
+                      {{ formatTime(task.completedAt) }}
+                    </span>
+                    <span v-if="task.remark" class="task-remark">📝</span>
+                  </div>
+                </div>
               </div>
 
               <!-- Tooltip -->
@@ -83,8 +117,16 @@ import { useAppStore } from '@/stores/app'
 import { useLoading } from '@/composables/useLoading'
 import BaseModal from '@/components/common/BaseModal.vue'
 
-const { showHistoryModal, taskData, editingTask, showAddTaskModal, isReadonly } =
-  useTaskManagement()
+const {
+  showHistoryModal,
+  taskData,
+  editingTask,
+  showAddTaskModal,
+  isReadonly,
+  isTaskCountable,
+  getTaskTemplate,
+  getTaskDateInfo,
+} = useTaskManagement()
 const appStore = useAppStore()
 const { withLoading } = useLoading()
 
@@ -148,9 +190,19 @@ const filteredRecords = computed(() => {
   return records
 })
 
-// 获取完成任务数
+// 获取应该统计的任务列表（排除已过期和未开始的任务）
+const getCountableTasks = (record: any) => {
+  return record.tasks.filter((t: any) => isTaskCountable(t, record.date))
+}
+
+// 获取完成任务数（只统计应该计入的任务中已完成的）
 const getCompletedCount = (record: any) => {
-  return record.tasks.filter((t: any) => t.completedAt).length
+  return getCountableTasks(record).filter((t: any) => t.completedAt).length
+}
+
+// 获取总任务数（只统计应该计入的任务）
+const getTotalCount = (record: any) => {
+  return getCountableTasks(record).length
 }
 
 // 切换展开/收起
@@ -203,10 +255,43 @@ const hideTooltip = () => {
   tooltipTaskId.value = null
 }
 
+// 判断记录是否是今天
+const isTodayRecord = (recordDate: number): boolean => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const todayTimestamp = today.getTime()
+  const recordTimestamp = new Date(recordDate)
+  recordTimestamp.setHours(0, 0, 0, 0)
+  return recordTimestamp.getTime() === todayTimestamp
+}
+
+// 获取任务的显示数据（今天用实时数据，旧数据用快照）
+const getTaskDisplayData = (task: any, recordDate: number) => {
+  // 如果是今天的记录，使用实时模板数据
+  if (isTodayRecord(recordDate)) {
+    const template = getTaskTemplate(task)
+    if (template) {
+      return template
+    }
+  }
+  // 旧日期的记录，使用 detail 快照
+  return task.detail
+}
+
+// 获取分类标签
+const getCategoryLabel = (category: string) => {
+  const labels = {
+    daily: '每日',
+    duration: '连续完成',
+    deadline: '到期完成',
+  }
+  return labels[category as keyof typeof labels] || category
+}
+
 // 查看任务详情
-const handleViewTask = (task: any) => {
-  // 使用任务快照中的详情
-  editingTask.value = task.detail
+const handleViewTask = (task: any, recordDate: number) => {
+  // 今天的记录使用实时数据，旧数据使用快照
+  editingTask.value = getTaskDisplayData(task, recordDate)
   isReadonly.value = true
   showAddTaskModal.value = true
 }
@@ -317,20 +402,20 @@ const handleViewTask = (task: any) => {
         border-top: 1px solid var(--border-color);
         padding: 12px;
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-        gap: 10px;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 12px;
 
         .task-item {
           position: relative;
           display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 10px 12px;
+          align-items: flex-start;
+          gap: 10px;
+          padding: 12px 14px;
           background: var(--bg-primary);
           border-radius: 8px;
           border: 1px solid var(--border-color);
           transition: all 0.2s ease;
-          cursor: default;
+          cursor: pointer;
 
           &:hover {
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
@@ -343,7 +428,14 @@ const handleViewTask = (task: any) => {
 
           &:not(.completed) {
             border-color: #e5e7eb;
-            opacity: 0.75;
+          }
+
+          // 不应该完成的任务（已过期或未开始）使用暗色
+          &.not-countable {
+            border-color: #e5e7eb;
+            background: rgba(0, 0, 0, 0.03);
+            opacity: 0.6;
+            filter: grayscale(30%);
           }
 
           &.has-remark {
@@ -358,30 +450,131 @@ const handleViewTask = (task: any) => {
           .task-content {
             flex: 1;
             display: flex;
-            align-items: center;
-            gap: 6px;
+            flex-direction: column;
+            gap: 8px;
             min-width: 0;
 
-            .task-title {
-              flex: 1;
-              font-size: 0.9rem;
-              font-weight: 500;
-              color: var(--text-primary);
-              white-space: nowrap;
-              overflow: hidden;
-              text-overflow: ellipsis;
-            }
+            .task-main {
+              width: 100%;
+              display: flex;
+              flex-direction: column;
+              gap: 6px;
 
-            .task-time {
-              flex-shrink: 0;
-              font-size: 0.8rem;
-              color: #10b981;
-              font-weight: 500;
-            }
+              .task-header-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                width: 100%;
 
-            .task-remark {
-              flex-shrink: 0;
-              font-size: 0.9rem;
+                .task-title {
+                  flex: 1;
+                  font-size: 0.95rem;
+                  font-weight: 600;
+                  color: var(--text-primary);
+                  white-space: nowrap;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                }
+
+                .category-badge {
+                  flex-shrink: 0;
+                  padding: 4px 10px;
+                  border-radius: 12px;
+                  font-size: 0.75rem;
+                  font-weight: 600;
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
+
+                  &.daily {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                  }
+
+                  &.duration {
+                    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                    color: white;
+                  }
+
+                  &.deadline {
+                    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+                    color: white;
+                  }
+                }
+              }
+
+              // 不应该完成的任务（已过期或未开始）使用暗色
+              .task-item.not-countable & {
+                .task-title {
+                  color: #9ca3af;
+                }
+
+                .category-badge {
+                  opacity: 0.6;
+                  filter: grayscale(40%);
+                }
+              }
+
+              .task-description {
+                font-size: 0.85rem;
+                color: var(--text-secondary);
+                line-height: 1.5;
+                margin: 0;
+                word-break: break-word;
+              }
+
+              // 不应该完成的任务（已过期或未开始）使用暗色
+              .task-item.not-countable & {
+                .task-description {
+                  color: #d1d5db;
+                }
+              }
+
+              .task-meta {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex-wrap: wrap;
+
+                .task-date {
+                  font-size: 0.8rem;
+                  padding: 4px 8px;
+                  border-radius: 6px;
+                  background: rgba(99, 102, 241, 0.05);
+                  border-left: 2px solid rgba(99, 102, 241, 0.3);
+                  color: #6b7280;
+
+                  &--normal {
+                    color: #6b7280;
+                    background: rgba(99, 102, 241, 0.05);
+                    border-left-color: rgba(99, 102, 241, 0.3);
+                  }
+
+                  &--expired {
+                    color: #dc2626;
+                    background: rgba(220, 38, 38, 0.08);
+                    border-left-color: rgba(220, 38, 38, 0.4);
+                  }
+
+                  &--not-started {
+                    color: #9ca3af;
+                    background: rgba(156, 163, 175, 0.08);
+                    border-left-color: rgba(156, 163, 175, 0.3);
+                  }
+                }
+
+                .task-time {
+                  flex-shrink: 0;
+                  font-size: 0.8rem;
+                  color: #10b981;
+                  font-weight: 500;
+                }
+
+                .task-remark {
+                  flex-shrink: 0;
+                  font-size: 0.9rem;
+                }
+              }
             }
           }
 

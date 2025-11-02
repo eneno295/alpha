@@ -3,24 +3,24 @@
     <div
       v-for="(task, index) in localTasks"
       :key="task.taskId"
-      :class="['task-card', { completed: isCompleted(task), 'not-due': !isTaskDue(task) }]"
+      :class="['task-card', { completed: isCompleted(task), 'not-started': !isTaskDue(task) }]"
       :style="getCardStyle(task)"
       @click="handleCardClick(task)"
       :draggable="isTaskDue(task)"
-      @dragstart="onDragStart(index, task)"
+      @dragstart="onDragStart(index)"
       @dragover.prevent="onDragOver(index)"
       @drop="onDrop(localTasks, index)"
       @dragend="onDragEnd"
-      @touchstart="(e) => onTouchStart(index, task, e)"
-      @touchmove.prevent="(e) => isTaskDue(task) && onTouchMove(e, getCardIndex)"
-      @touchend="(e) => isTaskDue(task) && onTouchEnd(localTasks, task, index, e)"
+      @touchstart="(e) => onTouchStart(index, e)"
+      @touchmove.prevent="(e) => onTouchMove(e, getCardIndex)"
+      @touchend="(e) => onTouchEnd(localTasks, task, index, e)"
     >
       <div class="task-content">
         <div class="task-header">
-          <h3 class="task-title">{{ task.detail.title }}</h3>
+          <h3 class="task-title">{{ getTaskDisplayData(task).title }}</h3>
           <div class="task-meta">
-            <span :class="['category-badge', task.detail.category]">{{
-              getCategoryLabel(task.detail.category)
+            <span :class="['category-badge', getTaskDisplayData(task).category]">{{
+              getCategoryLabel(getTaskDisplayData(task).category)
             }}</span>
             <button
               v-if="isCompleted(task)"
@@ -33,39 +33,19 @@
           </div>
         </div>
 
-        <p v-if="task.detail.description" class="task-description">
-          {{ task.detail.description }}
+        <p v-if="getTaskDisplayData(task).description" class="task-description">
+          {{ getTaskDisplayData(task).description }}
         </p>
-
-        <!-- 自定义任务的时间信息 -->
-        <div
-          v-if="task.detail.category === 'custom' && task.detail.taskDays"
-          class="task-duration-info"
-        >
-          <span
-            :class="[
-              'duration-badge',
-              {
-                expired:
-                  task.detail.taskDurationType === 'duration' &&
-                  getDurationInfo(task.detail)?.isExpired,
-              },
-            ]"
-          >
-            <span v-if="task.detail.taskDurationType === 'deadline'">
-              ⏰ {{ getDeadlineText(task.detail) }}
-            </span>
-            <span v-else>
-              <template v-if="getDurationText(task.detail)">
-                {{ getDurationText(task.detail) }}
-              </template>
-              <template v-else> 📅 连续 {{ task.detail.taskDays }} 天 </template>
-            </span>
-          </span>
-        </div>
 
         <div v-if="task.remark" class="task-remark-display">
           <span class="remark-text">{{ task.remark }}</span>
+        </div>
+
+        <div
+          v-if="getTaskDateInfo(task)"
+          :class="['task-date-info', `task-date-info--${getTaskDateInfo(task)?.status}`]"
+        >
+          {{ getTaskDateInfo(task)?.text }}
         </div>
       </div>
     </div>
@@ -94,7 +74,6 @@ const props = defineProps<Props>()
 // 拖拽排序：本地任务副本
 const localTasks = ref<Props['tasks']>([])
 const isDragging = ref(false) // 标记是否正在拖拽
-const touchStartPosition = ref<{ x: number; y: number } | null>(null) // 记录触摸起始位置
 
 watch(
   () => props.tasks,
@@ -108,8 +87,10 @@ const {
   taskData,
   showRemarkModal,
   currentTask,
-  isTaskDue: baseIsTaskDue,
-  getDurationInfo,
+  getTaskDateInfo,
+  isTaskDue,
+  getTaskTemplate,
+  updateTodayRecordDetails,
 } = useTaskManagement()
 const appStore = useAppStore()
 
@@ -173,16 +154,13 @@ const handleAddRemark = (task: any) => {
 // 更新排序（直接在组件中实现）
 const handleUpdateOrder = async (templates: TaskTemplate[]) => {
   try {
-    if (taskData.value && taskData.value.date) {
-      taskData.value.date.forEach((record) => {
-        record.tasks.forEach((task) => {
-          const template = templates.find((t) => t.id === task.taskId)
-          if (template) {
-            task.detail = { ...template }
-          }
-        })
-      })
-    }
+    // 只更新今天记录的 detail 快照，旧数据保持不变
+    updateTodayRecordDetails((task, taskTemplate) => {
+      const template = templates.find((t) => t.id === task.taskId)
+      if (template) {
+        task.detail = { ...template }
+      }
+    })
     await appStore.api.updateData()
   } catch (error) {
     console.error('更新排序失败:', error)
@@ -197,87 +175,30 @@ const isCompleted = (task: DailyTaskItem) => {
 const getCategoryLabel = (category: string) => {
   const labels = {
     daily: '每日',
-    weekly: '每周',
-    monthly: '每月',
-    custom: '自定义',
+    duration: '连续完成',
+    deadline: '到期完成',
   }
   return labels[category as keyof typeof labels] || category
 }
 
-// 检查任务是否已到期（可以点击/拖拽）
-// 已完成的任务即使未到期也可以点击（用于取消完成）
-const isTaskDue = (task: DailyTaskItem): boolean => {
-  // 已完成的任务可以点击（用于取消完成）
-  if (isCompleted(task)) {
-    return true
+// 获取任务的实时模板数据（不是历史快照）
+const getTaskDisplayData = (task: any) => {
+  const template = getTaskTemplate(task)
+  if (template) {
+    // 有模板，使用实时数据
+    return {
+      title: template.title,
+      description: template.description,
+      category: template.category,
+      bgColor: template.bgColor,
+    }
   }
-  // 使用公共的到期检查逻辑
-  return baseIsTaskDue(task)
-}
-
-// 获取到期时间文本
-const getDeadlineText = (taskDetail: any) => {
-  if (!taskDetail.taskDays || !taskDetail.startDate) return ''
-
-  const startDate = new Date(taskDetail.startDate)
-  startDate.setHours(0, 0, 0, 0)
-  const deadlineDate = new Date(startDate.getTime() + taskDetail.taskDays * 24 * 60 * 60 * 1000)
-
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const todayTimestamp = today.getTime()
-  const deadlineTimestamp = deadlineDate.getTime()
-
-  const daysLeft = Math.ceil((deadlineTimestamp - todayTimestamp) / (24 * 60 * 60 * 1000))
-
-  if (daysLeft < 0) {
-    return `已过期 ${Math.abs(daysLeft)} 天`
-  } else if (daysLeft === 0) {
-    return '今天到期'
-  } else if (daysLeft === 1) {
-    return '明天到期'
-  } else {
-    return `${daysLeft} 天后到期`
-  }
-}
-
-// 格式化结束日期
-const formatEndDate = (date: Date): string => {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const targetDate = new Date(date)
-  targetDate.setHours(0, 0, 0, 0)
-
-  const todayTimestamp = today.getTime()
-  const targetTimestamp = targetDate.getTime()
-  const daysDiff = Math.floor((targetTimestamp - todayTimestamp) / (24 * 60 * 60 * 1000))
-
-  if (daysDiff === 0) {
-    return '今天'
-  } else if (daysDiff === 1) {
-    return '明天'
-  } else if (daysDiff === -1) {
-    return '昨天'
-  } else if (daysDiff > 0 && daysDiff <= 7) {
-    return `${daysDiff} 天后`
-  } else if (daysDiff < 0 && daysDiff >= -7) {
-    return `${Math.abs(daysDiff)} 天前`
-  } else {
-    return `${targetDate.getMonth() + 1}月${targetDate.getDate()}日`
-  }
-}
-
-// 获取连续任务的显示文本（避免模板中重复调用）
-const getDurationText = (taskDetail: any): string | null => {
-  const durationInfo = getDurationInfo(taskDetail)
-  if (!durationInfo) return null
-
-  const endDateText = formatEndDate(durationInfo.endDate)
-
-  if (durationInfo.isExpired) {
-    return `⚠️ 已过期（${endDateText}）`
-  } else {
-    return `📅 剩余 ${durationInfo.daysLeft} 天（${endDateText} 结束）`
+  // 没有模板（可能是历史记录），使用 detail
+  return {
+    title: task.detail.title,
+    description: task.detail.description,
+    category: task.detail.category,
+    bgColor: task.detail.bgColor,
   }
 }
 
@@ -285,10 +206,8 @@ const handleCardClick = (task: any) => {
   // 如果正在拖拽，不触发点击事件
   if (isDragging.value) return
 
-  // 如果任务未到期，不允许点击
-  if (!isTaskDue(task)) {
-    return
-  }
+  // 如果任务还没开始，不处理点击
+  if (!isTaskDue(task)) return
 
   if (isCompleted(task)) {
     // 如果已完成，点击卡片取消完成
@@ -307,7 +226,10 @@ const handleRemark = (task: any) => {
 const persistOrder = async () => {
   if (!taskData.value?.tasks) return
 
-  const orderIds = localTasks.value.map((t) => t.detail.id)
+  const orderIds = localTasks.value.map((t) => {
+    const template = getTaskTemplate(t)
+    return template?.id || t.detail.id
+  })
 
   // 计算每个模板的排名，未出现在当前列表的放到后面，保持相对顺序
   const orderRank = new Map<number, number>()
@@ -341,29 +263,31 @@ const {
 })
 
 // 包装鼠标拖拽事件，处理拖拽标记
-const onDragStart = (index: number, task: DailyTaskItem) => {
-  // 检查任务是否已到期
+const onDragStart = (index: number) => {
+  const task = localTasks.value[index]
   if (!isTaskDue(task)) {
-    return
+    return false
   }
   isDragging.value = true
   baseDragStart(index)
 }
 
-// 包装 dragover，阻止拖拽到未到期任务上
+// 包装 dragover
 const onDragOver = (index: number) => {
-  // 如果目标是未到期任务，阻止拖拽
-  if (!isTaskDue(localTasks.value[index])) {
-    return
+  const task = localTasks.value[index]
+  // 如果目标任务是未开始的，不允许拖拽到它上面
+  if (!isTaskDue(task)) {
+    return false
   }
   baseDragOver(index)
 }
 
-// 包装 drop，阻止拖拽到未到期任务上
+// 包装 drop
 const onDrop = (items: any[], index: number) => {
-  // 如果目标是未到期任务，阻止 drop
-  if (!isTaskDue(localTasks.value[index])) {
-    return
+  const task = items[index]
+  // 如果目标任务是未开始的，不允许拖拽到它上面
+  if (!isTaskDue(task)) {
+    return false
   }
   baseDrop(items, index)
 }
@@ -385,18 +309,12 @@ const getCardIndex = (element: Element): number => {
 }
 
 // 包装触摸事件，处理拖拽标记
-const onTouchStart = (index: number, task: DailyTaskItem, event: TouchEvent) => {
-  // 检查任务是否已到期
+const onTouchStart = (index: number, event: TouchEvent) => {
+  const task = localTasks.value[index]
   if (!isTaskDue(task)) {
-    event.preventDefault()
-    return
+    return false
   }
   isDragging.value = false
-  // 记录触摸起始位置，用于判断是否发生了拖拽
-  touchStartPosition.value = {
-    x: event.touches[0].clientX,
-    y: event.touches[0].clientY,
-  }
   baseTouchStart(index, event)
 }
 
@@ -405,40 +323,9 @@ const onTouchMove = (event: TouchEvent, getElementIndex: (element: Element) => n
     isDragging.value = true
   }
   baseTouchMove(event, getElementIndex)
-
-  // 检查当前 dropIndex 是否指向未到期任务，如果是则清除 dropIndex
-  if (
-    dropIndex.value !== null &&
-    dropIndex.value >= 0 &&
-    dropIndex.value < localTasks.value.length
-  ) {
-    if (!isTaskDue(localTasks.value[dropIndex.value])) {
-      // 如果目标是未到期任务，清除 dropIndex，防止拖拽生效
-      dropIndex.value = null
-    }
-  }
 }
 
 const onTouchEnd = (items: any[], task: DailyTaskItem, index: number, event: TouchEvent) => {
-  // 检查 dropIndex 是否指向未到期任务
-  if (
-    dropIndex.value !== null &&
-    dropIndex.value >= 0 &&
-    dropIndex.value < localTasks.value.length
-  ) {
-    if (!isTaskDue(localTasks.value[dropIndex.value])) {
-      // 如果目标是未到期任务，阻止 drop，只重置状态
-      dropIndex.value = null
-      isDragging.value = false
-      touchStartPosition.value = null
-      // 触发点击事件
-      setTimeout(() => {
-        handleCardClick(task)
-      }, 50)
-      return
-    }
-  }
-
   // 判断是否发生了拖拽：检查是否有移动或者 dragIndex 和 dropIndex 不同
   const hadMovement =
     isDragging.value && dropIndex.value !== null && dragIndex.value !== dropIndex.value
@@ -446,7 +333,6 @@ const onTouchEnd = (items: any[], task: DailyTaskItem, index: number, event: Tou
   // 如果没有发生拖拽，触发点击事件
   if (!hadMovement && !isDragging.value) {
     baseTouchEnd(items)
-    touchStartPosition.value = null
     // 延迟触发点击，确保拖拽状态已清除
     setTimeout(() => {
       handleCardClick(task)
@@ -456,7 +342,6 @@ const onTouchEnd = (items: any[], task: DailyTaskItem, index: number, event: Tou
 
   // 发生了拖拽，执行拖拽逻辑
   baseTouchEnd(items)
-  touchStartPosition.value = null
   // 延迟清除标记，避免触发点击事件
   setTimeout(() => {
     isDragging.value = false
@@ -477,7 +362,7 @@ const colorGradients: Record<string, string> = {
 
 // 获取卡片样式
 const getCardStyle = (task: any) => {
-  const bgColor = task.detail.bgColor || 'default'
+  const bgColor = getTaskDisplayData(task).bgColor || 'default'
   return {
     background: colorGradients[bgColor] || colorGradients.default,
   }
@@ -522,17 +407,17 @@ const getCardStyle = (task: any) => {
       }
     }
 
-    &.not-due {
+    &.not-started {
       cursor: not-allowed;
       opacity: 0.6;
-      filter: grayscale(40%);
+      // filter: grayscale(40%);
       position: relative;
 
       &::after {
         content: '🔒';
         position: absolute;
-        top: 8px;
-        right: 8px;
+        top: 12px;
+        right: 12px;
         font-size: 1.2rem;
         opacity: 0.7;
       }
@@ -587,6 +472,10 @@ const getCardStyle = (task: any) => {
     }
 
     .task-content {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+
       .task-header {
         display: flex;
         justify-content: space-between;
@@ -622,17 +511,12 @@ const getCardStyle = (task: any) => {
               color: white;
             }
 
-            &.weekly {
-              background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-              color: white;
-            }
-
-            &.monthly {
+            &.duration {
               background: linear-gradient(135deg, #10b981 0%, #059669 100%);
               color: white;
             }
 
-            &.custom {
+            &.deadline {
               background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
               color: white;
             }
@@ -666,34 +550,34 @@ const getCardStyle = (task: any) => {
         margin: 0 0 8px 0;
       }
 
-      .task-duration-info {
-        margin-top: 10px;
-        margin-bottom: 8px;
+      .task-date-info {
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin-top: auto;
+        padding: 6px 10px;
+        background: rgba(99, 102, 241, 0.05);
+        border-radius: 6px;
+        border-left: 3px solid rgba(99, 102, 241, 0.3);
 
-        .duration-badge {
-          display: inline-block;
-          padding: 6px 12px;
-          background: linear-gradient(
-            135deg,
-            rgba(99, 102, 241, 0.1) 0%,
-            rgba(118, 75, 162, 0.1) 100%
-          );
-          border-radius: 12px;
-          font-size: 0.85rem;
-          font-weight: 500;
-          color: #6366f1;
-          border: 1px solid rgba(99, 102, 241, 0.2);
-          transition: all 0.3s ease;
+        // 普通状态（正常）
+        &--normal {
+          color: #6b7280;
+          background: rgba(99, 102, 241, 0.05);
+          border-left-color: rgba(99, 102, 241, 0.3);
+        }
 
-          &.expired {
-            background: linear-gradient(
-              135deg,
-              rgba(239, 68, 68, 0.1) 0%,
-              rgba(220, 38, 38, 0.1) 100%
-            );
-            color: #ef4444;
-            border-color: rgba(239, 68, 68, 0.3);
-          }
+        // 已过期状态
+        &--expired {
+          color: #dc2626;
+          background: rgba(220, 38, 38, 0.08);
+          border-left-color: rgba(220, 38, 38, 0.4);
+        }
+
+        // 未开始状态
+        &--not-started {
+          color: #9ca3af;
+          background: rgba(156, 163, 175, 0.08);
+          border-left-color: rgba(156, 163, 175, 0.3);
         }
       }
 

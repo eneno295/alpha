@@ -36,8 +36,15 @@ export const formatDecimal = (value: string | number | null | undefined): string
 }
 
 // 格式化时间
-export const formatTime = (timestamp: number): string => {
+export const formatTime = (timestamp: number, onlyDate: boolean = false): string => {
   const date = new Date(timestamp)
+  if (onlyDate) {
+    return date.toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+  }
   return date.toLocaleString('zh-CN', {
     year: 'numeric',
     month: '2-digit',
