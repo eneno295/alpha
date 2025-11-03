@@ -319,6 +319,20 @@ export function useTaskManagement() {
     })
   })
 
+  // 检查日期是否变化，如果变化则重新生成今天的任务
+  const checkAndGenerateTodayTasks = async () => {
+    const todayTimestamp = getTodayTimestamp()
+    if (!appStore.currentUser || !taskData.value || !taskData.value.date) return
+
+    const todayKey = toDayKey(todayTimestamp)
+    const todayRecord = taskData.value.date.find((record) => toDayKey(record.date) === todayKey)
+
+    // 如果今天没有记录，生成今天的任务
+    if (!todayRecord) {
+      await generateTodayTasks()
+    }
+  }
+
   // 初始化（不包含 fetchData，由 useAppInitialization 统一处理）
   const initialize = async () => {
     appStore.tasks.initTaskData()
@@ -344,6 +358,7 @@ export function useTaskManagement() {
 
     // 方法
     initialize,
+    checkAndGenerateTodayTasks, // 检查并生成今天的任务（用于日期切换时）
     isTaskDue, // 公共的到期检查函数
     isTaskCountable, // 公共的统计检查函数（排除已过期和未开始）
     getTaskDateInfo, // 获取任务的日期说明信息

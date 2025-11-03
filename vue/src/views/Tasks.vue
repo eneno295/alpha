@@ -50,7 +50,7 @@ onMounted(async () => {
   await initializeApp()
   // 数据加载完成后，初始化任务
   await initialize()
-  // 启动定时器
+  // 启动定时器（定时器会每分钟检查日期变化，并在刷新数据后检查）
   startRefreshTimer(10)
 })
 
