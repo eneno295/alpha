@@ -57,10 +57,6 @@
         <div class="v ok">{{ result.monthlyProfitOut }}</div>
         <div v-if="showFormula" class="formula">公式：每月收益 = 每日收益 x 30</div>
       </div>
-      <div class="item">
-        <div class="k">匹配MMR档位</div>
-        <div class="v">{{ result.mmrTierOut }}</div>
-      </div>
       <div class="item full">
         <details class="detail-block">
           <summary>每格需添加保证金明细（按预估价位每格差价）</summary>
@@ -122,28 +118,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { PropType } from 'vue'
-import type { MarginPositionMode } from '../riskConfig'
+import type { MarginPositionMode, ResultData } from '../type'
 
 const showFormula = ref(false)
-
-type ResultData = {
-  qtyPerGridOut: string
-  totalQtyOut: string
-  avgGridPriceOut: string
-  notionalOut: string
-  leverageOut: string
-  liqPriceOut: string
-  mmrTierOut: string
-  dailyProfitOut: string
-  monthlyProfitOut: string
-  marginRows: Array<{
-    step: number
-    price: string
-    positionQty: string
-    perGridMargin: string
-    cumulative: string
-  }>
-}
 
 defineProps({
   result: { type: Object as PropType<ResultData>, required: true },

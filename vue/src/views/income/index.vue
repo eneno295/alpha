@@ -32,40 +32,10 @@ import Header from '@/components/binance/Header.vue'
 import { useAppInitialization } from '@/composables/useAppInitialization'
 import IncomeInputPanel from './components/IncomeInputPanel.vue'
 import IncomeResultPanel from './components/IncomeResultPanel.vue'
-import {
-  reserveRatePresets,
-  riskConfig,
-  simulationPresets,
-  tiersToText,
-  type GridMode,
-  type MarginPositionMode,
-  type SimulationPresetKey,
-  type Tier,
-} from './riskConfig'
+import { reserveRatePresets, riskConfig, simulationPresets, tiersToText } from './riskConfig'
+import type { GridMode, MarginPositionMode, ResultData, Tier, MarginRow } from './type'
 
 const { initializeApp } = useAppInitialization()
-
-type MarginRow = {
-  step: number
-  price: string
-  positionQty: string
-  perGridMargin: string
-  cumulative: string
-}
-
-type ResultData = {
-  qtyPerGridOut: string
-  totalQtyOut: string
-  avgGridPriceOut: string
-  notionalOut: string
-  leverageOut: string
-  liqPriceOut: string
-  mmrTierOut: string
-  dailyProfitOut: string
-  monthlyProfitOut: string
-  marginRows: MarginRow[]
-  hint: string
-}
 
 // 表单输入默认值（与 HTML 版本保持一致）
 const form = reactive({
@@ -119,7 +89,7 @@ watch(
 )
 
 // 应用“模拟数据”预设（参数在 riskConfig.ts 维护）
-function applySimulation(key: SimulationPresetKey) {
+function applySimulation(key: string) {
   const preset = simulationPresets.find((item) => item.key === key)
   if (!preset) return
   if (preset.platformKey) selectedPlatformKey.value = preset.platformKey
@@ -268,9 +238,6 @@ const result = computed<ResultData>(() => {
     notionalOut: fmt(usableInvest, 2),
     leverageOut: `${fmt(leverageEst, 2)}x`,
     liqPriceOut: fmt(liqPrice, 2),
-    mmrTierOut: mmrTier
-      ? `${fmt(mmrRate * 100, 2)}%（≤${Number.isFinite(mmrTier.cap) ? fmt(mmrTier.cap, 0) : 'INF'} ${tierAsset}）`
-      : '-',
     dailyProfitOut: `${fmt(dailyProfit, 2)}（${fmt(dailyRoi, 2)}%）`,
     monthlyProfitOut: `${fmt(monthlyProfit, 2)}（${fmt(monthlyRoi, 2)}%）`,
     marginRows,
@@ -385,7 +352,6 @@ function emptyResult(hint: string): ResultData {
     notionalOut: '-',
     leverageOut: '-',
     liqPriceOut: '-',
-    mmrTierOut: '-',
     dailyProfitOut: '-',
     monthlyProfitOut: '-',
     marginRows: [],

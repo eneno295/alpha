@@ -1,27 +1,4 @@
-export type GridMode = 'arithmetic' | 'geometric'
-export type MarginPositionMode = 'realtime' | 'total'
-export type Tier = { cap: number; rate: number }
-export type SymbolConfig = { makerFeeRate: number; takerFeeRate: number; tiers: Tier[] }
-export type PlatformConfig = { label: string; symbols: Record<string, SymbolConfig> }
-export type RiskConfig = Record<string, PlatformConfig>
-export type ReserveRatePreset = { key: string; label: string; value: number }
-export type SimulationPresetKey = 'btc5000' | 'eth5000' | 'eth2000' | 'eth1500'
-export type SimulationPreset = {
-  key: SimulationPresetKey
-  label: string
-  platformKey?: string
-  symbolKey?: string
-  values: {
-    investAmount: number
-    multiplier: number
-    grids: number
-    rangeLow: number
-    rangeHigh: number
-    estimatePrice: number
-    estimateGridDiff: number
-    dailyFilledGrids: number
-  }
-}
+import type { ReserveRatePreset, RiskConfig, SimulationPreset, Tier } from './type'
 
 export const riskConfig: RiskConfig = {
   okx: {
@@ -137,6 +114,20 @@ export const simulationPresets: SimulationPreset[] = [
     label: 'ETH 5000 / 70 / 10x',
     values: {
       investAmount: 5000,
+      multiplier: 10,
+      grids: 70,
+      rangeLow: 1026,
+      rangeHigh: 2426,
+      estimatePrice: 1000,
+      estimateGridDiff: 100,
+      dailyFilledGrids: 8,
+    },
+  },
+  {
+    key: 'eth2500',
+    label: 'ETH 2500 / 70 / 10x',
+    values: {
+      investAmount: 2500,
       multiplier: 10,
       grids: 70,
       rangeLow: 1026,
