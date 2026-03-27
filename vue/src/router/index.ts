@@ -11,6 +11,11 @@ const router = createRouter({
   routes: [
     {
       path: '/',
+      name: 'income',
+      component: Income,
+    },
+    {
+      path: '/binance',
       name: 'binance',
       component: Binance,
     },
@@ -33,11 +38,6 @@ const router = createRouter({
       path: '/tasks',
       name: 'tasks',
       component: Tasks,
-    },
-    {
-      path: '/income',
-      name: 'income',
-      component: Income,
     },
   ],
 })

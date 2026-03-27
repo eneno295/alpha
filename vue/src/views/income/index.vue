@@ -1,6 +1,6 @@
 <template>
   <div class="income-page">
-    <Header :show-log-icon="false" />
+    <Header :show-log-icon="false" :show-fast-config-param="false" :show-theme-icon-param="false" />
     <div class="wrap">
       <IncomeInputPanel
         :form="form"

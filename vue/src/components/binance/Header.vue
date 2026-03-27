@@ -8,7 +8,15 @@
     <div class="header-center">
       <nav class="nav-menu">
         <router-link
-          :to="{ path: '/', query: $route.query }"
+          :to="{ path: '/income', query: $route.query }"
+          class="nav-link"
+          :class="{ active: $route.name === 'income' }"
+        >
+          <span class="pc-text">Income</span>
+          <span class="mobile-text">I</span>
+        </router-link>
+        <router-link
+          :to="{ path: '/binance', query: $route.query }"
           class="nav-link"
           :class="{ active: $route.name === 'binance' }"
         >
@@ -32,14 +40,6 @@
           <span class="pc-text">Gate</span>
           <span class="mobile-text">G</span>
         </router-link>
-        <router-link
-          :to="{ path: '/income', query: $route.query }"
-          class="nav-link"
-          :class="{ active: $route.name === 'income' }"
-        >
-          <span class="pc-text">Income</span>
-          <span class="mobile-text">I</span>
-        </router-link>
         <!-- <router-link to="/bot" class="nav-link" :class="{ active: $route.name === 'bot' }">
           Bot
         </router-link> -->
@@ -47,13 +47,23 @@
     </div>
 
     <div class="header-right">
-      <button v-if="showFastConfig" class="icon-btn" title="快捷配置" @click="toggleSettingsModal">
+      <button
+        v-if="showFastConfig && props.showFastConfigParam"
+        class="icon-btn"
+        title="快捷配置"
+        @click="toggleSettingsModal"
+      >
         <span class="config-icon">⚙️</span>
       </button>
       <!-- <button v-if="showImportExportIcon" class="icon-btn" title="导入导出">
         <span class="import-export-icon">📁</span>
       </button> -->
-      <button v-if="showThemeIcon" class="icon-btn" title="切换主题" @click="toggleTheme">
+      <button
+        v-if="showThemeIcon && props.showThemeIconParam"
+        class="icon-btn"
+        title="切换主题"
+        @click="toggleTheme"
+      >
         <span class="theme-icon">{{ currentTheme === 'light' ? '☀️' : '🌙' }}</span>
       </button>
       <button v-if="props.showLogIcon" class="icon-btn" title="操作日志" @click="toggleLogModal">
@@ -76,9 +86,13 @@ import { useAppStore } from '@/stores/app'
 const props = withDefaults(
   defineProps<{
     showLogIcon?: boolean
+    showFastConfigParam?: boolean
+    showThemeIconParam?: boolean
   }>(),
   {
     showLogIcon: true,
+    showFastConfigParam: true,
+    showThemeIconParam: true,
   },
 )
 
