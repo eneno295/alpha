@@ -124,7 +124,7 @@
 
 <script setup lang="ts">
 import type { PropType } from 'vue'
-import type { ReserveRatePreset, RiskConfig, SimulationPreset } from '../type'
+import type { ReserveRatePreset, RiskConfig, SimulationPreset, SimulationPresetKey } from '../type'
 
 defineProps({
   form: { type: Object as PropType<Record<string, any>>, required: true },
@@ -141,7 +141,7 @@ defineProps({
 defineEmits<{
   (e: 'update:selectedPlatformKey', value: string): void
   (e: 'update:selectedSymbolKey', value: string): void
-  (e: 'apply-simulation', key: string): void
+  (e: 'apply-simulation', key: SimulationPresetKey): void
 }>()
 </script>
 

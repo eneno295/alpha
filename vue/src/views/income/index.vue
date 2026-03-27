@@ -32,38 +32,49 @@ import Header from '@/components/binance/Header.vue'
 import { useAppInitialization } from '@/composables/useAppInitialization'
 import IncomeInputPanel from './components/IncomeInputPanel.vue'
 import IncomeResultPanel from './components/IncomeResultPanel.vue'
-import { reserveRatePresets, riskConfig, simulationPresets, tiersToText } from './riskConfig'
-import type { GridMode, MarginPositionMode, ResultData, Tier, MarginRow } from './type'
+import { riskConfig, simulationPresets, tiersToText } from './riskConfig'
+import type {
+  GridMode,
+  MarginPositionMode,
+  MarginRow,
+  ReserveRatePreset,
+  ResultData,
+  SimulationPresetKey,
+  Tier,
+} from './type'
 
 const { initializeApp } = useAppInitialization()
+const defaultSimulationPreset =
+  simulationPresets.find((item) => item.key === 'eth2500') ?? simulationPresets[0]
+const defaultPlatformKey = 'okx'
+const defaultSymbolKey = 'ETH'
+const defaultSymbolConfig = riskConfig[defaultPlatformKey].symbols[defaultSymbolKey]
 
-// 表单输入默认值（与 HTML 版本保持一致）
+// 表单输入默认值（预留率随平台；费率/MMR 随币种，模拟 preset 在 riskConfig）
 const form = reactive({
-  investAmount: 2000,
-  gridMode: 'arithmetic' as GridMode,
-  multiplier: 10,
-  reserveRate: 5.76,
-  grids: 70,
-  dailyFilledGrids: 8,
-  rangeLow: 1026,
-  rangeHigh: 2426,
-  estimatePrice: 1000,
-  estimateGridDiff: 100,
-  makerFeeRate: 0.02,
-  takerFeeRate: 0.05,
-  mmrTiers:
-    '5000:0.40,10000:0.50,25000:0.75,50000:1.25,75000:1.75,100000:2.25,125000:2.75,150000:3.25,175000:3.75,INF:4.25',
+  ...defaultSimulationPreset.values,
+  reserveRate: riskConfig[defaultPlatformKey].reserveRate,
+  makerFeeRate: defaultSymbolConfig.makerFeeRate,
+  takerFeeRate: defaultSymbolConfig.takerFeeRate,
+  mmrTiers: tiersToText(defaultSymbolConfig.tiers),
 })
 
 // 保证金估算模式：实时持仓 / 总持仓
 const marginPositionMode = ref<MarginPositionMode>('realtime')
 
 // 当前平台、币种选择
-const selectedPlatformKey = ref('okx')
-const selectedSymbolKey = ref('ETH')
+const selectedPlatformKey = ref(defaultPlatformKey)
+const selectedSymbolKey = ref(defaultSymbolKey)
 
 // 平台与币种选项（由风险配置推导）
 const platformKeys = computed(() => Object.keys(riskConfig))
+const reserveRatePresets = computed<ReserveRatePreset[]>(() =>
+  platformKeys.value.map((key) => ({
+    key,
+    label: `${riskConfig[key].label.toLowerCase()}（${riskConfig[key].reserveRate}%）`,
+    value: riskConfig[key].reserveRate,
+  })),
+)
 const symbolKeys = computed(() => {
   const symbols = riskConfig[selectedPlatformKey.value]?.symbols || {}
   return Object.keys(symbols)
@@ -81,6 +92,7 @@ watch(
   ([platform, symbol]) => {
     const cfg = riskConfig[platform]?.symbols?.[symbol]
     if (!cfg) return
+    form.reserveRate = riskConfig[platform].reserveRate
     form.makerFeeRate = cfg.makerFeeRate
     form.takerFeeRate = cfg.takerFeeRate
     form.mmrTiers = tiersToText(cfg.tiers)
@@ -89,7 +101,7 @@ watch(
 )
 
 // 应用“模拟数据”预设（参数在 riskConfig.ts 维护）
-function applySimulation(key: string) {
+function applySimulation(key: SimulationPresetKey) {
   const preset = simulationPresets.find((item) => item.key === key)
   if (!preset) return
   if (preset.platformKey) selectedPlatformKey.value = preset.platformKey

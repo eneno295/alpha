@@ -1,8 +1,9 @@
-import type { ReserveRatePreset, RiskConfig, SimulationPreset, Tier } from './type'
+import type { RiskConfig, SimulationPreset, Tier } from './type/index'
 
 export const riskConfig: RiskConfig = {
   okx: {
     label: 'OKX',
+    reserveRate: 5.76,
     symbols: {
       ETH: {
         makerFeeRate: 0.02,
@@ -40,6 +41,7 @@ export const riskConfig: RiskConfig = {
   },
   binance: {
     label: 'Binance',
+    reserveRate: 6,
     symbols: {
       ETH: {
         makerFeeRate: 0.02,
@@ -61,21 +63,60 @@ export const riskConfig: RiskConfig = {
   },
   gate: {
     label: 'Gate',
+    reserveRate: 2.4,
     symbols: {
       ETH: {
-        makerFeeRate: 0.02,
-        takerFeeRate: 0.05,
+        makerFeeRate: 0.015,
+        takerFeeRate: 0.046,
         tiers: [
-          { cap: 5000, rate: 0.4 },
-          { cap: 10000, rate: 0.5 },
-          { cap: 25000, rate: 0.75 },
-          { cap: 50000, rate: 1.25 },
-          { cap: 75000, rate: 1.75 },
-          { cap: 100000, rate: 2.25 },
-          { cap: 125000, rate: 2.75 },
-          { cap: 150000, rate: 3.25 },
-          { cap: 175000, rate: 3.75 },
-          { cap: Infinity, rate: 4.25 },
+          { cap: 100000, rate: 0.3 },
+          { cap: 300000, rate: 0.35 },
+          { cap: 1000000, rate: 0.4 },
+          { cap: 1500000, rate: 0.45 },
+          { cap: 2000000, rate: 0.5 },
+          { cap: 3000000, rate: 0.7 },
+          { cap: 5000000, rate: 0.75 },
+          { cap: 7000000, rate: 0.8 },
+          { cap: 12000000, rate: 1.0 },
+          { cap: 20000000, rate: 1.2 },
+          { cap: 30000000, rate: 1.6 },
+          { cap: 50000000, rate: 2.0 },
+          { cap: 70000000, rate: 2.5 },
+          { cap: 100000000, rate: 3.0 },
+          { cap: 200000000, rate: 5.0 },
+          { cap: 300000000, rate: 7.0 },
+          { cap: 500000000, rate: 10.0 },
+          { cap: 700000000, rate: 12.0 },
+          { cap: 1000000000, rate: 25.0 },
+          { cap: 1500000000, rate: 50.0 },
+          { cap: Infinity, rate: 50.0 },
+        ],
+      },
+      BTC: {
+        makerFeeRate: 0.015,
+        takerFeeRate: 0.046,
+        tiers: [
+          { cap: 200000, rate: 0.3 },
+          { cap: 500000, rate: 0.35 },
+          { cap: 1000000, rate: 0.4 },
+          { cap: 1500000, rate: 0.45 },
+          { cap: 2000000, rate: 0.5 },
+          { cap: 3000000, rate: 0.7 },
+          { cap: 5000000, rate: 0.75 },
+          { cap: 7000000, rate: 0.8 },
+          { cap: 12000000, rate: 1.0 },
+          { cap: 20000000, rate: 1.2 },
+          { cap: 30000000, rate: 1.6 },
+          { cap: 50000000, rate: 2.0 },
+          { cap: 70000000, rate: 2.5 },
+          { cap: 100000000, rate: 3.0 },
+          { cap: 200000000, rate: 5.0 },
+          { cap: 300000000, rate: 7.0 },
+          { cap: 500000000, rate: 10.0 },
+          { cap: 700000000, rate: 12.0 },
+          { cap: 1000000000, rate: 25.0 },
+          { cap: 1500000000, rate: 50.0 },
+          { cap: Infinity, rate: 50.0 },
         ],
       },
     },
@@ -86,12 +127,6 @@ export function tiersToText(tiers: Tier[]): string {
   return tiers.map((tier) => `${Number.isFinite(tier.cap) ? tier.cap : 'INF'}:${tier.rate.toFixed(2)}`).join(',')
 }
 
-export const reserveRatePresets: ReserveRatePreset[] = [
-  { key: 'okx', label: 'okx（5.76%）', value: 5.76 },
-  { key: 'binance', label: 'binance（6%）', value: 6 },
-  { key: 'gate', label: 'gate（7%）', value: 7 },
-]
-
 export const simulationPresets: SimulationPreset[] = [
   {
     key: 'btc5000',
@@ -99,6 +134,7 @@ export const simulationPresets: SimulationPreset[] = [
     platformKey: 'okx',
     symbolKey: 'BTC',
     values: {
+      gridMode: 'arithmetic',
       investAmount: 5000,
       multiplier: 10,
       grids: 70,
@@ -106,13 +142,31 @@ export const simulationPresets: SimulationPreset[] = [
       rangeHigh: 80000,
       estimatePrice: 40000,
       estimateGridDiff: 5000,
-      dailyFilledGrids: 6,
+      dailyFilledGrids: 10,
+    },
+  },
+  {
+    key: 'btc1000',
+    label: 'BTC 1000 / 70 / 10x Gate',
+    platformKey: 'gate',
+    symbolKey: 'BTC',
+    values: {
+      gridMode: 'arithmetic',
+      investAmount: 1000,
+      multiplier: 10,
+      grids: 70,
+      rangeLow: 45888,
+      rangeHigh: 80888,
+      estimatePrice: 40000,
+      estimateGridDiff: 5000,
+      dailyFilledGrids: 10,
     },
   },
   {
     key: 'eth5000',
     label: 'ETH 5000 / 70 / 10x',
     values: {
+      gridMode: 'arithmetic',
       investAmount: 5000,
       multiplier: 10,
       grids: 70,
@@ -127,6 +181,7 @@ export const simulationPresets: SimulationPreset[] = [
     key: 'eth2500',
     label: 'ETH 2500 / 70 / 10x',
     values: {
+      gridMode: 'arithmetic',
       investAmount: 2500,
       multiplier: 10,
       grids: 70,
@@ -141,6 +196,7 @@ export const simulationPresets: SimulationPreset[] = [
     key: 'eth2000',
     label: 'ETH 2000 / 70 / 10x',
     values: {
+      gridMode: 'arithmetic',
       investAmount: 2000,
       multiplier: 10,
       grids: 70,
@@ -155,6 +211,7 @@ export const simulationPresets: SimulationPreset[] = [
     key: 'eth1500',
     label: 'ETH 1500 / 30 / 10x',
     values: {
+      gridMode: 'arithmetic',
       investAmount: 1500,
       multiplier: 10,
       grids: 30,
