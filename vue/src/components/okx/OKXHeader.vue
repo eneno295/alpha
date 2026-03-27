@@ -38,6 +38,16 @@
             </div>
             <div class="mobile-text">G</div>
           </router-link>
+          <router-link
+            :to="{ path: '/income', query: $route.query }"
+            class="nav-link"
+            :class="{ active: $route.name === 'income' }"
+          >
+            <div class="pc-text">
+              <GradientText text="Income" style="font-size: 18px" />
+            </div>
+            <div class="mobile-text">I</div>
+          </router-link>
         </nav>
       </div>
 

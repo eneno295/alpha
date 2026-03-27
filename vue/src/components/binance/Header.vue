@@ -32,6 +32,14 @@
           <span class="pc-text">Gate</span>
           <span class="mobile-text">G</span>
         </router-link>
+        <router-link
+          :to="{ path: '/income', query: $route.query }"
+          class="nav-link"
+          :class="{ active: $route.name === 'income' }"
+        >
+          <span class="pc-text">Income</span>
+          <span class="mobile-text">I</span>
+        </router-link>
         <!-- <router-link to="/bot" class="nav-link" :class="{ active: $route.name === 'bot' }">
           Bot
         </router-link> -->
@@ -48,7 +56,7 @@
       <button v-if="showThemeIcon" class="icon-btn" title="切换主题" @click="toggleTheme">
         <span class="theme-icon">{{ currentTheme === 'light' ? '☀️' : '🌙' }}</span>
       </button>
-      <button class="icon-btn" title="操作日志" @click="toggleLogModal">
+      <button v-if="props.showLogIcon" class="icon-btn" title="操作日志" @click="toggleLogModal">
         <span class="log-icon">📋</span>
       </button>
     </div>
@@ -64,6 +72,15 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useAppStore } from '@/stores/app'
+
+const props = withDefaults(
+  defineProps<{
+    showLogIcon?: boolean
+  }>(),
+  {
+    showLogIcon: true,
+  },
+)
 
 // 获取 store
 const appStore = useAppStore()
