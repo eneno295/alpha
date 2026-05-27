@@ -5,6 +5,7 @@ import OKX from '@/views/OKX.vue'
 import Gate from '@/views/Gate.vue'
 import Tasks from '@/views/Tasks.vue'
 import Income from '@/views/income/index.vue'
+import History from '@/views/history/index.vue'
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -38,6 +39,11 @@ const router = createRouter({
       path: '/tasks',
       name: 'tasks',
       component: Tasks,
+    },
+    {
+      path: '/history',
+      name: 'history',
+      component: History,
     },
   ],
 })

@@ -8,12 +8,20 @@
     <div class="header-center">
       <nav class="nav-menu">
         <router-link
-          :to="{ path: '/income', query: $route.query }"
+          :to="{ path: '/', query: $route.query }"
           class="nav-link"
           :class="{ active: $route.name === 'income' }"
         >
           <span class="pc-text">Income</span>
           <span class="mobile-text">I</span>
+        </router-link>
+        <router-link
+          :to="{ path: '/history', query: $route.query }"
+          class="nav-link"
+          :class="{ active: $route.name === 'history' }"
+        >
+          <span class="pc-text">记录</span>
+          <span class="mobile-text">记</span>
         </router-link>
         <router-link
           :to="{ path: '/binance', query: $route.query }"

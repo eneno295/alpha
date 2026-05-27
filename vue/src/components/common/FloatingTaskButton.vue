@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!isIncomePage" class="floating-task-button" @click="handleClick">
+  <div v-if="!isIncomePage && !isHistoryPage" class="floating-task-button" @click="handleClick">
     <div class="button-content">
       <div class="icon">{{ isTaskPage ? '←' : '📋' }}</div>
       <div class="text">{{ isTaskPage ? '返回' : '任务' }}</div>
@@ -16,6 +16,7 @@ const route = useRoute()
 
 const isTaskPage = computed(() => route.name === 'tasks')
 const isIncomePage = computed(() => route.name === 'income')
+const isHistoryPage = computed(() => route.name === 'history')
 
 const handleClick = () => {
   if (isTaskPage.value) {
