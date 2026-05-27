@@ -24,6 +24,14 @@
           <span class="mobile-text">记</span>
         </router-link>
         <router-link
+          :to="{ path: '/monopoly', query: $route.query }"
+          class="nav-link"
+          :class="{ active: $route.name === 'monopoly' }"
+        >
+          <span class="pc-text">大富翁</span>
+          <span class="mobile-text">富</span>
+        </router-link>
+        <router-link
           :to="{ path: '/binance', query: $route.query }"
           class="nav-link"
           :class="{ active: $route.name === 'binance' }"

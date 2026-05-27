@@ -239,7 +239,7 @@ const syncHint = computed(() => {
     loading: '正在加载…',
     saving: '正在保存…',
     saved: '已同步',
-    error: '同步失败，已暂存本地',
+    error: '同步失败，请检查网络后刷新',
   }
   return map[syncStatus.value]
 })

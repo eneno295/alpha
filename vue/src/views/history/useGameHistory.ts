@@ -2,7 +2,6 @@ import { onMounted, ref, watch } from 'vue'
 import { fetchHistoryFromAPI, updateHistoryInAPI } from '@/api/historyBin'
 import {
   getSessionParticipants,
-  hasData,
   normalizeState,
   renumberRounds,
   renumberSessions,
@@ -13,25 +12,10 @@ import {
 } from './historyState'
 import type { GameHistoryState, Person, Round, Session } from './type'
 
-const STORAGE_KEY = 'game-history-v2'
 const SYNC_DEBOUNCE_MS = 600
 
 function nowIso(): string {
   return new Date().toISOString()
-}
-
-function loadLocalState(): GameHistoryState {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return { people: [], sessions: [] }
-    return normalizeState(JSON.parse(raw))
-  } catch {
-    return { people: [], sessions: [] }
-  }
-}
-
-function saveLocalState(state: GameHistoryState) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
 }
 
 export { getSessionParticipants, sessionTotals, scoreForRound } from './historyState'
@@ -57,14 +41,11 @@ export function useGameHistory() {
   async function syncToRemote() {
     syncStatus.value = 'saving'
     try {
-      const state = currentState()
-      await updateHistoryInAPI(state)
-      saveLocalState(state)
+      await updateHistoryInAPI(currentState())
       syncStatus.value = 'saved'
     } catch (error) {
       console.error('输赢记录同步失败:', error)
       syncStatus.value = 'error'
-      saveLocalState(currentState())
     }
   }
 
@@ -80,43 +61,30 @@ export function useGameHistory() {
   async function loadFromRemote() {
     syncStatus.value = 'loading'
     isHydrating = true
-    let remoteOk = false
-    let remote: GameHistoryState = { people: [], sessions: [] }
-
     try {
-      remote = normalizeState(await fetchHistoryFromAPI())
-      remoteOk = true
-    } catch (error) {
-      console.error('输赢记录拉取失败，使用本地缓存:', error)
-    }
-
-    const local = loadLocalState()
-
-    if (remoteOk && hasData(remote)) {
+      const remote = normalizeState(await fetchHistoryFromAPI())
       applyState(remote)
-      saveLocalState(remote)
-    } else if (hasData(local)) {
-      applyState(local)
-      if (remoteOk) await syncToRemote()
-    } else {
-      applyState(remoteOk ? remote : local)
+      syncStatus.value = 'saved'
+    } catch (error) {
+      console.error('输赢记录拉取失败:', error)
+      syncStatus.value = 'error'
+    } finally {
+      isHydrating = false
     }
-
-    isHydrating = false
-    syncStatus.value = remoteOk || hasData(local) ? 'saved' : 'idle'
   }
 
   watch(
     [people, sessions],
     () => {
       if (isHydrating) return
-      saveLocalState(currentState())
       scheduleSync()
     },
     { deep: true },
   )
 
   onMounted(() => {
+    localStorage.removeItem('game-history-v2')
+    localStorage.removeItem('game-history-v1')
     void loadFromRemote()
   })
 

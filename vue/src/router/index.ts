@@ -6,6 +6,7 @@ import Gate from '@/views/Gate.vue'
 import Tasks from '@/views/Tasks.vue'
 import Income from '@/views/income/index.vue'
 import History from '@/views/history/index.vue'
+import Monopoly from '@/views/monopoly/index.vue'
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -44,6 +45,11 @@ const router = createRouter({
       path: '/history',
       name: 'history',
       component: History,
+    },
+    {
+      path: '/monopoly',
+      name: 'monopoly',
+      component: Monopoly,
     },
   ],
 })
