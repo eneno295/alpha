@@ -1,0 +1,11 @@
+{
+  "name": "terminal-sudoku",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "终端数独（纯 Node，无依赖）",
+  "scripts": {
+    "start": "node index.js",
+    "play": "node index.js"
+  }
+}
