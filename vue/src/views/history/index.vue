@@ -169,8 +169,8 @@
           <span>{{ p.name }}（正数赢 / 负数输）</span>
           <input
             :value="amountInputValue(p.name)"
+            class="modal-input"
             type="text"
-            inputmode="decimal"
             placeholder="0"
             @input="setAmountInput(p.name, ($event.target as HTMLInputElement).value)"
           />
