@@ -45,8 +45,8 @@
         </p>
       </section>
 
-      <section v-if="sessions.length" class="sessions">
-        <article v-for="session in sessions" :key="session.id" class="card session-card">
+      <section v-if="displaySessions.length" class="sessions">
+        <article v-for="session in displaySessions" :key="session.id" class="card session-card">
           <div class="session-head">
             <div class="session-title">
               <h2>第 {{ session.sessionNo }} 场</h2>
@@ -71,6 +71,19 @@
 
           <div v-else class="table-wrap">
             <table class="score-table">
+              <tr class="total-row">
+                <td class="col-no">本场合计</td>
+                <td class="col-time"></td>
+                <td
+                  v-for="p in getSessionParticipants(session)"
+                  :key="p.personId"
+                  class="col-score"
+                  :class="amountClass(sessionTotals(session)[p.name])"
+                >
+                  {{ formatAmount(sessionTotals(session)[p.name]) }}
+                </td>
+                <td class="col-ops"></td>
+              </tr>
               <colgroup>
                 <col class="col-no" />
                 <col class="col-time" />
@@ -96,7 +109,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="round in session.rounds" :key="round.id">
+                <tr v-for="round in displayRounds(session)" :key="round.id">
                   <td class="col-no">第 {{ round.roundNo }} 局</td>
                   <td class="col-time time-cell">{{ formatDateTime(round.time) }}</td>
                   <td
@@ -121,21 +134,6 @@
                   </td>
                 </tr>
               </tbody>
-              <tfoot>
-                <tr class="total-row">
-                  <td class="col-no">本场合计</td>
-                  <td class="col-time"></td>
-                  <td
-                    v-for="p in getSessionParticipants(session)"
-                    :key="p.personId"
-                    class="col-score"
-                    :class="amountClass(sessionTotals(session)[p.name])"
-                  >
-                    {{ formatAmount(sessionTotals(session)[p.name]) }}
-                  </td>
-                  <td class="col-ops"></td>
-                </tr>
-              </tfoot>
             </table>
           </div>
         </article>
@@ -192,7 +190,7 @@ import Header from '@/components/binance/Header.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
 import { num } from './historyState'
 import { getSessionParticipants, useGameHistory } from './useGameHistory'
-import type { Round, SessionParticipant } from './type'
+import type { Round, Session, SessionParticipant } from './type'
 
 const {
   people,
@@ -211,6 +209,12 @@ const {
 
 const newPersonName = ref('')
 const roundModalParticipants = ref<SessionParticipant[]>([])
+
+const displaySessions = computed(() => [...sessions.value].reverse())
+
+function displayRounds(session: Session): Round[] {
+  return [...session.rounds].reverse()
+}
 
 const roundModal = reactive({
   visible: false,
