@@ -191,7 +191,7 @@
 import { computed, reactive, ref } from 'vue'
 import Header from '@/components/binance/Header.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
-import { emptyAmounts, num } from './historyState'
+import { num } from './historyState'
 import { getSessionParticipants, useGameHistory } from './useGameHistory'
 import type { Round, SessionParticipant } from './type'
 
@@ -222,13 +222,20 @@ const roundModal = reactive({
 
 const roundDraft = reactive({
   roundNo: 1,
-  amounts: {} as Record<string, number>,
+  amountInputs: {} as Record<string, string>,
 })
 
 const roundEditTime = ref('')
 
+function parseAmountInput(name: string): number {
+  const text = (roundDraft.amountInputs[name] ?? '').trim()
+  if (text === '' || text === '-' || text === '+') return 0
+  const n = Number(text)
+  return Number.isFinite(n) ? n : 0
+}
+
 const roundAmountSum = computed(() =>
-  roundModalParticipants.value.reduce((sum, p) => sum + num(roundDraft.amounts[p.name]), 0),
+  roundModalParticipants.value.reduce((sum, p) => sum + parseAmountInput(p.name), 0),
 )
 
 const roundAmountBalanced = computed(() => Math.abs(roundAmountSum.value) < 1e-6)
@@ -274,9 +281,10 @@ function openRoundEdit(sessionId: string, round: Round) {
   roundModal.roundId = round.id
   roundDraft.roundNo = round.roundNo
   roundEditTime.value = round.time
-  roundDraft.amounts = {}
+  roundDraft.amountInputs = {}
   roundModalParticipants.value.forEach((p) => {
-    roundDraft.amounts[p.name] = scoreForRound(round, p.name)
+    const v = scoreForRound(round, p.name)
+    roundDraft.amountInputs[p.name] = v ? String(v) : ''
   })
 }
 
@@ -290,7 +298,9 @@ function openRoundCreate(sessionId: string) {
   roundModal.roundId = ''
   roundDraft.roundNo = session.rounds.length + 1
   roundEditTime.value = ''
-  roundDraft.amounts = emptyAmounts(roundModalParticipants.value)
+  roundDraft.amountInputs = Object.fromEntries(
+    roundModalParticipants.value.map((p) => [p.name, '']),
+  )
 }
 
 function closeRoundModal() {
@@ -307,7 +317,7 @@ function saveRoundModal() {
   }
   const amounts: Record<string, number> = {}
   roundModalParticipants.value.forEach((p) => {
-    amounts[p.name] = num(roundDraft.amounts[p.name])
+    amounts[p.name] = parseAmountInput(p.name)
   })
   const roundNo = Math.max(1, Math.floor(num(roundDraft.roundNo)))
   if (roundModal.isNew) {
@@ -357,19 +367,11 @@ function formatAmount(v: number): string {
 }
 
 function amountInputValue(name: string): string {
-  const v = roundDraft.amounts[name]
-  if (!num(v)) return ''
-  return String(v)
+  return roundDraft.amountInputs[name] ?? ''
 }
 
 function setAmountInput(name: string, raw: string) {
-  const text = raw.trim()
-  if (text === '' || text === '-' || text === '+') {
-    roundDraft.amounts[name] = 0
-    return
-  }
-  const n = Number(text)
-  roundDraft.amounts[name] = Number.isFinite(n) ? n : 0
+  roundDraft.amountInputs[name] = raw
 }
 
 function amountClass(v: number): string {
