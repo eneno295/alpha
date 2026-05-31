@@ -46,12 +46,25 @@
       </section>
 
       <section v-if="displaySessions.length" class="sessions">
-        <article v-for="session in displaySessions" :key="session.id" class="card session-card">
+        <article
+          v-for="session in displaySessions"
+          :key="session.id"
+          class="card session-card"
+          :class="{ collapsed: !isSessionExpanded(session.id) }"
+        >
           <div class="session-head">
-            <div class="session-title">
-              <h2>第 {{ session.sessionNo }} 场</h2>
-              <time>{{ formatSessionDateTime(session.time) }}</time>
-            </div>
+            <button
+              type="button"
+              class="session-toggle"
+              :aria-expanded="isSessionExpanded(session.id)"
+              @click="toggleSessionExpand(session.id)"
+            >
+              <span class="chevron" :class="{ open: isSessionExpanded(session.id) }">▸</span>
+              <div class="session-title">
+                <h2>第 {{ session.sessionNo }} 场</h2>
+                <time>{{ formatSessionDateTime(session.time) }}</time>
+              </div>
+            </button>
             <div class="session-actions">
               <button
                 class="btn sm"
@@ -67,9 +80,10 @@
             </div>
           </div>
 
-          <div v-if="!session.rounds.length" class="empty-tip">本场暂无记录，点击「加一局」</div>
+          <div v-show="isSessionExpanded(session.id)" class="session-body">
+            <div v-if="!session.rounds.length" class="empty-tip">本场暂无记录，点击「加一局」</div>
 
-          <div v-else class="table-wrap">
+            <div v-else class="table-wrap">
             <table class="score-table">
               <tr class="total-row">
                 <td class="col-no">本场合计</td>
@@ -135,6 +149,7 @@
                 </tr>
               </tbody>
             </table>
+            </div>
           </div>
         </article>
       </section>
@@ -185,7 +200,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import Header from '@/components/binance/Header.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
 import { num } from './historyState'
@@ -211,6 +226,41 @@ const newPersonName = ref('')
 const roundModalParticipants = ref<SessionParticipant[]>([])
 
 const displaySessions = computed(() => [...sessions.value].reverse())
+
+const expandedSessionIds = ref<Set<string>>(new Set())
+let expandedInitialized = false
+
+function expandLatestOnly() {
+  const latest = displaySessions.value[0]
+  expandedSessionIds.value = latest ? new Set([latest.id]) : new Set()
+}
+
+function isSessionExpanded(sessionId: string): boolean {
+  return expandedSessionIds.value.has(sessionId)
+}
+
+function toggleSessionExpand(sessionId: string) {
+  const next = new Set(expandedSessionIds.value)
+  if (next.has(sessionId)) next.delete(sessionId)
+  else next.add(sessionId)
+  expandedSessionIds.value = next
+}
+
+watch(
+  () => sessions.value.length,
+  (len) => {
+    if (len === 0) {
+      expandedSessionIds.value = new Set()
+      expandedInitialized = false
+      return
+    }
+    if (!expandedInitialized) {
+      expandedInitialized = true
+      expandLatestOnly()
+    }
+  },
+  { immediate: true },
+)
 
 function displayRounds(session: Session): Round[] {
   return [...session.rounds].reverse()
@@ -264,10 +314,14 @@ function handleAddPerson() {
 
 function handleNewSession() {
   addSession()
+  expandLatestOnly()
 }
 
 function confirmRemoveSession(sessionId: string) {
-  if (window.confirm('确定删除这一场及其中所有局？')) removeSession(sessionId)
+  if (window.confirm('确定删除这一场及其中所有局？')) {
+    removeSession(sessionId)
+    expandLatestOnly()
+  }
 }
 
 function nowIso(): string {
@@ -532,7 +586,45 @@ function amountClass(v: number): string {
   align-items: flex-start;
   gap: 12px;
   flex-wrap: wrap;
-  margin-bottom: 12px;
+}
+
+.session-card.collapsed .session-head {
+  margin-bottom: 0;
+}
+
+.session-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover .session-title h2 {
+    color: var(--accent);
+  }
+}
+
+.chevron {
+  flex-shrink: 0;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1;
+  transition: transform 0.2s ease;
+
+  &.open {
+    transform: rotate(90deg);
+  }
+}
+
+.session-body {
+  margin-top: 12px;
 }
 
 .session-title {
