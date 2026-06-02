@@ -84,71 +84,71 @@
             <div v-if="!session.rounds.length" class="empty-tip">本场暂无记录，点击「加一局」</div>
 
             <div v-else class="table-wrap">
-            <table class="score-table">
-              <tr class="total-row">
-                <td class="col-no">本场合计</td>
-                <td class="col-time"></td>
-                <td
-                  v-for="p in getSessionParticipants(session)"
-                  :key="p.personId"
-                  class="col-score"
-                  :class="amountClass(sessionTotals(session)[p.name])"
-                >
-                  {{ formatAmount(sessionTotals(session)[p.name]) }}
-                </td>
-                <td class="col-ops"></td>
-              </tr>
-              <colgroup>
-                <col class="col-no" />
-                <col class="col-time" />
-                <col
-                  v-for="p in getSessionParticipants(session)"
-                  :key="p.personId"
-                  class="col-score"
-                />
-                <col class="col-ops" />
-              </colgroup>
-              <thead>
-                <tr>
-                  <th class="col-no">局号</th>
-                  <th class="col-time">时间</th>
-                  <th
-                    v-for="p in getSessionParticipants(session)"
-                    :key="p.personId"
-                    class="col-score"
-                  >
-                    {{ p.name }}
-                  </th>
-                  <th class="col-ops">操作</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="round in displayRounds(session)" :key="round.id">
-                  <td class="col-no">第 {{ round.roundNo }} 局</td>
-                  <td class="col-time time-cell">{{ formatDateTime(round.time) }}</td>
+              <table class="score-table">
+                <tr class="total-row">
+                  <td class="col-no">本场合计</td>
+                  <td class="col-time"></td>
                   <td
                     v-for="p in getSessionParticipants(session)"
                     :key="p.personId"
                     class="col-score"
-                    :class="amountClass(scoreForRound(round, p.name))"
+                    :class="amountClass(sessionTotals(session)[p.name])"
                   >
-                    {{ formatAmount(scoreForRound(round, p.name)) }}
+                    {{ formatAmount(sessionTotals(session)[p.name]) }}
                   </td>
-                  <td class="col-ops ops">
-                    <button class="link" type="button" @click="openRoundEdit(session.id, round)">
-                      修改
-                    </button>
-                    <button
-                      class="link danger"
-                      type="button"
-                      @click="removeRound(session.id, round.id)"
-                    >
-                      删除
-                    </button>
-                  </td>
+                  <td class="col-ops"></td>
                 </tr>
-              </tbody>
-            </table>
+                <colgroup>
+                  <col class="col-no" />
+                  <col class="col-time" />
+                  <col
+                    v-for="p in getSessionParticipants(session)"
+                    :key="p.personId"
+                    class="col-score"
+                  />
+                  <col class="col-ops" />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th class="col-no">局号</th>
+                    <th class="col-time">时间</th>
+                    <th
+                      v-for="p in getSessionParticipants(session)"
+                      :key="p.personId"
+                      class="col-score"
+                    >
+                      {{ p.name }}
+                    </th>
+                    <th class="col-ops">操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="round in displayRounds(session)" :key="round.id">
+                    <td class="col-no">第 {{ round.roundNo }} 局</td>
+                    <td class="col-time time-cell">{{ formatDateTime(round.time) }}</td>
+                    <td
+                      v-for="p in getSessionParticipants(session)"
+                      :key="p.personId"
+                      class="col-score"
+                      :class="amountClass(scoreForRound(round, p.name))"
+                    >
+                      {{ formatAmount(scoreForRound(round, p.name)) }}
+                    </td>
+                    <td class="col-ops ops">
+                      <button class="link" type="button" @click="openRoundEdit(session.id, round)">
+                        修改
+                      </button>
+                      <button
+                        class="link danger"
+                        type="button"
+                        @click="removeRound(session.id, round.id)"
+                      >
+                        删除
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </article>
@@ -614,7 +614,7 @@ function amountClass(v: number): string {
   flex-shrink: 0;
   margin-top: 4px;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 20px;
   line-height: 1;
   transition: transform 0.2s ease;
 
@@ -665,6 +665,7 @@ function amountClass(v: number): string {
 
   .col-no {
     width: 80px;
+    text-align: center;
   }
 
   .col-time {
@@ -688,7 +689,6 @@ function amountClass(v: number): string {
     text-overflow: ellipsis;
   }
 
-  .col-no,
   .col-time {
     text-align: left;
   }
