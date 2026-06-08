@@ -225,7 +225,7 @@ const {
 const newPersonName = ref('')
 const roundModalParticipants = ref<SessionParticipant[]>([])
 
-const displaySessions = computed(() => [...sessions.value].reverse())
+const displaySessions = computed(() => sessions.value)
 
 const expandedSessionIds = ref<Set<string>>(new Set())
 let expandedInitialized = false

@@ -32,6 +32,7 @@ export function useGameHistory() {
     const normalized = normalizeState(state)
     people.value = normalized.people
     sessions.value = normalized.sessions
+    renumberSessions(sessions.value)
   }
 
   function currentState(): GameHistoryState {

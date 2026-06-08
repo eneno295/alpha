@@ -33,9 +33,11 @@ export function getSessionParticipants(session: Session): SessionParticipant[] {
   return session.participants ?? []
 }
 
+/** 数组按时间新→旧排列时：最新一场编号最大，最早一场为 1 */
 export function renumberSessions(list: Session[]) {
+  const n = list.length
   list.forEach((s, i) => {
-    s.sessionNo = i + 1
+    s.sessionNo = n - i
   })
 }
 
