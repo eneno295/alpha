@@ -187,6 +187,18 @@
             placeholder="0"
             @input="setAmountInput(p.name, ($event.target as HTMLInputElement).value)"
           />
+          <div class="amount-shortcuts">
+            <button
+              v-for="v in amountShortcuts"
+              :key="v"
+              type="button"
+              class="amount-shortcut"
+              :class="{ win: v > 0, lose: v < 0 }"
+              @click="setAmountInput(p.name, String(v))"
+            >
+              {{ v > 0 ? `+${v}` : v }}
+            </button>
+          </div>
         </div>
         <p class="sum-check" :class="roundAmountBalanced ? 'ok' : 'bad'">
           <template v-if="roundAmountBalanced">本局合计平衡（所有人相加为 0）</template>
@@ -224,6 +236,7 @@ const {
 
 const newPersonName = ref('')
 const roundModalParticipants = ref<SessionParticipant[]>([])
+const amountShortcuts = [10, 20, 40, 80, -10, -20, -40, -80]
 
 const displaySessions = computed(() => sessions.value)
 
@@ -776,6 +789,38 @@ function amountClass(v: number): string {
     outline: none;
     border-color: #3b82f6;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  }
+}
+
+.amount-shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.amount-shortcut {
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+  background: #f8f9fa;
+  color: #495057;
+  font-size: 12px;
+  cursor: pointer;
+
+  &.win {
+    color: #047857;
+    border-color: #a7f3d0;
+    background: #ecfdf5;
+  }
+
+  &.lose {
+    color: #b91c1c;
+    border-color: #fecaca;
+    background: #fef2f2;
+  }
+
+  &:hover {
+    filter: brightness(0.96);
   }
 }
 
