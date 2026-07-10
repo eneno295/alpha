@@ -1,11 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
-const url = import.meta.env.VITE_SUPABASE_URL
-const key = import.meta.env.VITE_SUPABASE_ANON_KEY
-
-if (!url || !key) {
-  throw new Error('缺少 VITE_SUPABASE_URL 或 VITE_SUPABASE_ANON_KEY，请检查 .env')
-}
+const url = 'https://awkwnyjujftudwxolxpf.supabase.co'
+const key = 'sb_publishable_L02ZoW7Dfr12T3RDtB6VdQ_Gb64zgb_'
 
 export const supabase = createClient(url, key)
 
