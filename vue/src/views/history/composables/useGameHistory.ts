@@ -175,6 +175,8 @@ export function useGameHistory() {
       id: rowId,
       sessionNo: sessions.value.length + 1,
       time: formatStorageDateTime(),
+      settled: false,
+      settledAt: null,
       participants: snapshotParticipants(people.value),
       rounds: [],
     }
@@ -208,9 +210,25 @@ export function useGameHistory() {
     enqueue({ type: 'sessions-all' })
   }
 
+  function settleSession(sessionId: number) {
+    const session = sessions.value.find((s) => s.id === sessionId)
+    if (!session || session.settled) return
+    const before = clone(session)
+    session.settled = true
+    session.settledAt = formatStorageDateTime()
+    recordLog({
+      operation: 'settle_session',
+      target_type: 'session',
+      target_id: String(sessionId),
+      before_data: before,
+      after_data: clone(session),
+    })
+    enqueue({ type: 'session', id: sessionId })
+  }
+
   function addRound(sessionId: number, patch: Pick<Round, 'roundNo' | 'time' | 'amounts'>) {
     const session = sessions.value.find((s) => s.id === sessionId)
-    if (!session) return
+    if (!session || session.settled) return
     const round: Round = {
       id: patch.roundNo,
       roundNo: patch.roundNo,
@@ -237,7 +255,7 @@ export function useGameHistory() {
   ) {
     const session = sessions.value.find((s) => s.id === sessionId)
     const round = session?.rounds.find((r) => r.id === roundId)
-    if (!round) return
+    if (!round || session?.settled) return
     const before = clone({ sessionId, round })
     Object.assign(round, patch)
     if (patch.amounts) round.amounts = { ...patch.amounts }
@@ -256,7 +274,7 @@ export function useGameHistory() {
   function removeRound(sessionId: number, roundId: number) {
     const session = sessions.value.find((s) => s.id === sessionId)
     const round = session?.rounds.find((r) => r.id === roundId)
-    if (!session || !round) return
+    if (!session || !round || session.settled) return
     const before = clone({ sessionId, round })
     session.rounds = session.rounds.filter((r) => r.id !== roundId)
     renumberRounds(session)
@@ -279,6 +297,7 @@ export function useGameHistory() {
     removePerson,
     addSession,
     removeSession,
+    settleSession,
     addRound,
     updateRound,
     removeRound,

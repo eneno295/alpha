@@ -8,6 +8,8 @@ type HistoryRow = {
   session_no: number | null
   created_at: string | null
   updated_at: string | null
+  settled: boolean | null
+  settled_at: string | null
   participants: SessionParticipant[] | null
   rounds: Round[] | null
   people: Person[] | null
@@ -18,6 +20,8 @@ function rowToSession(row: HistoryRow): Session {
     id: row.id,
     sessionNo: row.session_no ?? 0,
     time: row.created_at ?? '',
+    settled: row.settled ?? false,
+    settledAt: row.settled_at ?? null,
     participants: row.participants ?? [],
     rounds: row.rounds ?? [],
   }
@@ -31,6 +35,8 @@ function sessionToRow(session: Session) {
     session_no: session.sessionNo,
     created_at: session.time,
     updated_at: now,
+    settled: session.settled,
+    settled_at: session.settledAt,
     participants: session.participants,
     rounds: session.rounds,
   }

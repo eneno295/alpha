@@ -23,6 +23,9 @@ export type Session = {
   sessionNo: number
   /** 场次创建时间，存库列名 created_at */
   time: string
+  settled: boolean
+  /** 结清时间，存库列名 settled_at */
+  settledAt: string | null
   participants: SessionParticipant[]
   rounds: Round[]
 }
@@ -40,6 +43,7 @@ export type OperationType =
   | 'add_round'
   | 'update_round'
   | 'remove_round'
+  | 'settle_session'
 
 /** 操作日志全部 7 种类型（与数据库 check 约束一致） */
 export const OPERATION_TYPES: OperationType[] = [
@@ -50,6 +54,7 @@ export const OPERATION_TYPES: OperationType[] = [
   'add_round',
   'update_round',
   'remove_round',
+  'settle_session',
 ]
 
 export type TargetType = 'people' | 'session' | 'round'

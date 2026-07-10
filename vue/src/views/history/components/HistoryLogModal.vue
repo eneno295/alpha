@@ -92,6 +92,7 @@
                 参与：{{ sessionBefore.participants.map((p) => p.name).join('、') || '—' }}
               </div>
               <div class="session-sub">共 {{ sessionBefore.rounds.length }} 局</div>
+              <div v-if="sessionBefore.settled" class="session-sub settled">已结清</div>
             </div>
             <div v-else class="empty-slot">无（新建）</div>
           </div>
@@ -105,6 +106,9 @@
                 参与：{{ sessionAfter.participants.map((p) => p.name).join('、') || '—' }}
               </div>
               <div class="session-sub">共 {{ sessionAfter.rounds.length }} 局</div>
+              <div v-if="sessionAfter.settled" class="session-sub settled">
+                已结清{{ sessionAfter.settledAt ? ` · ${sessionAfter.settledAt}` : '' }}
+              </div>
             </div>
             <div v-else class="empty-slot">无（已删除）</div>
           </div>
@@ -609,6 +613,10 @@ watch(
     font-size: 13px;
     color: var(--hl-muted);
     line-height: 1.6;
+
+    &.settled {
+      color: #3dd68c;
+    }
   }
 }
 

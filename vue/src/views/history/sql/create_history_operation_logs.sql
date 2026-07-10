@@ -27,7 +27,8 @@ create table if not exists history_operation_logs (
       'delete_session',
       'add_round',
       'update_round',
-      'remove_round'
+      'remove_round',
+      'settle_session'
     )
   ),
   constraint history_operation_logs_target_type_check check (

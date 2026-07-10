@@ -10,7 +10,9 @@
           <p v-if="syncHint" class="sync-hint">{{ syncHint }}</p>
         </div>
         <div class="page-head-actions">
-          <button class="btn" type="button" title="操作日志" @click="showLogModal = true">📋 日志</button>
+          <button class="btn" type="button" title="操作日志" @click="showLogModal = true">
+            📋 日志
+          </button>
           <button
             class="btn primary"
             type="button"
@@ -64,15 +66,29 @@
             >
               <span class="chevron" :class="{ open: isSessionExpanded(session.id) }">▸</span>
               <div class="session-title">
-                <h2>第 {{ session.sessionNo }} 场</h2>
+                <h2>
+                  第 {{ session.sessionNo }} 场
+                  <span v-if="session.settled" class="settled-badge">已结清</span>
+                </h2>
                 <time>{{ formatDisplayDateTime(session.time) }}</time>
+                <time v-if="session.settled && session.settledAt" class="settled-time">
+                  结清于 {{ formatDisplayDateTime(session.settledAt) }}
+                </time>
               </div>
             </button>
             <div class="session-actions">
               <button
+                v-if="!session.settled"
+                class="btn sm settle"
+                type="button"
+                @click="confirmSettleSession(session.id)"
+              >
+                结清
+              </button>
+              <button
                 class="btn sm"
                 type="button"
-                :disabled="!people.length"
+                :disabled="!people.length || session.settled"
                 @click="openRoundCreate(session.id)"
               >
                 + 加一局
@@ -88,19 +104,6 @@
 
             <div v-else class="table-wrap">
               <table class="score-table">
-                <tr class="total-row">
-                  <td class="col-no">本场合计</td>
-                  <td class="col-time"></td>
-                  <td
-                    v-for="p in getSessionParticipants(session)"
-                    :key="p.personId"
-                    class="col-score"
-                    :class="amountClass(sessionTotals(session)[p.name])"
-                  >
-                    {{ formatAmount(sessionTotals(session)[p.name]) }}
-                  </td>
-                  <td class="col-ops"></td>
-                </tr>
                 <colgroup>
                   <col class="col-no" />
                   <col class="col-time" />
@@ -112,6 +115,19 @@
                   <col class="col-ops" />
                 </colgroup>
                 <thead>
+                  <tr class="total-row">
+                    <td class="col-no">本场合计</td>
+                    <td class="col-time"></td>
+                    <td
+                      v-for="p in getSessionParticipants(session)"
+                      :key="p.personId"
+                      class="col-score"
+                      :class="amountClass(sessionTotals(session)[p.name])"
+                    >
+                      {{ formatAmount(sessionTotals(session)[p.name]) }}
+                    </td>
+                    <td class="col-ops"></td>
+                  </tr>
                   <tr>
                     <th class="col-no">局号</th>
                     <th class="col-time">时间</th>
@@ -140,16 +156,23 @@
                       {{ formatAmount(scoreForRound(round, p.name)) }}
                     </td>
                     <td class="col-ops ops">
-                      <button class="link" type="button" @click="openRoundEdit(session.id, round)">
-                        修改
-                      </button>
-                      <button
-                        class="link danger"
-                        type="button"
-                        @click="removeRound(session.id, round.id)"
-                      >
-                        删除
-                      </button>
+                      <template v-if="!session.settled">
+                        <button
+                          class="link"
+                          type="button"
+                          @click="openRoundEdit(session.id, round)"
+                        >
+                          修改
+                        </button>
+                        <button
+                          class="link danger"
+                          type="button"
+                          @click="removeRound(session.id, round.id)"
+                        >
+                          删除
+                        </button>
+                      </template>
+                      <span v-else class="muted-ops">已结清</span>
                     </td>
                   </tr>
                 </tbody>
@@ -235,6 +258,7 @@ const {
   removePerson,
   addSession,
   removeSession,
+  settleSession,
   addRound,
   updateRound,
   removeRound,
@@ -346,9 +370,21 @@ function confirmRemoveSession(sessionId: number) {
   }
 }
 
+function confirmSettleSession(sessionId: number) {
+  const session = sessions.value.find((s) => s.id === sessionId)
+  if (!session || session.settled) return
+  if (
+    window.confirm(
+      `确定将「第 ${session.sessionNo} 场」标记为已结清吗？结清后将不能再新增或修改局记录。`,
+    )
+  ) {
+    settleSession(sessionId)
+  }
+}
+
 function openRoundEdit(sessionId: number, round: Round) {
   const session = sessions.value.find((s) => s.id === sessionId)
-  if (!session) return
+  if (!session || session.settled) return
   roundModalParticipants.value = getSessionParticipants(session)
   roundModal.visible = true
   roundModal.isNew = false
@@ -365,7 +401,7 @@ function openRoundEdit(sessionId: number, round: Round) {
 
 function openRoundCreate(sessionId: number) {
   const session = sessions.value.find((s) => s.id === sessionId)
-  if (!session) return
+  if (!session || session.settled) return
   roundModalParticipants.value = getSessionParticipants(session)
   roundModal.visible = true
   roundModal.isNew = true
@@ -544,6 +580,12 @@ function amountClass(v: number): string {
     color: var(--bad);
   }
 
+  &.settle {
+    border-color: rgba(61, 214, 140, 0.45);
+    color: var(--ok);
+    background: rgba(61, 214, 140, 0.12);
+  }
+
   &:disabled {
     opacity: 0.45;
     cursor: not-allowed;
@@ -632,12 +674,39 @@ function amountClass(v: number): string {
   h2 {
     margin: 0 0 4px;
     font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
   }
 
   time {
+    display: block;
     color: var(--muted);
     font-size: 12px;
   }
+
+  .settled-time {
+    margin-top: 2px;
+    color: var(--ok);
+  }
+}
+
+.settled-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ok);
+  background: rgba(61, 214, 140, 0.15);
+  border: 1px solid rgba(61, 214, 140, 0.35);
+}
+
+.muted-ops {
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .session-actions {

@@ -10,6 +10,7 @@ export const OPERATION_LABELS: Record<OperationType, string> = {
   add_round: '加一局',
   update_round: '修改一局',
   remove_round: '删除一局',
+  settle_session: '结清场次',
 }
 
 export const TARGET_TYPE_LABELS: Record<string, string> = {
