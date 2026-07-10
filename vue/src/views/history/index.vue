@@ -1,6 +1,6 @@
 <template>
   <div class="history-page">
-    <Header :show-log-icon="false" :show-fast-config-param="false" :show-theme-icon-param="false" />
+    <Header :show-fast-config-param="false" :show-theme-icon-param="false" />
 
     <div class="wrap">
       <header class="page-head">
@@ -9,14 +9,17 @@
           <p class="sub">按场次记录每一局，数据同步至云端</p>
           <p v-if="syncHint" class="sync-hint">{{ syncHint }}</p>
         </div>
-        <button
-          class="btn primary"
-          type="button"
-          :disabled="!people.length"
-          @click="handleNewSession"
-        >
-          + 新建一场
-        </button>
+        <div class="page-head-actions">
+          <button class="btn" type="button" title="操作日志" @click="showLogModal = true">📋 日志</button>
+          <button
+            class="btn primary"
+            type="button"
+            :disabled="!people.length"
+            @click="handleNewSession"
+          >
+            + 新建一场
+          </button>
+        </div>
       </header>
 
       <section class="card people-card">
@@ -62,7 +65,7 @@
               <span class="chevron" :class="{ open: isSessionExpanded(session.id) }">▸</span>
               <div class="session-title">
                 <h2>第 {{ session.sessionNo }} 场</h2>
-                <time>{{ formatSessionDateTime(session.time) }}</time>
+                <time>{{ formatDisplayDateTime(session.time) }}</time>
               </div>
             </button>
             <div class="session-actions">
@@ -125,7 +128,9 @@
                 <tbody>
                   <tr v-for="round in displayRounds(session)" :key="round.id">
                     <td class="col-no">第 {{ round.roundNo }} 局</td>
-                    <td class="col-time time-cell">{{ formatDateTime(round.time) }}</td>
+                    <td class="col-time time-cell">
+                      {{ formatDisplayDateTime(round.time, false) }}
+                    </td>
                     <td
                       v-for="p in getSessionParticipants(session)"
                       :key="p.personId"
@@ -176,7 +181,7 @@
           />
         </label>
         <p v-if="!roundModal.isNew && roundEditTime" class="time-readonly">
-          记录时间：{{ formatDateTime(roundEditTime) }}
+          记录时间：{{ formatDisplayDateTime(roundEditTime, false) }}
         </p>
         <div v-for="p in roundModalParticipants" :key="p.personId" class="field">
           <span>{{ p.name }}（正数赢 / 负数输）</span>
@@ -208,6 +213,8 @@
         </p>
       </div>
     </BaseModal>
+
+    <HistoryLogModal :visible="showLogModal" @close="showLogModal = false" />
   </div>
 </template>
 
@@ -215,9 +222,10 @@
 import { computed, reactive, ref, watch } from 'vue'
 import Header from '@/components/binance/Header.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
-import { num } from './historyState'
-import { getSessionParticipants, useGameHistory } from './useGameHistory'
-import type { Round, Session, SessionParticipant } from './type'
+import HistoryLogModal from './components/HistoryLogModal.vue'
+import { formatDisplayDateTime, formatStorageDateTime, num } from './utils/historyState'
+import { getSessionParticipants, useGameHistory } from './composables/useGameHistory'
+import type { Round, Session, SessionParticipant } from './types'
 
 const {
   people,
@@ -235,12 +243,13 @@ const {
 } = useGameHistory()
 
 const newPersonName = ref('')
+const showLogModal = ref(false)
 const roundModalParticipants = ref<SessionParticipant[]>([])
 const amountShortcuts = [10, 20, 40, 80, -10, -20, -40, -80]
 
 const displaySessions = computed(() => sessions.value)
 
-const expandedSessionIds = ref<Set<string>>(new Set())
+const expandedSessionIds = ref<Set<number>>(new Set())
 let expandedInitialized = false
 
 function expandLatestOnly() {
@@ -248,11 +257,11 @@ function expandLatestOnly() {
   expandedSessionIds.value = latest ? new Set([latest.id]) : new Set()
 }
 
-function isSessionExpanded(sessionId: string): boolean {
+function isSessionExpanded(sessionId: number): boolean {
   return expandedSessionIds.value.has(sessionId)
 }
 
-function toggleSessionExpand(sessionId: string) {
+function toggleSessionExpand(sessionId: number) {
   const next = new Set(expandedSessionIds.value)
   if (next.has(sessionId)) next.delete(sessionId)
   else next.add(sessionId)
@@ -282,8 +291,8 @@ function displayRounds(session: Session): Round[] {
 const roundModal = reactive({
   visible: false,
   isNew: false,
-  sessionId: '',
-  roundId: '',
+  sessionId: 0,
+  roundId: 0,
 })
 
 const roundDraft = reactive({
@@ -330,18 +339,14 @@ function handleNewSession() {
   expandLatestOnly()
 }
 
-function confirmRemoveSession(sessionId: string) {
+function confirmRemoveSession(sessionId: number) {
   if (window.confirm('确定删除这一场及其中所有局？')) {
     removeSession(sessionId)
     expandLatestOnly()
   }
 }
 
-function nowIso(): string {
-  return new Date().toISOString()
-}
-
-function openRoundEdit(sessionId: string, round: Round) {
+function openRoundEdit(sessionId: number, round: Round) {
   const session = sessions.value.find((s) => s.id === sessionId)
   if (!session) return
   roundModalParticipants.value = getSessionParticipants(session)
@@ -358,14 +363,14 @@ function openRoundEdit(sessionId: string, round: Round) {
   })
 }
 
-function openRoundCreate(sessionId: string) {
+function openRoundCreate(sessionId: number) {
   const session = sessions.value.find((s) => s.id === sessionId)
   if (!session) return
   roundModalParticipants.value = getSessionParticipants(session)
   roundModal.visible = true
   roundModal.isNew = true
   roundModal.sessionId = sessionId
-  roundModal.roundId = ''
+  roundModal.roundId = 0
   roundDraft.roundNo = session.rounds.length + 1
   roundEditTime.value = ''
   roundDraft.amountInputs = Object.fromEntries(
@@ -393,7 +398,7 @@ function saveRoundModal() {
   if (roundModal.isNew) {
     addRound(roundModal.sessionId, {
       roundNo,
-      time: nowIso(),
+      time: formatStorageDateTime(),
       amounts,
     })
   } else {
@@ -404,30 +409,6 @@ function saveRoundModal() {
   }
   roundModal.visible = false
   roundModal.isNew = false
-}
-
-/** 场次时间：年月日 + 时分 */
-function formatSessionDateTime(iso: string): string {
-  const d = new Date(iso)
-  if (!Number.isFinite(d.getTime())) return '-'
-  return d.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
-function formatDateTime(iso: string): string {
-  const d = new Date(iso)
-  if (!Number.isFinite(d.getTime())) return '-'
-  return d.toLocaleString('zh-CN', {
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
 }
 
 function formatAmount(v: number): string {
@@ -499,6 +480,13 @@ function amountClass(v: number): string {
     margin: 6px 0 0;
     font-size: 12px;
     color: var(--accent);
+  }
+
+  .page-head-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
   }
 }
 
