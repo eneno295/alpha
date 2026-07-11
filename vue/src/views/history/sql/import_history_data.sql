@@ -7,6 +7,8 @@ create table history_data (
   session_no    int,
   created_at    text,
   updated_at    text,
+  settled       boolean not null default false,
+  settled_at    text,
   participants  jsonb,
   rounds        jsonb,
   people        jsonb
