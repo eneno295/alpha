@@ -118,7 +118,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { PropType } from 'vue'
-import type { MarginPositionMode, ResultData } from '../type'
+import type { MarginPositionMode, ResultData } from './types'
 
 const showFormula = ref(false)
 

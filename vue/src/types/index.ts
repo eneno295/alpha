@@ -26,11 +26,6 @@ export interface UserData {
     }> // 按账号分组的数据
     log?: LogEntry[] // 操作日志
   }
-  gate?: {
-    config: platformConfig // Gate 配置
-    date: DateRecord[] // 日期记录列表
-    log?: LogEntry[] // 操作日志
-  }
   tasks?: TaskData // 任务数据
 }
 
@@ -95,4 +90,4 @@ export interface AddLog {
   details?: string // 操作详情
 }
 
-export type Platform = 'binance' | 'okx' | 'gate'
+export type Platform = 'binance' | 'okx'

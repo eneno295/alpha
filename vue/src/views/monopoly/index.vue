@@ -95,7 +95,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import Header from '@/components/binance/Header.vue'
+import Header from '@/components/common/Header.vue'
 import MonopolyBoard3D from './components/MonopolyBoard3D.vue'
 import { isMyTurn as checkMyTurn } from './monopolyState'
 import { useMonopolyRoom } from './useMonopolyRoom'

@@ -48,14 +48,6 @@
           <span class="pc-text">OKX</span>
           <span class="mobile-text">O</span>
         </router-link>
-        <router-link
-          :to="{ path: '/gate', query: $route.query }"
-          class="nav-link"
-          :class="{ active: $route.name === 'gate' }"
-        >
-          <span class="pc-text">Gate</span>
-          <span class="mobile-text">G</span>
-        </router-link>
         <!-- <router-link to="/bot" class="nav-link" :class="{ active: $route.name === 'bot' }">
           Bot
         </router-link> -->

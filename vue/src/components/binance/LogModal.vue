@@ -340,11 +340,9 @@ const emit = defineEmits<Emits>()
 
 // 获取日志列表（最多显示前500条）
 const platform = computed(() => appStore.getPlatform())
-const platformLabel = computed(() =>
-  platform.value === 'gate' ? 'Gate' : platform.value === 'okx' ? 'OKX' : 'Binance',
-)
+const platformLabel = computed(() => (platform.value === 'okx' ? 'OKX' : 'Binance'))
 
-// 使用 binance 模块的映射获取日志（在 gate 路由时会自动映射到 gate 数据）
+// 使用 binance 模块的映射获取日志
 const logs = computed(() => {
   const allLogs = appStore.binance.logs || []
   return allLogs.slice(0, 500)

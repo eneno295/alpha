@@ -127,7 +127,7 @@ const saveConfig = async () => {
       // 更新配置并记录日志
       if (!appStore.currentUser) throw new Error('用户不存在')
 
-      // 通过标准 action 批量更新（带日志与持久化；自动根据当前路由更新 gate/binance）
+      // 通过标准 action 批量更新（带日志与持久化）
       await appStore.binance.updateUserConfigsAction(config.value)
     }, '保存配置中...')
 

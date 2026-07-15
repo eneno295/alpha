@@ -9,7 +9,7 @@
       <div class="header-center">
         <nav class="nav-menu">
           <router-link
-            :to="{ path: '/income', query: $route.query }"
+            :to="{ path: '/', query: $route.query }"
             class="nav-link"
             :class="{ active: $route.name === 'income' }"
           >
@@ -37,16 +37,6 @@
               <GradientText text="OKX" style="font-size: 18px" />
             </div>
             <div class="mobile-text">O</div>
-          </router-link>
-          <router-link
-            :to="{ path: '/gate', query: $route.query }"
-            class="nav-link"
-            :class="{ active: $route.name === 'gate' }"
-          >
-            <div class="pc-text">
-              <GradientText text="Gate" style="font-size: 18px" />
-            </div>
-            <div class="mobile-text">G</div>
           </router-link>
         </nav>
       </div>

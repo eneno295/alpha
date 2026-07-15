@@ -124,7 +124,7 @@
 
 <script setup lang="ts">
 import type { PropType } from 'vue'
-import type { ReserveRatePreset, RiskConfig, SimulationPreset, SimulationPresetKey } from '../type'
+import type { ReserveRatePreset, RiskConfig, SimulationPreset, SimulationPresetKey } from './types'
 
 defineProps({
   form: { type: Object as PropType<Record<string, any>>, required: true },

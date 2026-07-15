@@ -243,7 +243,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
-import Header from '@/components/binance/Header.vue'
+import Header from '@/components/common/Header.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
 import HistoryLogModal from './components/HistoryLogModal.vue'
 import { formatDisplayDateTime, formatStorageDateTime, num } from './utils/historyState'

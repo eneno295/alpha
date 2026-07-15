@@ -1,8 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import Binance from '@/views/Binance.vue'
+import Binance from '@/views/alpha/Binance.vue'
 import Bot from '@/views/Bot.vue'
-import OKX from '@/views/OKX.vue'
-import Gate from '@/views/Gate.vue'
+import OKX from '@/views/alpha/OKX.vue'
 import Tasks from '@/views/Tasks.vue'
 import Income from '@/views/income/index.vue'
 import History from '@/views/history/index.vue'
@@ -30,11 +29,6 @@ const router = createRouter({
       path: '/okx',
       name: 'okx',
       component: OKX,
-    },
-    {
-      path: '/gate',
-      name: 'gate',
-      component: Gate,
     },
     {
       path: '/tasks',

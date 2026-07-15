@@ -35,6 +35,7 @@ export type SimulationPresetKey =
   | 'eth1500-30' // 模拟：ETH 1500U / 30 格
   | 'eth2000-30' // 模拟：ETH 2000U / 30 格
   | 'eth2500-30' // 模拟：ETH 2500U / 30 格
+  | 'eth20000-70' // 模拟：ETH 20000U / 70 格
 export type SimulationPreset = {
   key: SimulationPresetKey // 预设唯一标识
   label: string // 界面按钮文案
