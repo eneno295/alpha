@@ -36,6 +36,8 @@ export type SimulationPresetKey =
   | 'eth2000-30' // 模拟：ETH 2000U / 30 格
   | 'eth2500-30' // 模拟：ETH 2500U / 30 格
   | 'eth20000-70' // 模拟：ETH 20000U / 70 格
+  | 'soxl5000-30' // 模拟：SOXL 5000U / 30 格
+export type SimulationGroup = 'BTC' | 'ETH' | 'SOXL' // 模拟数据分组
 export type SimulationPreset = {
   key: SimulationPresetKey // 预设唯一标识
   label: string // 界面按钮文案
@@ -52,6 +54,10 @@ export type SimulationPreset = {
     estimateGridDiff: number // 预估价格每移动一格的步长（USDT）
     dailyFilledGrids: number // 假设每日成交网格次数（用于估算日/月收益）
   }
+}
+export type SimulationPresetGroup = {
+  group: SimulationGroup // 分组名（BTC / ETH / SOXL）
+  presets: SimulationPreset[] // 该组下的模拟预设
 }
 
 export type MarginRow = {

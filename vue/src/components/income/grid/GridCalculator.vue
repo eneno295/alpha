@@ -38,8 +38,9 @@ import type {
   Tier,
 } from './types'
 
+const allPresets = simulationPresets.flatMap((group) => group.presets)
 const defaultSimulationPreset =
-  simulationPresets.find((item) => item.key === 'eth2500') ?? simulationPresets[0]
+  allPresets.find((item) => item.key === 'eth2500') ?? allPresets[0]
 const defaultPlatformKey = 'okx'
 const defaultSymbolKey = 'ETH'
 const defaultSymbolConfig = riskConfig[defaultPlatformKey].symbols[defaultSymbolKey]
@@ -96,7 +97,7 @@ watch(
 
 // 应用“模拟数据”预设（参数在 riskConfig.ts 维护）
 function applySimulation(key: SimulationPresetKey) {
-  const preset = simulationPresets.find((item) => item.key === key)
+  const preset = allPresets.find((item) => item.key === key)
   if (!preset) return
   if (preset.platformKey) selectedPlatformKey.value = preset.platformKey
   if (preset.symbolKey) selectedSymbolKey.value = preset.symbolKey
