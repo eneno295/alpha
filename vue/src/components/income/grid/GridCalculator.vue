@@ -34,13 +34,11 @@ import type {
   MarginRow,
   ReserveRatePreset,
   ResultData,
-  SimulationPresetKey,
   Tier,
 } from './types'
 
 const allPresets = simulationPresets.flatMap((group) => group.presets)
-const defaultSimulationPreset =
-  allPresets.find((item) => item.key === 'eth2500') ?? allPresets[0]
+const defaultSimulationPreset = allPresets.find((item) => item.key === 'eth2500') ?? allPresets[0]
 const defaultPlatformKey = 'okx'
 const defaultSymbolKey = 'ETH'
 const defaultSymbolConfig = riskConfig[defaultPlatformKey].symbols[defaultSymbolKey]
@@ -96,7 +94,7 @@ watch(
 )
 
 // 应用“模拟数据”预设（参数在 riskConfig.ts 维护）
-function applySimulation(key: SimulationPresetKey) {
+function applySimulation(key: any) {
   const preset = allPresets.find((item) => item.key === key)
   if (!preset) return
   if (preset.platformKey) selectedPlatformKey.value = preset.platformKey

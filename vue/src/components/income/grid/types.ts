@@ -22,24 +22,11 @@ export type ReserveRatePreset = {
   label: string // 按钮展示文案
   value: number // 预留率数值（%）
 }
-export type SimulationPresetKey =
-  | 'btc1000' // 模拟：BTC Gate
-  | 'btc5000' // 模拟：BTC 大额 OKX
-  | 'eth2000' // 模拟：ETH 2000U
-  | 'eth2500' // 模拟：ETH 2500U
-  | 'eth3000' // 模拟：ETH 3000U
-  | 'eth3500' // 模拟：ETH 3500U
-  | 'eth4000' // 模拟：ETH 4000U
-  | 'eth4500' // 模拟：ETH 4500U
-  | 'eth5000' // 模拟：ETH 5000U
-  | 'eth1500-30' // 模拟：ETH 1500U / 30 格
-  | 'eth2000-30' // 模拟：ETH 2000U / 30 格
-  | 'eth2500-30' // 模拟：ETH 2500U / 30 格
-  | 'eth20000-70' // 模拟：ETH 20000U / 70 格
-  | 'soxl5000-30' // 模拟：SOXL 5000U / 30 格
+
 export type SimulationGroup = 'BTC' | 'ETH' | 'SOXL' // 模拟数据分组
+
 export type SimulationPreset = {
-  key: SimulationPresetKey // 预设唯一标识
+  key: string // 预设唯一标识
   label: string // 界面按钮文案
   platformKey?: string // 应用预设时切换到的平台（可选）
   symbolKey?: string // 应用预设时切换到的币种（可选）

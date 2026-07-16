@@ -341,8 +341,8 @@ export const simulationPresets: SimulationPresetGroup[] = [
     group: 'SOXL',
     presets: [
       {
-        key: 'soxl5000-30',
-        label: 'SOXL 5000 / 30 / 2x',
+        key: 'soxl5000-150/200-2x',
+        label: 'SOXL 5000 / 150/200 / 2x',
         values: {
           gridMode: 'arithmetic',
           investAmount: 5000,
@@ -353,6 +353,36 @@ export const simulationPresets: SimulationPresetGroup[] = [
           estimatePrice: 1,
           estimateGridDiff: 10,
           dailyFilledGrids: 10,
+        },
+      },
+      {
+        key: 'soxl5000-140/170-1x',
+        label: 'SOXL 5000 / 140/170 / 1x',
+        values: {
+          gridMode: 'arithmetic',
+          investAmount: 5000,
+          multiplier: 1,
+          grids: 30,
+          rangeLow: 140,
+          rangeHigh: 170,
+          estimatePrice: 1,
+          estimateGridDiff: 10,
+          dailyFilledGrids: 20,
+        },
+      },
+      {
+        key: 'soxl5000-170/200-1x',
+        label: 'SOXL 5000 / 170/200 / 1x',
+        values: {
+          gridMode: 'arithmetic',
+          investAmount: 5000,
+          multiplier: 1,
+          grids: 30,
+          rangeLow: 140,
+          rangeHigh: 170,
+          estimatePrice: 1,
+          estimateGridDiff: 10,
+          dailyFilledGrids: 20,
         },
       },
     ],
