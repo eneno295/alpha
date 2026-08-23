@@ -26,12 +26,12 @@ export function updateBinIdFromLocation(): string {
   try {
     const param = location.href.split('?')[1] || ''
     const mapped = binIdMap.get(param) || null
-    const binId = localStorage.getItem('jsonbinId') || mapped || '6891ba4d7b4b8670d8ad8f65'
+    const binId = localStorage.getItem('jsonbinId') || mapped || '6891a9a77b4b8670d8ad84da'
 
     return binId
   } catch (e) {
     // 忽略错误，保持原 BIN_ID
-    return '6891ba4d7b4b8670d8ad8f65'
+    return '6891a9a77b4b8670d8ad84da'
   }
 }
 

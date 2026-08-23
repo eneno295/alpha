@@ -1,7 +1,7 @@
 <template>
   <!-- 顶部导航栏 -->
   <header class="header">
-    <div class="header-left">
+    <div class="header-left" v-if="isBinancePage">
       <UserSelector />
     </div>
 
@@ -54,7 +54,7 @@
       </nav>
     </div>
 
-    <div class="header-right">
+    <div class="header-right" v-if="isBinancePage">
       <button
         v-if="showFastConfig && props.showFastConfigParam"
         class="icon-btn"
@@ -89,6 +89,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { useAppStore } from '@/stores/app'
 
 const props = withDefaults(
@@ -103,6 +104,9 @@ const props = withDefaults(
     showThemeIconParam: true,
   },
 )
+
+const route = useRoute()
+const isBinancePage = computed(() => route.name === 'binance')
 
 // 获取 store
 const appStore = useAppStore()

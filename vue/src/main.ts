@@ -8,6 +8,7 @@ import App from './App.vue'
 import router from './router'
 import GlobalPlugin from '@/plugins/global'
 import { useAppStore } from '@/stores/app'
+import { loadHistory } from '@/views/history/api/historyDb'
 
 const app = createApp(App)
 
@@ -38,3 +39,8 @@ GlobalPlugin.init()
 
 app.mount('#app')
 
+// --- Supabase 保活（防免费项目休眠）；不用了删掉本段 + 上面 loadHistory 的 import ---
+const pingHistory = () => void loadHistory().catch(() => { })
+pingHistory()
+setInterval(pingHistory, 30_000)
+// --- 保活结束 ---
