@@ -35,6 +35,21 @@ export const formatDecimal = (value: string | number | null | undefined): string
   return numStr
 }
 
+/** 安全转数字，非法值返回 0 */
+export function toNum(v: unknown): number {
+  const x = Number(v)
+  return Number.isFinite(x) ? x : 0
+}
+
+/** 按 zh-CN 本地化格式化金额/比率等 */
+export function formatLocaleNumber(v: number, digits = 2): string {
+  if (!Number.isFinite(v)) return '-'
+  return v.toLocaleString('zh-CN', {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  })
+}
+
 // 格式化时间
 export const formatTime = (timestamp: number, onlyDate: boolean = false): string => {
   const date = new Date(timestamp)

@@ -3,28 +3,20 @@
     <Header :show-log-icon="false" :show-fast-config-param="false" :show-theme-icon-param="false" />
 
     <div class="tabs">
-      <button
-        v-for="tab in tabs"
-        :key="tab.key"
-        class="tab-btn"
-        :class="{ active: activeTab === tab.key }"
-        type="button"
-        @click="activeTab = tab.key"
-      >
-        {{ tab.label }}
-      </button>
+      <SegmentTabs v-model="activeTab" :tabs="tabs" />
     </div>
 
     <GridCalculator v-if="activeTab === 'grid'" />
-    <CompoundCalculator v-else-if="activeTab === 'compound'" />
+    <Compound v-else-if="activeTab === 'compound'" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import Header from '@/components/common/Header.vue'
+import SegmentTabs from '@/components/income/SegmentTabs.vue'
 import GridCalculator from '@/components/income/grid/GridCalculator.vue'
-import CompoundCalculator from '@/components/income/compound/CompoundCalculator.vue'
+import Compound from '@/components/income/compound/index.vue'
 import { useAppInitialization } from '@/composables/useAppInitialization'
 
 type TabKey = 'grid' | 'compound'
@@ -38,7 +30,6 @@ const activeTab = ref<TabKey>('grid')
 
 const { initializeApp } = useAppInitialization()
 
-// income 页面刷新时主动拉一次数据（该页面本身没有复用其它页面的生命周期初始化）
 onMounted(() => {
   initializeApp()
 })
@@ -70,30 +61,5 @@ onMounted(() => {
   max-width: 1080px;
   margin: 20px auto 0;
   padding: 0 16px;
-  display: flex;
-  gap: 8px;
-}
-
-.tab-btn {
-  border: 1px solid var(--line);
-  color: var(--muted);
-  background: rgba(255, 255, 255, 0.03);
-  padding: 8px 20px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.2s ease;
-
-  &:hover {
-    color: var(--text);
-  }
-
-  &.active {
-    color: #dce9ff;
-    border-color: var(--accent);
-    background: linear-gradient(180deg, rgba(110, 168, 255, 0.28), rgba(110, 168, 255, 0.12));
-    box-shadow: 0 0 0 1px rgba(110, 168, 255, 0.25) inset;
-  }
 }
 </style>

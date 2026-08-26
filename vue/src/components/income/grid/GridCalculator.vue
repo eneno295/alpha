@@ -25,6 +25,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
+import { formatLocaleNumber, toNum } from '@/utils/format'
 import GridInputPanel from './GridInputPanel.vue'
 import GridResultPanel from './GridResultPanel.vue'
 import { riskConfig, simulationPresets, tiersToText } from './riskConfig'
@@ -104,19 +105,19 @@ function applySimulation(key: any) {
 
 // 核心计算：把输入参数转换为页面展示结果
 const result = computed<ResultData>(() => {
-  const investAmount = num(form.investAmount)
-  const multiplier = num(form.multiplier)
-  const reserveRate = Math.min(99.99, Math.max(0, num(form.reserveRate)))
-  const makerFeeRate = Math.max(0, num(form.makerFeeRate)) / 100
-  const takerFeeRate = Math.max(0, num(form.takerFeeRate)) / 100
+  const investAmount = toNum(form.investAmount)
+  const multiplier = toNum(form.multiplier)
+  const reserveRate = Math.min(99.99, Math.max(0, toNum(form.reserveRate)))
+  const makerFeeRate = Math.max(0, toNum(form.makerFeeRate)) / 100
+  const takerFeeRate = Math.max(0, toNum(form.takerFeeRate)) / 100
   const tierAsset = selectedSymbolKey.value || 'ETH'
   const mmrTiers = parseMmrTiers(form.mmrTiers)
-  const rangeLow = num(form.rangeLow)
-  const rangeHigh = num(form.rangeHigh)
-  const grids = num(form.grids)
-  const dailyFilledGrids = Math.max(0, num(form.dailyFilledGrids))
-  const estimatePrice = num(form.estimatePrice)
-  const estimateGridDiff = num(form.estimateGridDiff)
+  const rangeLow = toNum(form.rangeLow)
+  const rangeHigh = toNum(form.rangeHigh)
+  const grids = toNum(form.grids)
+  const dailyFilledGrids = Math.max(0, toNum(form.dailyFilledGrids))
+  const estimatePrice = toNum(form.estimatePrice)
+  const estimateGridDiff = toNum(form.estimateGridDiff)
   const gridMode = form.gridMode
   const positionMode = marginPositionMode.value
 
@@ -211,10 +212,10 @@ const result = computed<ResultData>(() => {
       const perGridMargin = cumulative - prevCumulative
       marginRows.push({
         step: i,
-        price: fmt(price, 2),
-        positionQty: `${fmt(positionQty, 4)} 个`,
-        perGridMargin: fmt(perGridMargin, 2),
-        cumulative: fmt(cumulative, 2),
+        price: formatLocaleNumber(price, 2),
+        positionQty: `${formatLocaleNumber(positionQty, 4)} 个`,
+        perGridMargin: formatLocaleNumber(perGridMargin, 2),
+        cumulative: formatLocaleNumber(cumulative, 2),
       })
       prevCumulative = cumulative
     }
@@ -224,43 +225,31 @@ const result = computed<ResultData>(() => {
   if (gridMode === 'geometric') {
     const ratio = Math.pow(rangeHigh / rangeLow, 1 / grids)
     hint =
-      `等比计算：总投入=${fmt(investAmount, 2)}×${fmt(multiplier, 2)}，预留率=${fmt(reserveRate, 2)}%，可用资金=${fmt(usableInvest, 2)}` +
-      `，Maker/Taker=${fmt(makerFeeRate * 100, 2)}%/${fmt(takerFeeRate * 100, 2)}%` +
-      `，匹配MMR=${fmt(mmrRate * 100, 2)}%（按${tierAsset}持仓分档）` +
-      `，平均挂单价≈${fmt(avgGridPrice, 2)}，单网格数量=(${fmt(usableInvest, 2)}/${fmt(avgGridPrice, 2)})/${fmt(grids, 0)}=${fmt(qtyPerGrid, 6)}；每格比率≈×${fmt(ratio, 6)}`
+      `等比计算：总投入=${formatLocaleNumber(investAmount, 2)}×${formatLocaleNumber(multiplier, 2)}，预留率=${formatLocaleNumber(reserveRate, 2)}%，可用资金=${formatLocaleNumber(usableInvest, 2)}` +
+      `，Maker/Taker=${formatLocaleNumber(makerFeeRate * 100, 2)}%/${formatLocaleNumber(takerFeeRate * 100, 2)}%` +
+      `，匹配MMR=${formatLocaleNumber(mmrRate * 100, 2)}%（按${tierAsset}持仓分档）` +
+      `，平均挂单价≈${formatLocaleNumber(avgGridPrice, 2)}，单网格数量=(${formatLocaleNumber(usableInvest, 2)}/${formatLocaleNumber(avgGridPrice, 2)})/${formatLocaleNumber(grids, 0)}=${formatLocaleNumber(qtyPerGrid, 6)}；每格比率≈×${formatLocaleNumber(ratio, 6)}`
   } else {
     hint =
-      `等差计算：总投入=${fmt(investAmount, 2)}×${fmt(multiplier, 2)}，预留率=${fmt(reserveRate, 2)}%，可用资金=${fmt(usableInvest, 2)}` +
-      `，Maker/Taker=${fmt(makerFeeRate * 100, 2)}%/${fmt(takerFeeRate * 100, 2)}%` +
-      `，匹配MMR=${fmt(mmrRate * 100, 2)}%（按${tierAsset}持仓分档）` +
-      `，中位价=(${fmt(rangeLow, 2)}+${fmt(rangeHigh, 2)})/2=${fmt(avgGridPrice, 2)}，单网格数量=(${fmt(usableInvest, 2)}/${fmt(avgGridPrice, 2)})/${fmt(grids, 0)}=${fmt(qtyPerGrid, 6)}；每格价差≈${fmt(gridStep, 2)} USDT`
+      `等差计算：总投入=${formatLocaleNumber(investAmount, 2)}×${formatLocaleNumber(multiplier, 2)}，预留率=${formatLocaleNumber(reserveRate, 2)}%，可用资金=${formatLocaleNumber(usableInvest, 2)}` +
+      `，Maker/Taker=${formatLocaleNumber(makerFeeRate * 100, 2)}%/${formatLocaleNumber(takerFeeRate * 100, 2)}%` +
+      `，匹配MMR=${formatLocaleNumber(mmrRate * 100, 2)}%（按${tierAsset}持仓分档）` +
+      `，中位价=(${formatLocaleNumber(rangeLow, 2)}+${formatLocaleNumber(rangeHigh, 2)})/2=${formatLocaleNumber(avgGridPrice, 2)}，单网格数量=(${formatLocaleNumber(usableInvest, 2)}/${formatLocaleNumber(avgGridPrice, 2)})/${formatLocaleNumber(grids, 0)}=${formatLocaleNumber(qtyPerGrid, 6)}；每格价差≈${formatLocaleNumber(gridStep, 2)} USDT`
   }
 
   return {
-    qtyPerGridOut: fmt(qtyPerGrid, 6),
-    totalQtyOut: fmt(totalQty, 4),
-    avgGridPriceOut: fmt(avgGridPrice, 2),
-    notionalOut: fmt(usableInvest, 2),
-    leverageOut: `${fmt(leverageEst, 2)}x`,
-    liqPriceOut: fmt(liqPrice, 2),
-    dailyProfitOut: `${fmt(dailyProfit, 2)}（${fmt(dailyRoi, 2)}%）`,
-    monthlyProfitOut: `${fmt(monthlyProfit, 2)}（${fmt(monthlyRoi, 2)}%）`,
+    qtyPerGridOut: formatLocaleNumber(qtyPerGrid, 6),
+    totalQtyOut: formatLocaleNumber(totalQty, 4),
+    avgGridPriceOut: formatLocaleNumber(avgGridPrice, 2),
+    notionalOut: formatLocaleNumber(usableInvest, 2),
+    leverageOut: `${formatLocaleNumber(leverageEst, 2)}x`,
+    liqPriceOut: formatLocaleNumber(liqPrice, 2),
+    dailyProfitOut: `${formatLocaleNumber(dailyProfit, 2)}（${formatLocaleNumber(dailyRoi, 2)}%）`,
+    monthlyProfitOut: `${formatLocaleNumber(monthlyProfit, 2)}（${formatLocaleNumber(monthlyRoi, 2)}%）`,
     marginRows,
     hint,
   }
 })
-
-// 工具函数：安全数值转换
-function num(v: unknown): number {
-  const x = Number(v)
-  return Number.isFinite(x) ? x : 0
-}
-
-// 工具函数：统一格式化输出
-function fmt(v: number, d = 4): string {
-  if (!Number.isFinite(v)) return '-'
-  return v.toLocaleString('zh-CN', { minimumFractionDigits: d, maximumFractionDigits: d })
-}
 
 // 工具函数：解析 MMR 分档文本（如 5000:0.40,INF:4.25）
 function parseMmrTiers(text: string): Tier[] {
@@ -273,8 +262,8 @@ function parseMmrTiers(text: string): Tier[] {
     const parts = entry.split(':').map((x) => x.trim())
     if (parts.length !== 2) return
     const capRaw = parts[0].toUpperCase()
-    const cap = capRaw === 'INF' ? Infinity : num(capRaw)
-    const rate = num(parts[1]) / 100
+    const cap = capRaw === 'INF' ? Infinity : toNum(capRaw)
+    const rate = toNum(parts[1]) / 100
     if ((!Number.isFinite(cap) && cap !== Infinity) || rate < 0) return
     if (cap <= 0 && cap !== Infinity) return
     tiers.push({ cap, rate })
