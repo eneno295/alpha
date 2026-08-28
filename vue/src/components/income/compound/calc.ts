@@ -114,12 +114,19 @@ export function calcNoContribution(input: {
   const balanceAtYear = (y: number) =>
     principal * Math.pow(1 + periodicRate, y * periodsPerYear)
 
+  const fv = balanceAtYear(years)
+
+  // 按复利期生成曲线点（最多 ~120 个点），拖动参数时曲线会实时变化
   const points: { x: number; y: number }[] = []
-  for (let t = 0; t <= years; t += 1) {
-    points.push({ x: t, y: balanceAtYear(t) })
+  const pointStep = Math.max(1, Math.ceil(totalPeriods / 120))
+  for (let p = 0; p <= totalPeriods; p += pointStep) {
+    const balance = principal * Math.pow(1 + periodicRate, p)
+    points.push({ x: p / periodsPerYear, y: balance })
+  }
+  if (points[points.length - 1]?.x !== years) {
+    points.push({ x: years, y: fv })
   }
 
-  const fv = balanceAtYear(years)
   const yearRows: YearRow[] = []
   for (let y = 1; y <= years; y += 1) {
     const start = balanceAtYear(y - 1)
