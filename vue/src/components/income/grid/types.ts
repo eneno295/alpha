@@ -23,7 +23,7 @@ export type ReserveRatePreset = {
   value: number // 预留率数值（%）
 }
 
-export type SimulationGroup = 'BTC' | 'ETH' | 'SOXL' // 模拟数据分组
+export type SimulationGroup = 'BTC' | 'ETH' | 'SOXL' | 'SOXS' // 模拟数据分组
 
 export type SimulationPreset = {
   key: string // 预设唯一标识
@@ -57,6 +57,7 @@ export type MarginRow = {
 
 export type ResultData = {
   qtyPerGridOut: string // 单网格持仓数量（币）
+  perGridProfitOut: string // 单网格净收益（USDT）
   totalQtyOut: string // 总持仓数量（币）
   avgGridPriceOut: string // 网格参考均价（USDT）
   notionalOut: string // 可用名义资金 / 总名义价值（USDT）
@@ -64,6 +65,7 @@ export type ResultData = {
   liqPriceOut: string // 估算爆仓价（USDT）
   dailyProfitOut: string // 每日收益（USDT）及占本金比例
   monthlyProfitOut: string // 每月收益（USDT）及占本金比例（按 ×30）
+  yearlyProfitOut: string // 每年收益（USDT）及占本金比例（按 ×365）
   marginRows: MarginRow[] // 每格追加保证金明细表
   hint: string // 底部计算过程说明文案
 }

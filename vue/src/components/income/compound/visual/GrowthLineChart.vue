@@ -146,7 +146,9 @@ const areaD = computed(() => {
   const pts = svgPoints.value
   if (!pts.length) return ''
   const baseY = H - pad.b
-  const line = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ')
+  const line = pts
+    .map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`)
+    .join(' ')
   const last = pts[pts.length - 1]
   const first = pts[0]
   return `${line} L ${last.x.toFixed(1)} ${baseY} L ${first.x.toFixed(1)} ${baseY} Z`

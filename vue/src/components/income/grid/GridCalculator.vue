@@ -171,8 +171,10 @@ const result = computed<ResultData>(() => {
   const perGridProfit = Math.max(0, perGridProfitGross - perGridFee)
   const dailyProfit = perGridProfit * dailyFilledGrids
   const monthlyProfit = dailyProfit * 30
+  const yearlyProfit = dailyProfit * 365
   const dailyRoi = investAmount > 0 ? (dailyProfit / investAmount) * 100 : 0
   const monthlyRoi = investAmount > 0 ? (monthlyProfit / investAmount) * 100 : 0
+  const yearlyRoi = investAmount > 0 ? (yearlyProfit / investAmount) * 100 : 0
 
   // 3) 逐格保证金明细计算（从爆仓价往预估价推进）
   const distance = Math.abs(liqPrice - estimatePrice)
@@ -239,6 +241,7 @@ const result = computed<ResultData>(() => {
 
   return {
     qtyPerGridOut: formatLocaleNumber(qtyPerGrid, 6),
+    perGridProfitOut: formatLocaleNumber(perGridProfit, 4),
     totalQtyOut: formatLocaleNumber(totalQty, 4),
     avgGridPriceOut: formatLocaleNumber(avgGridPrice, 2),
     notionalOut: formatLocaleNumber(usableInvest, 2),
@@ -246,6 +249,7 @@ const result = computed<ResultData>(() => {
     liqPriceOut: formatLocaleNumber(liqPrice, 2),
     dailyProfitOut: `${formatLocaleNumber(dailyProfit, 2)}（${formatLocaleNumber(dailyRoi, 2)}%）`,
     monthlyProfitOut: `${formatLocaleNumber(monthlyProfit, 2)}（${formatLocaleNumber(monthlyRoi, 2)}%）`,
+    yearlyProfitOut: `${formatLocaleNumber(yearlyProfit, 2)}（${formatLocaleNumber(yearlyRoi, 2)}%）`,
     marginRows,
     hint,
   }
@@ -341,6 +345,7 @@ function calcCumulativeMarginToPrice(
 function emptyResult(hint: string): ResultData {
   return {
     qtyPerGridOut: '-',
+    perGridProfitOut: '-',
     totalQtyOut: '-',
     avgGridPriceOut: '-',
     notionalOut: '-',
@@ -348,6 +353,7 @@ function emptyResult(hint: string): ResultData {
     liqPriceOut: '-',
     dailyProfitOut: '-',
     monthlyProfitOut: '-',
+    yearlyProfitOut: '-',
     marginRows: [],
     hint,
   }

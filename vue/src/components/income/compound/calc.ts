@@ -33,20 +33,26 @@ export function emptyResult(hint = ''): ResultView {
   }
 }
 
-/** 本金 + 定期定投复利（完整计算） */
+/** 本金 + 定期定投复利（完整计算）；可从第 N 年后按月提取 */
 export function calcWithContribution(input: {
   principal: number
   annualRate: number
   years: number
   contribution: number
   frequency: Frequency
+  withdrawAfterYears?: number
+  withdrawMonthly?: number
 }): ResultView {
   const principal = Math.max(0, toNum(input.principal))
   const annualRate = toNum(input.annualRate)
   const years = Math.floor(toNum(input.years))
   const contribution = toNum(input.contribution)
+  const withdrawAfterYears = Math.max(0, Math.floor(toNum(input.withdrawAfterYears)))
+  const withdrawMonthly = Math.max(0, toNum(input.withdrawMonthly))
   const periodsPerYear = getPeriodsPerYear(input.frequency)
   const freqLabel = getFrequencyLabel(input.frequency)
+  // 每月提取折算到当前复利频率的每期提取额
+  const withdrawPerPeriod = withdrawMonthly * (12 / periodsPerYear)
 
   if (years <= 0 || (principal <= 0 && contribution <= 0)) {
     return emptyResult('提示：投资年数需大于 0，且初始本金或每期定投至少一项大于 0。')
@@ -55,24 +61,38 @@ export function calcWithContribution(input: {
   const periodicRate = annualRate / 100 / periodsPerYear
   const yearRows: YearRow[] = []
   let balance = principal
+  let totalWithdrawn = 0
 
   for (let y = 1; y <= years; y += 1) {
     const startBalance = balance
+    const withdrawing = withdrawMonthly > 0 && withdrawAfterYears > 0 && y >= withdrawAfterYears
+    let withdrawnThisYear = 0
     for (let p = 0; p < periodsPerYear; p += 1) {
       balance = balance * (1 + periodicRate) + contribution
+      if (withdrawing) {
+        const w = Math.min(balance, withdrawPerPeriod)
+        balance -= w
+        withdrawnThisYear += w
+      }
     }
+    totalWithdrawn += withdrawnThisYear
     const investedThisYear = contribution * periodsPerYear
     yearRows.push({
       year: y,
       invested: formatLocaleNumber(investedThisYear),
-      profit: formatLocaleNumber(balance - startBalance - investedThisYear),
+      profit: formatLocaleNumber(balance - startBalance - investedThisYear + withdrawnThisYear),
       balance: formatLocaleNumber(balance),
     })
   }
 
   const totalInvested = principal + contribution * periodsPerYear * years
-  const totalProfit = balance - totalInvested
+  const totalProfit = balance + totalWithdrawn - totalInvested
   const totalRoi = totalInvested > 0 ? (totalProfit / totalInvested) * 100 : 0
+
+  const withdrawHint =
+    withdrawMonthly > 0 && withdrawAfterYears > 0
+      ? `，从第 ${withdrawAfterYears} 年起每月提取=${formatLocaleNumber(withdrawMonthly)}（累计提取=${formatLocaleNumber(totalWithdrawn)}）`
+      : ''
 
   return {
     finalBalanceOut: formatLocaleNumber(balance),
@@ -82,7 +102,8 @@ export function calcWithContribution(input: {
     yearRows,
     hint:
       `复利计算：本金=${formatLocaleNumber(principal)}，年化=${formatLocaleNumber(annualRate)}%，按${freqLabel}复利` +
-      `（每期利率=${formatLocaleNumber(periodicRate * 100, 4)}%），每期定投=${formatLocaleNumber(contribution)}，共 ${years} 年。`,
+      `（每期利率=${formatLocaleNumber(periodicRate * 100, 4)}%），每期定投=${formatLocaleNumber(contribution)}，共 ${years} 年` +
+      `${withdrawHint}。`,
   }
 }
 

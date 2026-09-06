@@ -110,7 +110,7 @@
       <div v-for="group in simulationPresets" :key="group.group" class="preset-line">
         <span class="group-label">{{ group.group }}</span>
         <button
-          v-for="preset in group.presets"
+          v-for="preset in group.presets.slice(0, PRESET_COLLAPSE_LIMIT)"
           :key="preset.key"
           class="preset-btn"
           type="button"
@@ -118,6 +118,20 @@
         >
           {{ preset.label }}
         </button>
+        <details v-if="group.presets.length > PRESET_COLLAPSE_LIMIT" class="sim-more">
+          <summary>展开更多（+{{ group.presets.length - PRESET_COLLAPSE_LIMIT }}）</summary>
+          <div class="preset-line">
+            <button
+              v-for="preset in group.presets.slice(PRESET_COLLAPSE_LIMIT)"
+              :key="preset.key"
+              class="preset-btn"
+              type="button"
+              @click="$emit('apply-simulation', preset.key)"
+            >
+              {{ preset.label }}
+            </button>
+          </div>
+        </details>
       </div>
     </div>
 
@@ -128,6 +142,8 @@
 <script setup lang="ts">
 import type { PropType } from 'vue'
 import type { ReserveRatePreset, RiskConfig, SimulationPresetGroup } from './types'
+
+const PRESET_COLLAPSE_LIMIT = 4 // 模拟数据每组超过此数量才折叠展示
 
 defineProps({
   form: { type: Object as PropType<Record<string, any>>, required: true },
@@ -274,6 +290,18 @@ button {
 .preset-btn {
   padding: 6px 10px;
   font-size: 12px;
+}
+
+.sim-more {
+  flex-basis: 100%;
+  margin-left: 42px;
+}
+
+.sim-more > summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 12px;
+  user-select: none;
 }
 
 .full {

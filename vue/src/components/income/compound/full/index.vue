@@ -7,11 +7,11 @@
       <div class="grid">
         <div class="field">
           <label>初始本金（USDT）</label>
-          <input v-model.number="form.principal" type="number" step="0.01" />
+          <input v-model.number="form.principal" type="number" step="1" />
         </div>
         <div class="field">
           <label>年化收益率（%）</label>
-          <input v-model.number="form.annualRate" type="number" step="0.01" />
+          <input v-model.number="form.annualRate" type="number" step="1" />
         </div>
         <div class="field">
           <label>投资年数</label>
@@ -25,9 +25,17 @@
             </option>
           </select>
         </div>
-        <div class="field full">
+        <div class="field">
+          <label>第几年开始提取（0=不提取）</label>
+          <input v-model.number="form.withdrawAfterYears" type="number" step="1" min="0" />
+        </div>
+        <div class="field">
+          <label>每月提取（USDT，可为 0）</label>
+          <input v-model.number="form.withdrawMonthly" type="number" step="1" min="0" />
+        </div>
+        <div class="field">
           <label>每期定投（每{{ freqLabel }}，USDT，可为 0）</label>
-          <input v-model.number="form.contribution" type="number" step="0.01" />
+          <input v-model.number="form.contribution" type="number" step="1" />
         </div>
       </div>
 
@@ -57,6 +65,8 @@ const result = computed(() =>
     years: form.years,
     contribution: form.contribution,
     frequency: form.frequency,
+    withdrawAfterYears: form.withdrawAfterYears,
+    withdrawMonthly: form.withdrawMonthly,
   }),
 )
 
@@ -137,9 +147,5 @@ select {
   color: var(--muted);
   font-size: 12px;
   line-height: 1.5;
-}
-
-.full {
-  grid-column: 1 / -1;
 }
 </style>

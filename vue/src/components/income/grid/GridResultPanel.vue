@@ -2,9 +2,12 @@
   <section class="card">
     <div class="panel-head">
       <div>
-        <h1>结果面板</h1>
+        <h1>
+          结果面板
+          <button class="unit-btn" type="button" @click="toggleFiat">{{ unit }}</button>
+        </h1>
         <p class="sub">
-          当前结果：单网格数量、总持仓数量、网格均价、总名义价值、估算杠杆、每日/每月收益。
+          当前结果：单网格数量、单网格收益、总持仓数量、网格均价、总名义价值、估算杠杆、每日/每月/每年收益。
         </p>
       </div>
       <button class="toggle-btn" type="button" @click="showFormula = !showFormula">
@@ -19,18 +22,25 @@
         <div v-if="showFormula" class="formula">公式：单网格数量 = 总持仓数量 / 网格数量</div>
       </div>
       <div class="item">
+        <div class="k">单网格收益（{{ unit }}）</div>
+        <div class="v ok">{{ fiat(result.perGridProfitOut) }}</div>
+        <div v-if="showFormula" class="formula">
+          公式：单网格收益 = 单格毛利 - Maker/Taker 手续费
+        </div>
+      </div>
+      <div class="item">
         <div class="k">总持仓数量（币）</div>
         <div class="v">{{ result.totalQtyOut }}</div>
         <div v-if="showFormula" class="formula">公式：总持仓数量 = 总名义价值 / 网格均价</div>
       </div>
       <div class="item">
-        <div class="k">网格均价（USDT）</div>
-        <div class="v">{{ result.avgGridPriceOut }}</div>
+        <div class="k">网格均价（{{ unit }}）</div>
+        <div class="v">{{ fiat(result.avgGridPriceOut) }}</div>
         <div v-if="showFormula" class="formula">公式：等差=(下限+上限)/2；等比=几何级数均值</div>
       </div>
       <div class="item">
-        <div class="k">总名义价值（USDT）</div>
-        <div class="v">{{ result.notionalOut }}</div>
+        <div class="k">总名义价值（{{ unit }}）</div>
+        <div class="v">{{ fiat(result.notionalOut) }}</div>
         <div v-if="showFormula" class="formula">
           公式：总名义价值 = 投资金额 x 倍数 x (1-预留率)
         </div>
@@ -41,21 +51,26 @@
         <div v-if="showFormula" class="formula">公式：估算杠杆 = 总名义价值 / 投资金额</div>
       </div>
       <div class="item">
-        <div class="k">预估爆仓价（USDT）</div>
-        <div class="v bad">{{ result.liqPriceOut }}</div>
+        <div class="k">预估爆仓价（{{ unit }}）</div>
+        <div class="v bad">{{ fiat(result.liqPriceOut) }}</div>
         <div v-if="showFormula" class="formula">
           公式：均价 - (投资额 - 名义价值x(MMR+Taker))/总持仓
         </div>
       </div>
       <div class="item">
-        <div class="k">每日收益（USDT）</div>
-        <div class="v ok">{{ result.dailyProfitOut }}</div>
+        <div class="k">每日收益（{{ unit }}）</div>
+        <div class="v ok">{{ fiat(result.dailyProfitOut) }}</div>
         <div v-if="showFormula" class="formula">公式：每日收益 = 单格净收益 x 每日成交格数</div>
       </div>
       <div class="item">
-        <div class="k">每月收益（USDT）</div>
-        <div class="v ok">{{ result.monthlyProfitOut }}</div>
+        <div class="k">每月收益（{{ unit }}）</div>
+        <div class="v ok">{{ fiat(result.monthlyProfitOut) }}</div>
         <div v-if="showFormula" class="formula">公式：每月收益 = 每日收益 x 30</div>
+      </div>
+      <div class="item">
+        <div class="k">每年收益（{{ unit }}）</div>
+        <div class="v ok">{{ fiat(result.yearlyProfitOut) }}</div>
+        <div v-if="showFormula" class="formula">公式：每年收益 = 每日收益 x 365</div>
       </div>
       <div class="item full">
         <details class="detail-block">
@@ -103,8 +118,8 @@
                   <td>{{ row.step }}</td>
                   <td>{{ row.price }}</td>
                   <td>{{ row.positionQty }}</td>
-                  <td>{{ row.perGridMargin }}</td>
-                  <td>{{ row.cumulative }}</td>
+                  <td>{{ fiat(row.perGridMargin) }}</td>
+                  <td>{{ fiat(row.cumulative) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -118,9 +133,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { PropType } from 'vue'
+import { useFiatUnit } from '@/composables/useFiatUnit'
 import type { MarginPositionMode, ResultData } from './types'
 
 const showFormula = ref(false)
+const { unit, toggleFiat, fiat } = useFiatUnit()
 
 defineProps({
   result: { type: Object as PropType<ResultData>, required: true },
@@ -145,6 +162,21 @@ defineEmits<{
 h1 {
   margin: 0 0 6px;
   font-size: 22px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.unit-btn {
+  border: 1px solid var(--line);
+  color: var(--accent);
+  background: rgba(110, 168, 255, 0.12);
+  padding: 2px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 .sub {

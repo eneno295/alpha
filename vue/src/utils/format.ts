@@ -50,6 +50,23 @@ export function formatLocaleNumber(v: number, digits = 2): string {
   })
 }
 
+/** USDT → 人民币固定汇率（结果面板展示切换用） */
+export const USDT_CNY_RATE = 6.6
+
+/**
+ * 把已格式化的 USDT 金额文案按需换成人民币。
+ * 支持纯数字（"1,234.56"）或带收益率后缀（"1,234.56（12.3%）"），只转换金额部分。
+ */
+export function toFiatText(usdtText: string, asCny: boolean): string {
+  if (!asCny || !usdtText || usdtText === '-') return usdtText
+  const idx = usdtText.indexOf('（')
+  const money = idx >= 0 ? usdtText.slice(0, idx) : usdtText
+  const suffix = idx >= 0 ? usdtText.slice(idx) : ''
+  const n = Number(money.replace(/,/g, ''))
+  if (!Number.isFinite(n)) return usdtText
+  return `${formatLocaleNumber(n * USDT_CNY_RATE)}${suffix}`
+}
+
 // 格式化时间
 export const formatTime = (timestamp: number, onlyDate: boolean = false): string => {
   const date = new Date(timestamp)

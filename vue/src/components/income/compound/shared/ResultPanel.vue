@@ -2,23 +2,26 @@
   <section class="card">
     <div class="panel-head">
       <div>
-        <h1>结果面板</h1>
+        <h1>
+          结果面板
+          <button class="unit-btn" type="button" @click="toggleFiat">{{ unit }}</button>
+        </h1>
         <p class="sub">期末总额、累计投入、累计收益与总收益率，并按年展开明细。</p>
       </div>
     </div>
 
     <div class="stat">
       <div class="item">
-        <div class="k">期末总额（USDT）</div>
-        <div class="v ok">{{ result.finalBalanceOut }}</div>
+        <div class="k">期末总额（{{ unit }}）</div>
+        <div class="v ok">{{ fiat(result.finalBalanceOut) }}</div>
       </div>
       <div class="item">
-        <div class="k">累计投入（USDT）</div>
-        <div class="v">{{ result.totalInvestedOut }}</div>
+        <div class="k">累计投入（{{ unit }}）</div>
+        <div class="v">{{ fiat(result.totalInvestedOut) }}</div>
       </div>
       <div class="item">
-        <div class="k">累计收益（USDT）</div>
-        <div class="v ok">{{ result.totalProfitOut }}</div>
+        <div class="k">累计收益（{{ unit }}）</div>
+        <div class="v ok">{{ fiat(result.totalProfitOut) }}</div>
       </div>
       <div class="item">
         <div class="k">总收益率</div>
@@ -43,9 +46,9 @@
                 </tr>
                 <tr v-for="row in result.yearRows" :key="row.year">
                   <td>第 {{ row.year }} 年</td>
-                  <td>{{ row.invested }}</td>
-                  <td>{{ row.profit }}</td>
-                  <td>{{ row.balance }}</td>
+                  <td>{{ fiat(row.invested) }}</td>
+                  <td>{{ fiat(row.profit) }}</td>
+                  <td>{{ fiat(row.balance) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -57,11 +60,14 @@
 </template>
 
 <script setup lang="ts">
+import { useFiatUnit } from '@/composables/useFiatUnit'
 import type { ResultView } from '../types'
 
 defineProps<{
   result: ResultView
 }>()
+
+const { unit, toggleFiat, fiat } = useFiatUnit()
 </script>
 
 <style lang="scss" scoped>
@@ -77,6 +83,21 @@ defineProps<{
 h1 {
   margin: 0 0 6px;
   font-size: 22px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.unit-btn {
+  border: 1px solid var(--line);
+  color: var(--accent);
+  background: rgba(110, 168, 255, 0.12);
+  padding: 2px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 .sub {

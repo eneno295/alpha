@@ -6,6 +6,8 @@ export type CompoundPresetValues = {
   years: number
   contribution: number
   frequency: Frequency
+  withdrawAfterYears: number // 第几年开始每月提取；0 = 不提取，1 = 第 1 年
+  withdrawMonthly: number // 每月提取金额（USDT），0 表示不提取
 }
 
 export type CompoundPreset = {
@@ -23,6 +25,8 @@ const base = {
   annualRate: 20,
   years: 3,
   frequency: 'month' as Frequency,
+  withdrawAfterYears: 0,
+  withdrawMonthly: 0,
 }
 
 /** 完整计算 / 复利拖动共用模拟数据（拖动模式忽略 contribution） */
