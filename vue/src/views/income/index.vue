@@ -8,6 +8,7 @@
 
     <GridCalculator v-if="activeTab === 'grid'" />
     <Compound v-else-if="activeTab === 'compound'" />
+    <ProfitCalculator v-else-if="activeTab === 'profit'" />
   </div>
 </template>
 
@@ -17,13 +18,15 @@ import Header from '@/components/common/Header.vue'
 import SegmentTabs from '@/components/income/SegmentTabs.vue'
 import GridCalculator from '@/components/income/grid/GridCalculator.vue'
 import Compound from '@/components/income/compound/index.vue'
+import ProfitCalculator from '@/components/income/profit/ProfitCalculator.vue'
 import { useAppInitialization } from '@/composables/useAppInitialization'
 
-type TabKey = 'grid' | 'compound'
+type TabKey = 'grid' | 'compound' | 'profit'
 
 const tabs: { key: TabKey; label: string }[] = [
   { key: 'grid', label: '网格' },
   { key: 'compound', label: '复利' },
+  { key: 'profit', label: '收益' },
 ]
 
 const activeTab = ref<TabKey>('grid')

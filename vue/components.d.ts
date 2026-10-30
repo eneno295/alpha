@@ -34,6 +34,7 @@ declare module 'vue' {
     OrderHistory: typeof import('./src/components/bot/OrderHistory.vue')['default']
     ParamSlider: typeof import('./src/components/income/compound/visual/ParamSlider.vue')['default']
     PriceInfo: typeof import('./src/components/bot/PriceInfo.vue')['default']
+    ProfitCalculator: typeof import('./src/components/income/profit/ProfitCalculator.vue')['default']
     ResultPanel: typeof import('./src/components/income/compound/shared/ResultPanel.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
